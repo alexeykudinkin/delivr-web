@@ -1,0 +1,19 @@
+<h1>Create travel</h1>
+
+<div class="content">
+
+<%= form_for @travel do |form| %>
+
+  <%= form.label          :origin       %>
+  <%= form.text_field     :origin       %>
+
+  <%= form.label          :destination  %>
+  <%= form.text_field     :destination  %>
+
+  <%= form.submit                       %>
+
+  <%= add_link_to_fields(form, :items) %>
+
+<%  end %>
+
+</div>
