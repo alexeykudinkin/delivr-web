@@ -8,7 +8,20 @@ Shipper::Application.routes.draw do
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 
-  resources :travels
+  get :login,   to: 'sessions#new'
+  get :logout,  to: 'sessions#destroy'
+
+  resources :sessions, only: [ :new, :create, :destroy ]
+
+  resources :users do
+    resources :travels, except: [ :show, :index, :new, :create ]
+  end
+
+  resources :travels, only: [ :show, :index, :new, :create ] do
+    member do
+      get :take
+    end
+  end
 
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase

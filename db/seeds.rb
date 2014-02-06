@@ -5,15 +5,21 @@ akudinkin =
   Users::Customer.create(
     {
       name:   'Alexey Kudinkin',
-      phone:  '79117483835'
+      phone:  '79117483835',
+
+      password:               'qwerty',
+      password_confirmation:  'qwerty'
     }
   )
 
 aopeykin =
   Users::Performer.create(
     {
-      name:   'Alexander Opeykin',
-      phone:  '79312782160'
+      name:     'Alexander Opeykin',
+      phone:    '79312782160',
+
+      password:               'qwerty',
+      password_confirmation:  'qwerty'
     }
   )
 
