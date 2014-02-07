@@ -1,19 +1,160 @@
-<h1>Create travel</h1>
 
-<div class="content">
+<style type="text/css">
 
-<%= form_for @travel do |form| %>
+  html {
+    height: 100%
+  }
 
-  <%= form.label          :origin       %>
-  <%= form.text_field     :origin       %>
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0
+  }
 
-  <%= form.label          :destination  %>
-  <%= form.text_field     :destination  %>
+  #map-canvas {
+    width: 100%;
+    height: 100%
+  }
 
-  <%= form.submit                       %>
+</style>
 
-  <%= add_link_to_fields(form, :items) %>
+<script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCH-W-G8oHPVT647mSRseuSvRhLUWMQPps&sensor=true">
+</script>
 
-<%  end %>
+<script type="text/javascript">
+
+  var travel =
+  {
+    origin:       { tracking: false },
+    destination:  { tracking: false }
+  };
+
+  var map, gc;
+
+  function initialize() {
+    var mapOptions = {
+      center: new google.maps.LatLng(59.96512, 30.15732),
+      zoom: 10
+    };
+
+    gc  = new google.maps.Geocoder();
+    map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+
+    var tracker =
+        google.maps.event.addListener(map, 'click', function (click) {
+          var location = click.latLng;
+          var markerOptions = {
+            position: location,
+            map: map,
+            draggable: true
+          };
+
+          if (travel.origin.tracking)
+          {
+            var originMarker  = new google.maps.Marker(markerOptions);
+
+            travel.origin = {
+              location: location,
+              marker:   originMarker,
+              form:     { address:      $('#travel_origin_address'),
+                          coordinates:  $('#travel_origin_coordinates') },
+              tracking: false
+            };
+
+            var setResolvedOrigin =
+                function (address, coordinates) {
+                  travel.origin.form.coordinates.attr('value', coordinates);
+                  travel.origin.form.address.attr('value', address);
+                };
+
+            reverseGeocode(location, setResolvedOrigin);
+
+            google.maps.event.addListener(originMarker, 'dragend', function (_) {
+              reverseGeocode(originMarker.getPosition(), setResolvedOrigin);
+            });
+          }
+          else if (travel.destination.tracking)
+          {
+            var destinationMarker = new google.maps.Marker(markerOptions);
+
+            travel.destination = {
+              location: location,
+              marker:   destinationMarker,
+              form:     { address:      $('#travel_destination_address'),
+                          coordinates:  $('#travel_destination_coordinates') },
+              tracking: false
+            };
+
+            var setResolvedDestination =
+                function (address, coordinates) {
+                  travel.destination.form.coordinates.attr('value', coordinates);
+                  travel.destination.form.address.attr('value', address);
+                };
+
+            reverseGeocode(location, setResolvedDestination);
+
+            google.maps.event.addListener(destinationMarker, 'dragend', function (_) {
+              reverseGeocode(destinationMarker.getPosition(), setResolvedDestination);
+            });
+          }
+          else
+          {
+            google.maps.event.removeListener(tracker);
+          }
+        });
+  }
+
+  function reverseGeocode(loc, callback) {
+    gc.geocode({ latLng: loc }, function (results, status) {
+      if (status == google.maps.GeocoderStatus.OK)
+        callback(results[0].formatted_address, loc);
+      else
+        callback(loc, loc);
+    });
+  }
+
+  function trackOrigin() {
+    travel.origin.tracking = true;
+  }
+
+  function trackDestination() {
+    travel.destination.tracking = true;
+  }
+
+  google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+
+<div id="map-canvas" style="top: 0; left: 0; position: absolute;"></div>
+
+<div style="position: absolute; top: 50pt; left: 50pt; height: 150pt; width: 150pt; background: #ffffff; z-index: 10000">
+
+  <div class="content">
+
+    <%= form_for @travel do |form| %>
+
+      <%= form.label          :origin                                                       %>
+      <%= form.text_field     :origin_address,          placeholder:  'A',
+                                                        onclick:      'trackOrigin()'       %>
+      <%= form.text_field     :origin_coordinates,      type:         'hidden'              %>
+
+      <%= form.label          :destination                                                  %>
+      <%= form.text_field     :destination_address,     placeholder:  'B',
+                                                        onclick:      'trackDestination()'  %>
+      <%= form.text_field     :destination_coordinates, type:         'hidden'              %>
+
+      <%= form.submit                       %>
+
+      <%= add_link_to_fields(form, :items) %>
+
+    <% end %>
+
+  </div>
+
+</div>
+
+
+
+
 
 </div>

@@ -33,9 +33,9 @@ Travel.create(
             weight:       1000  # one kilo of picked shit
           }
         ) ],
-    customer:     akudinkin,
-    performer:    aopeykin,
-    origin:       'Zemledelcheskaya 5/2',
-    destination:  'Drezdenskaya 20'
+    customer:             akudinkin,
+    performer:            aopeykin,
+    origin_address:       'Zemledelcheskaya 5/2',
+    destination_address:  'Drezdenskaya 20'
   }
 )

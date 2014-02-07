@@ -74,8 +74,10 @@ class TravelsController < ApplicationController
         when :create
           params.require(:travel)
                 .permit(
-                  :origin,
-                  :destination,
+                  :origin_address,
+                  :origin_coordinates,
+                  :destination_address,
+                  :destination_coordinates,
                   { items_attributes: [ :name, :description, :weight ] }
                 )
 
