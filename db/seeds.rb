@@ -23,7 +23,7 @@ aopeykin =
     }
   )
 
-Travel.create(
+Travels::Travel.create(
   {
     items:
       [ Item.new(
@@ -35,7 +35,13 @@ Travel.create(
         ) ],
     customer:             akudinkin,
     performer:            aopeykin,
-    origin_address:       'Zemledelcheskaya 5/2',
-    destination_address:  'Drezdenskaya 20'
+    origin:
+      Travels::Places::Origin.new({
+        address: 'Zemledelcheskaya 5/2'
+      }),
+    destination:
+      Travels::Places::Destination.new({
+        address: 'Drezdenskaya 20'
+      })
   }
 )

@@ -30,7 +30,7 @@
     destination:  { tracking: false }
   };
 
-  var map, gc;
+  var map, gc, target;
 
   function initialize() {
     var mapOptions = {
@@ -41,85 +41,64 @@
     gc  = new google.maps.Geocoder();
     map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 
-    var tracker =
-        google.maps.event.addListener(map, 'click', function (click) {
-          var location = click.latLng;
-          var markerOptions = {
-            position: location,
-            map: map,
-            draggable: true
-          };
+    google.maps.event.addListener(map, 'click', function (click) {
 
-          if (travel.origin.tracking)
-          {
-            var originMarker  = new google.maps.Marker(markerOptions);
+      var markerOptions = {
+        position:   click.latLng,
+        map:        map,
+        draggable:  true
+      };
 
-            travel.origin = {
-              location: location,
-              marker:   originMarker,
-              form:     { address:      $('#travel_origin_address'),
-                          coordinates:  $('#travel_origin_coordinates') },
-              tracking: false
-            };
+      if (target == null)
+      {
+        alert("Please, select origin or destination in beforehand!")
+        return;
+      }
 
-            var setResolvedOrigin =
-                function (address, coordinates) {
-                  travel.origin.form.coordinates.attr('value', coordinates);
-                  travel.origin.form.address.attr('value', address);
-                };
-
-            reverseGeocode(location, setResolvedOrigin);
-
-            google.maps.event.addListener(originMarker, 'dragend', function (_) {
-              reverseGeocode(originMarker.getPosition(), setResolvedOrigin);
-            });
-          }
-          else if (travel.destination.tracking)
-          {
-            var destinationMarker = new google.maps.Marker(markerOptions);
-
-            travel.destination = {
-              location: location,
-              marker:   destinationMarker,
-              form:     { address:      $('#travel_destination_address'),
-                          coordinates:  $('#travel_destination_coordinates') },
-              tracking: false
-            };
-
-            var setResolvedDestination =
-                function (address, coordinates) {
-                  travel.destination.form.coordinates.attr('value', coordinates);
-                  travel.destination.form.address.attr('value', address);
-                };
-
-            reverseGeocode(location, setResolvedDestination);
-
-            google.maps.event.addListener(destinationMarker, 'dragend', function (_) {
-              reverseGeocode(destinationMarker.getPosition(), setResolvedDestination);
-            });
-          }
-          else
-          {
-            google.maps.event.removeListener(tracker);
-          }
-        });
+      mark(target, markerOptions)
+    });
   }
 
-  function reverseGeocode(loc, callback) {
-    gc.geocode({ latLng: loc }, function (results, status) {
+  function mark(target, options)
+  {
+    var marker = new google.maps.Marker(options);
+
+    travel[target] = {
+      marker: marker,
+      input:  {
+        address:      $("#travel_" + target + "_attributes_address"),
+        coordinates:  $("#travel_" + target + "_attributes_coordinates")
+      }
+    };
+
+    var setResolved =
+        function (address, coordinates) {
+          travel[target].input.coordinates.val(coordinates);
+          travel[target].input.address.val(address);
+        };
+
+    reverseGC(marker.getPosition(), setResolved);
+
+    google.maps.event.addListener(marker, 'dragend', function (_) {
+      reverseGC(marker.getPosition(), setResolved);
+    });
+  }
+
+  function reverseGC(location, callback) {
+    gc.geocode({ latLng: location }, function (results, status) {
       if (status == google.maps.GeocoderStatus.OK)
-        callback(results[0].formatted_address, loc);
+        callback(results[0].formatted_address, location);
       else
-        callback(loc, loc);
+        callback(location, location);
     });
   }
 
   function trackOrigin() {
-    travel.origin.tracking = true;
+    target = "origin";
   }
 
   function trackDestination() {
-    travel.destination.tracking = true;
+    target = "destination"
   }
 
   google.maps.event.addDomListener(window, 'load', initialize);
@@ -133,19 +112,13 @@
 
     <%= form_for @travel do |form| %>
 
-      <%= form.label          :origin                                                       %>
-      <%= form.text_field     :origin_address,          placeholder:  'A',
-                                                        onclick:      'trackOrigin()'       %>
-      <%= form.text_field     :origin_coordinates,      type:         'hidden'              %>
+      <%= render 'origin_field',      form: form %>
 
-      <%= form.label          :destination                                                  %>
-      <%= form.text_field     :destination_address,     placeholder:  'B',
-                                                        onclick:      'trackDestination()'  %>
-      <%= form.text_field     :destination_coordinates, type:         'hidden'              %>
-
-      <%= form.submit                       %>
+      <%= render 'destination_field', form: form %>
 
       <%= add_link_to_fields(form, :items) %>
+
+      <%= form.submit                       %>
 
     <% end %>
 

@@ -4,7 +4,7 @@ class TravelsController < ApplicationController
 
   # GET /travels/:id
   def show
-    @travel = Travel.find(whitelist(params, :show))
+    @travel = Travels::Travel.find(whitelist(params, :show))
 
     respond_to do |format|
       format.html # show.html.erb
@@ -14,7 +14,7 @@ class TravelsController < ApplicationController
 
   # GET /travels
   def index
-    @travels = Travel.all
+    @travels = Travels::Travel.all
 
     respond_to do |format|
       format.html # index.html.erb
@@ -24,7 +24,7 @@ class TravelsController < ApplicationController
 
   # GET /travels/new
   def new
-    @travel = Travel.new
+    @travel = Travels::Travel.new
 
     respond_to do |format|
       format.html # new.html.rb
@@ -33,7 +33,7 @@ class TravelsController < ApplicationController
 
   # POST /travels
   def create
-    @travel = Travel.new(whitelist(params, :create))
+    @travel = Travels::Travel.new(whitelist(params, :create))
 
     respond_to do |format|
       if @travel.save
@@ -50,7 +50,7 @@ class TravelsController < ApplicationController
   def take
     sanitized = whitelist(params, :take)
 
-    travel    = Travel.find(sanitized[:id])
+    travel    = Travels::Travel.find(sanitized[:id])
     performer = Users::Performer.find(sanitized[:performer])
 
     travel.performer = performer
@@ -74,11 +74,9 @@ class TravelsController < ApplicationController
         when :create
           params.require(:travel)
                 .permit(
-                  :origin_address,
-                  :origin_coordinates,
-                  :destination_address,
-                  :destination_coordinates,
-                  { items_attributes: [ :name, :description, :weight ] }
+                  { origin_attributes:      [ :address, :coordinates ] },
+                  { destination_attributes: [ :address, :coordinates ] },
+                  { items_attributes:       [ :name, :description, :weight ] }
                 )
 
         when :take

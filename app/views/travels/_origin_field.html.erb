@@ -1,0 +1,8 @@
+<%= form.fields_for(:origin, Travels::Places::Origin.new) do |subform| %>
+
+  <%= subform.label      :origin                                            %>
+  <%= subform.text_field :address,      placeholder:  'A',
+                                        onclick:      'trackOrigin(this)'   %>
+  <%= subform.text_field :coordinates,  type:         'hidden'              %>
+
+<% end %>
