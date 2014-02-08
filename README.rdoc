@@ -1,28 +1,24 @@
-== README
+== ROADMAP
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Here would go all the things that we want to in the hands-on prototype, and releases coming:
 
-Things you may want to cover:
+== BRAINSTORMING
 
-* Ruby version
+Workflow:
 
-* System dependencies
+* Creation
+** Map, Origin, Destintation, Notes, Items[Description, Weight, Dimensions], Timeframe, Strict Route?
 
-* Configuration
+* Apply/Notification of appliance
 
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+* Cancellation (cancellation policy? like a must-return-back policy)
 
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+== WANT-TO FEATURES
+
+* Online tracking
+
+== FINANCES
+
+* Restricted to online payments (both acceptance and withdrawal)
+
