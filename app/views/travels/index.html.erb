@@ -1,0 +1,145 @@
+<style type="text/css">
+
+  .box {
+    background-color: rgb(250,250,250);
+    text-align: center;
+  }
+
+  .dot {
+    margin: auto;
+    border: 5pt solid lightgray;
+    border-radius: 10pt;
+    height: 10pt;
+    width: 10pt;
+  }
+
+  .stripe {
+    display: inline-block;
+    margin: 10pt;
+  }
+
+  .point {
+    display: inline-block;
+    vertical-align: middle;
+    width: 30%;
+  }
+
+  .point .name {
+    margin: 0;
+  }
+
+</style>
+
+<div class="container" style="margin-top: 50pt; background: #ffffff">
+
+  <div class="row">
+
+    <div class="col-md-4">
+
+      <div class="list-group">
+
+        <% @travels.each do |travel| %>
+
+          <a href="#" class="list-group-item">
+
+            <div class="box">
+
+              <div class="stripe">
+
+                <div class="point">
+
+                  <div class="dot"></div>
+
+                  <p id="origin" class="name" data-coordinates="<%= travel.origin.coordinates %>">
+                    <%= travel.origin.address %>
+                  </p>
+
+                </div>
+
+                ----->
+
+                <div class="point">
+
+                  <div class="dot"></div>
+
+                  <p id="destination" class="name" data-coordinates="<%= travel.destination.coordinates %>">
+                    <%= travel.destination.address %>
+                  </p>
+
+                </div>
+
+              </div>
+
+              <div>
+
+                <% travel.items.each do |item| %>
+                  <p><%= "#{item.description}, #{item.weight}" %></p>
+                <% end %>
+
+              </div>
+
+            </div>
+
+            <% end %>
+
+          </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script type="text/javascript">
+
+  var origin, destination;
+
+  var pairMatcher = new RegExp("\\(([\\d]+\\.[\\d]+),\\s*([\\d]+\\.[\\d]+)\\)");
+
+  function decouple(pair) {
+    var r = pairMatcher.exec(pair);
+
+    if (r[0] != pair || r.length != 3)
+      throw "Failed to decouple given pair: " + pair;
+
+    return {
+      latitude:  r[1],
+      longitude: r[2]
+    };
+  }
+
+  function showTravel (event) {
+
+    var coordinates = {
+      origin:       decouple($("p#origin",      $(this)).data("coordinates")),
+      destination:  decouple($("p#destination", $(this)).data("coordinates"))
+    };
+
+    var travel  = {
+      origin:       new google.maps.LatLng(coordinates.origin.latitude,       coordinates.origin.longitude),
+      destination:  new google.maps.LatLng(coordinates.destination.latitude,  coordinates.destination.longitude)
+    };
+
+    origin = new google.maps.Marker({
+      position:   travel.origin,
+      map:        shipper.map,
+      draggable:  false
+    });
+
+    destination = new google.maps.Marker({
+      position:   travel.destination,
+      map:        shipper.map,
+      draggable:  false
+    });
+  }
+
+  function hideTravel (event) {
+    origin      .setMap(null);
+    destination .setMap(null);
+  }
+
+  $("div.list-group >  a.list-group-item").hover(showTravel, hideTravel);
+
+</script>
