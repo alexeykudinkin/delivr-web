@@ -1,8 +1,8 @@
-<%= form.fields_for(:destination, Travels::Places::Destination.new) do |subform| %>
+<%= form.fields_for(:destination, Travels::Places::Destination.new) do |subform|  %>
 
-  <%= subform.label      :destination                                           %>
+  <%= subform.label      :destination                                             %>
   <%= subform.text_field :address,      placeholder:  'B',
-                                        onclick:      'trackDestination(this)'  %>
-  <%= subform.text_field :coordinates,  type:         'hidden'                  %>
+                                        data: { tracking_target: 'destination' }  %>
+  <%= subform.text_field :coordinates,  type:         'hidden'                    %>
 
 <% end %>
