@@ -33,7 +33,10 @@ class TravelsController < ApplicationController
 
   # POST /travels
   def create
-    @travel = Travels::Travel.new(whitelist(params, :create))
+    @travel =
+      Travels::Travel.new(
+        whitelist(params, :create).merge customer: current_user.becomes(Users::Customer)
+      )
 
     respond_to do |format|
       if @travel.save
