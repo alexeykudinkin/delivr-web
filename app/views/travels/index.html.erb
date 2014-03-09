@@ -28,61 +28,86 @@
     margin: 0;
   }
 
+  .travel-dashboard {
+    text-align: center;
+  }
+
+  .travel-dashboard a {
+    display: inline-block;
+  }
+
 </style>
 
-<div class="container" style="margin-top: 50pt; background: #ffffff">
+<div class="container" style="margin-top: 50pt;">
 
   <div class="row">
 
     <div class="col-md-4">
 
-      <div class="list-group">
+      <div class="panel panel-default">
 
-        <% @travels.each do |travel| %>
+        <!--<div class="panel-heading">-->
+          <!--<h3 class="panel-title">Travels</h3>-->
+        <!--</div>-->
 
-          <a href="#" class="list-group-item">
+        <div class="panel-body">
 
-            <div class="box">
+          <div class="list-group">
 
-              <div class="stripe">
+            <% @travels.each do |travel| %>
 
-                <div class="point">
+              <div class="travel list-group-item">
 
-                  <div class="dot"></div>
+                <div class="box">
 
-                  <p id="origin" class="name" data-coordinates="<%= travel.origin.coordinates %>">
-                    <%= travel.origin.address %>
-                  </p>
+                  <div class="stripe">
+
+                    <div class="point">
+
+                      <div class="dot"></div>
+
+                      <p id="origin" class="name" data-coordinates="<%= travel.origin.coordinates %>">
+                        <%= travel.origin.address %>
+                      </p>
+
+                    </div>
+
+                    ----->
+
+                    <div class="point">
+
+                      <div class="dot"></div>
+
+                      <p id="destination" class="name" data-coordinates="<%= travel.destination.coordinates %>">
+                        <%= travel.destination.address %>
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                  <div>
+
+                    <% travel.items.each do |item| %>
+                      <p><%= "#{item.description}, #{item.weight}" %></p>
+                    <% end %>
+
+                  </div>
 
                 </div>
 
-                ----->
-
-                <div class="point">
-
-                  <div class="dot"></div>
-
-                  <p id="destination" class="name" data-coordinates="<%= travel.destination.coordinates %>">
-                    <%= travel.destination.address %>
-                  </p>
-
+                <div class="travel-dashboard">
+                  <a href="#" class="btn btn-primary">Take</a>
+                  <a href="#" class="btn btn-primary">Cancel</a>
                 </div>
 
               </div>
-
-              <div>
-
-                <% travel.items.each do |item| %>
-                  <p><%= "#{item.description}, #{item.weight}" %></p>
-                <% end %>
-
-              </div>
-
-            </div>
 
             <% end %>
 
-          </a>
+          </div>
+
+        </div>
 
       </div>
 
@@ -140,6 +165,15 @@
     destination .setMap(null);
   }
 
-  $("div.list-group >  a.list-group-item").hover(showTravel, hideTravel);
+  $("div.list-group > div.list-group-item").hover(showTravel, hideTravel);
+
+  $(".travel-dashboard").hide();
+
+  $(".travel")
+      .hover(function () {
+        $(".travel-dashboard", $(this))
+            .stop(true, true)
+            .slideToggle();
+      });
 
 </script>
