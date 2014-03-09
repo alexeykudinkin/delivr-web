@@ -41,6 +41,18 @@ module Travels
                 :class_name => Users::Performer,
                 :inverse_of => :orders
 
+
+    # Validations
+
+    validates :origin,      :presence => true
+    validates :destination, :presence => true
+
+    validates :items,       :presence => true
+
+    validates :customer,    :presence => true
+
+    validates_associated :items
+
   end
 
 end
