@@ -1,19 +1,62 @@
 
-<div style="position: absolute; top: 50pt; left: 50pt; height: 150pt; width: 150pt; background: #ffffff">
+<style type="text/css">
 
-  <div class="content">
+  .container {
+    margin-top: 50pt;
+  }
 
-    <%= form_for @travel do |form| %>
+  .new-travel-form {
+    max-height: 80%;  /* doesn't work unless height of the containing block explicitly specified */
+    overflow: scroll;
+  }
 
-      <%= render 'origin_field',      form: form %>
+</style>
 
-      <%= render 'destination_field', form: form %>
+<div class="container" >
 
-      <%= add_link_to_fields(form, :items) %>
+  <div class="row">
 
-      <%= form.submit %>
+    <div class="col-md-4">
 
-    <% end %>
+      <div class="panel panel-default">
+
+        <!--<div class="panel-heading">-->
+          <!--<h3 class="panel-title">New travel</h3>-->
+        <!--</div>-->
+
+        <div class="new-travel-form panel-body">
+
+          <%= form_for @travel, html: { class: "form-horizontal", role: "form" } do |form| %>
+
+            <div class="form-group">
+              <%= render 'origin_field', form: form %>
+            </div>
+
+            <div class="form-group">
+              <%= render 'destination_field', form: form %>
+            </div>
+
+            <div class="form-group">
+              <div class="col-sm-12">
+
+                <%= add_link_to_fields(form, "$(this).parents(\".form-group\")", :items) %>
+
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-sm-12">
+                <%= form.submit(class: "btn btn-primary") %>
+              </div>
+            </div>
+
+          <% end %>
+
+        </div>
+
+      </div>
+
+    </div>
 
   </div>
 

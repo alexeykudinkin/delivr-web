@@ -1,8 +1,23 @@
-<%= form.label      :name         %>
-<%= form.text_field :name         %>
+<!--<%= form.label      :name, class: "col-sm-3" %>-->
 
-<%= form.label      :description  %>
-<%= form.text_area  :description  %>
+<div class="form-group">
+  <div class="col-sm-9">
+    <%= form.text_field :name,        placeholder: "Name",        class: "form-control" %>
+  </div>
+</div>
 
-<%= form.label      :weight       %>
-<%= form.text_field :weight       %>
+<!--<%= form.label      :description, class: "col-sm-3" %>-->
+
+<div class="form-group">
+  <div class="col-sm-9">
+    <%= form.text_area  :description, placeholder: "Description", class: "form-control" %>
+  </div>
+</div>
+
+<!--<%= form.label      :weight, class: "col-sm-3" %>-->
+
+<div class="form-group">
+  <div class="col-sm-9">
+    <%= form.text_field :weight,      placeholder: "Weight",      class: "form-control" %>
+  </div>
+</div>

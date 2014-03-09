@@ -1,8 +1,17 @@
 <%= form.fields_for(:destination, Travels::Places::Destination.new) do |subform|  %>
 
-  <%= subform.label      :destination                                             %>
-  <%= subform.text_field :address,      placeholder:  'B',
-                                        data: { tracking_target: 'destination' }  %>
-  <%= subform.text_field :coordinates,  type:         'hidden'                    %>
+  <!--<div class="col-sm-3">-->
+    <!--<%= subform.label :destination %>-->
+  <!--</div>-->
+
+  <div class="col-sm-12">
+    <%= subform.text_field :address,      placeholder:  'Destination',
+                                          data: {
+                                              tracking_target: 'destination'
+                                          },
+                                          class: "form-control" %>
+  </div>
+
+  <%= subform.text_field :coordinates,  type:         'hidden' %>
 
 <% end %>
