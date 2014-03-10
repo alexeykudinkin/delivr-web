@@ -1,10 +1,6 @@
 
 <style type="text/css">
 
-  .container {
-    margin-top: 50pt;
-  }
-
   .new-travel-form {
     max-height: 80%;  /* doesn't work unless height of the containing block explicitly specified */
     overflow: scroll;
@@ -12,49 +8,41 @@
 
 </style>
 
-<div class="container" >
+<div class="row">
 
-  <div class="row">
+  <div class="panel panel-default">
 
-    <div class="col-md-4">
+    <!--<div class="panel-heading">-->
+      <!--<h3 class="panel-title">New travel</h3>-->
+    <!--</div>-->
 
-      <div class="panel panel-default">
+    <div class="new-travel-form panel-body">
 
-        <!--<div class="panel-heading">-->
-          <!--<h3 class="panel-title">New travel</h3>-->
-        <!--</div>-->
+      <%= form_for @travel, html: { class: "form-horizontal", role: "form" } do |form| %>
 
-        <div class="new-travel-form panel-body">
-
-          <%= form_for @travel, html: { class: "form-horizontal", role: "form" } do |form| %>
-
-            <div class="form-group">
-              <%= render 'origin_field', form: form %>
-            </div>
-
-            <div class="form-group">
-              <%= render 'destination_field', form: form %>
-            </div>
-
-            <div class="form-group">
-              <div class="col-sm-12">
-
-                <%= add_link_to_fields(form, "$(this).parents(\".form-group\")", :items) %>
-
-              </div>
-            </div>
-
-            <div class="form-group">
-              <div class="col-sm-12">
-                <%= form.submit(class: "btn btn-primary") %>
-              </div>
-            </div>
-
-          <% end %>
-
+        <div class="form-group">
+          <%= render 'origin_field', form: form %>
         </div>
 
-      </div>
+        <div class="form-group">
+          <%= render 'destination_field', form: form %>
+        </div>
+
+        <div class="form-group">
+          <div class="col-sm-12">
+
+            <%= add_link_to_fields(form, "$(this).parents(\".form-group\")", :items) %>
+
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="col-sm-12">
+            <%= form.submit(class: "btn btn-primary") %>
+          </div>
+        </div>
+
+      <% end %>
 
     </div>
 
