@@ -26,7 +26,6 @@ module ApplicationHelper
   end
 
   include ViewHelper
-
   include Extensions
 
 end

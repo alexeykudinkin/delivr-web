@@ -22,6 +22,14 @@ class UsersController < ApplicationController
     end
   end
 
+  def show
+    @user = Users::User.find(whitelist(params, :show))
+
+    respond_to do |format|
+      format.html # show.html.erb
+    end
+  end
+
   private
 
     def whitelist(params, action)
@@ -34,6 +42,8 @@ class UsersController < ApplicationController
                   :password,
                   :password_confirmation
                 )
+        when :show
+          params.require(:id)
         else
           raise "Couldn't whitelist unknown action!"
       end

@@ -1,0 +1,93 @@
+
+<style type="text/css">
+
+  .overlay {
+    position: fixed;
+    margin-top: 50px;
+    width: auto;
+    height: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, .5);
+  }
+
+  .vertical-cols {
+    position: relative;
+    height: 100pt;
+    width: 100%;
+  }
+
+  .vertical-cols .vertical-bar {
+    display: inline-block;
+    width: 0;
+    height: 100%;
+    border-left:  1px rgba(0,0,0,.5) solid;
+    border-right: 1px rgba(0,0,0,.5) solid;
+    vertical-align: middle;
+  }
+
+  .vertical-cols .left-col,
+  .vertical-cols .right-col {
+    display: inline-block;
+    height: inherit;
+    line-height: 100pt;
+    width: 50%;
+    vertical-align: middle;
+  }
+
+  .vertical-cols .left-col {
+    text-align: right;
+    margin-right: -5px; /* prevents collapsing, sticky edges */
+  }
+
+  .vertical-cols .right-col {
+    text-align: left;
+    margin-left: -5px; /* prevents collapsing, sticky edges */
+  }
+
+  .vertical-cols .left-aligned {
+    margin-left: 10pt;
+  }
+
+  .vertical-cols .right-aligned {
+    margin-right: 10pt;
+  }
+
+</style>
+
+<div class="overlay">
+
+  <div class="container">
+
+    <div class="row">
+
+      <div class="col-md-offset-4 col-md-4">
+
+        <div class="jumbotron">
+
+          <div class="vertical-cols">
+
+            <div class="left-col">
+              <a href="/travels/new" class="btn btn-primary right-aligned" type="button">Create</a>
+            </div>
+
+            <div class="vertical-bar"></div>
+
+            <div class="right-col">
+              <a href="/travels/" class="btn btn-primary left-aligned" type="button">Take</a>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
