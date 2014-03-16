@@ -1,0 +1,32 @@
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+
+  <div class="container">
+
+    <div class="navbar-header">
+
+      <!-- Button for toggling collapsed nav-bar -->
+
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-targets="#navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-tab"></span>
+      </button>
+
+      <a class="navbar-brand" href="#">Shipper</a>
+
+    </div>
+
+    <div class="collapse navbar-collapse" id="navbar-collapse-1">
+
+      <!-- ... -->
+
+      <% if logged_in? %>
+        <p class="navbar-text navbar-right">
+          <%= current_user.name %>
+        </p>
+      <% end %>
+
+    </div>
+
+  </div>
+
+</nav>
