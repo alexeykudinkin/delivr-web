@@ -42,6 +42,32 @@ module Travels
                 :inverse_of => :orders
 
 
+    has_one     :state,
+                :class_name => State,
+                :inverse_of => :travel,
+                :autosave   => true
+
+
+    # Persistence
+
+    def self.create(attributes = nil, &block)
+      super attributes.merge({ state: State.new }) do
+        block
+      end
+    end
+
+
+    # Scopes
+
+    scope :submitted, -> { joins(:state).where(states: { completed: false, taken: false, withdrawn: false  }) }
+
+    scope :completed, -> { joins(:state).where(states: { completed: true                                   }) }
+
+    scope :taken,     -> { joins(:state).where(states: { taken: true                                       }) }
+
+    scope :withdrawn, -> { joins(:state).where(states: { withdrawn: true                                   }) }
+
+
     # Validations
 
     validates :origin,      :presence => true
