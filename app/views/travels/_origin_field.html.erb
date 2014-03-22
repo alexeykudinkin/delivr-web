@@ -4,14 +4,14 @@
     <!--<%= subform.label      :origin %>-->
   <!--</div>-->
 
-  <div class="col-sm-12">
-    <%= subform.text_field :address,    placeholder:  'Origin',
-                                        data: {
-                                            tracking_target: 'origin'
-                                        },
-                                        class:  "form-control" %>
-  </div>
+  <div class="col-sm-12" data-tracking-target="origin">
 
-  <%= subform.text_field :coordinates,  type:   "hidden" %>
+    <%= subform.text_field :address,      placeholder:  "Origin",
+                                          class:        "address form-control" %>
+
+    <%= subform.text_field :coordinates,  type:         "hidden",
+                                          class:        "coordinates" %>
+
+  </div>
 
 <% end %>

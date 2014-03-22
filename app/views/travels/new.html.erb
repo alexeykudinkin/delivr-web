@@ -52,7 +52,10 @@
 
 <script>
   shipper.Q.queue("init", function() {
+
     shipper.createTravel();
     shipper.registerTracker();
+    shipper.registerAutoComplete();
+
   });
 </script>

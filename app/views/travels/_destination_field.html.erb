@@ -4,14 +4,16 @@
     <!--<%= subform.label :destination %>-->
   <!--</div>-->
 
-  <div class="col-sm-12">
-    <%= subform.text_field :address,      placeholder:  'Destination',
-                                          data: {
-                                              tracking_target: 'destination'
-                                          },
-                                          class: "form-control" %>
+  <div class="col-sm-12" data-tracking-target="destination">
+
+    <%= subform.text_field :address,      placeholder:  "Destination",
+                                          class:        "address form-control" %>
+
+    <%= subform.text_field :coordinates,  type:         "hidden",
+                                          class:        "coordinates" %>
+
   </div>
 
-  <%= subform.text_field :coordinates,  type:         'hidden' %>
+
 
 <% end %>
