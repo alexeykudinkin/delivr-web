@@ -1,5 +1,8 @@
 class UsersController < ApplicationController
 
+  requires_map
+
+
   def new
     @user = Users::User.new
 

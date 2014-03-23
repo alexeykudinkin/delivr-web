@@ -9,24 +9,24 @@ class ApplicationController < ActionController::Base
   # to executing them
   #
 
-  def self.fenced
+  def self._fenced_actions
     @_fenced_actions ||= []
   end
 
   #
-  # Registers filter to query session state for checking
-  # whether user is logged in
+  # Registers filter to query session state
+  # whether user is logged in or not
   #
 
   def self.require_login(*actions)
-    fenced.concat [ *actions ]
+    _fenced_actions.concat [ *actions ]
 
-    before_action only: fenced do |controller|
-      require_login(controller)
+    before_action only: _fenced_actions do |controller|
+      demand_login(controller)
     end
   end
 
-  def require_login(controller)
+  def demand_login(controller)
     unless controller.send(:logged_in?)
       redirect_to login_path, status: :forbidden, flash: { error: 'You must be logged in!' }
     end
@@ -35,28 +35,45 @@ class ApplicationController < ActionController::Base
 
   # Helpers
 
-  module Helpers
+  module UserHelpers
 
     def current_user
-      @_current_user ||= Users::User.find_by(session[:user])
+      @_current_user ||= Users::User.find(session[:user]) if session[:user]
     end
 
     def logged_in?
-      not current_user.blank?
+      !current_user.blank?
     end
 
   end
 
-  #include Helpers
-
-  def current_user
-    @_current_user ||= Users::User.find(session[:user]) if session[:user]
-  end
-
-  def logged_in?
-    !current_user.blank?
-  end
+  include UserHelpers
 
   helper_method :current_user, :logged_in?
+
+
+  #
+  # Marks controller instance as the one requiring map
+  #
+
+  def self.requires_map
+    self.class_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
+      def requires_map?
+        true
+      end
+    RUBY_EVAL
+  end
+
+  module MapHelpers
+
+    def requires_map?
+      false # by default
+    end
+
+  end
+
+  include MapHelpers
+
+  helper_method :requires_map?
 
 end

@@ -1,5 +1,8 @@
 class SessionsController < ApplicationController
 
+  requires_map
+
+
   def new
     respond_to do |format|
       format.html # new.html.erb

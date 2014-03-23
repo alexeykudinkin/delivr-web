@@ -2,6 +2,9 @@ class TravelsController < ApplicationController
 
   require_login :show, :index, :new, :create, :take
 
+  requires_map
+
+
   # GET /travels/:id
   def show
     @travel = Travels::Travel.find(whitelist(params, :show))
@@ -43,7 +46,7 @@ class TravelsController < ApplicationController
         format.html { redirect_to travel_path(@travel), notice: 'Gracefully created!' }
         format.json { render json: @travel, status: :created, location: @travel }
       else
-        format.html { render action: :new }
+        format.html { redirect_to new_travel_path, alert: 'Failed to create!' }
         format.json { render json: @travel.errors, status: :unprocessable_entity }
       end
     end

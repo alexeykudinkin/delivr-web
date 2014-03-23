@@ -77,15 +77,18 @@ Shipper.prototype = {
     Q: new Queue(),
 
     init: function () {
-        var mapOptions = {
-            center: new google.maps.LatLng(59.96512, 30.15732),
-            zoom: 10
-        };
+        var canvas = $("#map-canvas").get(0);
+        if (canvas) {
+            var mapOptions = {
+                center: new google.maps.LatLng(59.96512, 30.15732),
+                zoom: 10
+            };
 
-        this.services   = new Services();
-        this.map        = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+            this.services   = new Services();
+            this.map        = new google.maps.Map(canvas, mapOptions);
 
-        this.Q.notify("init");
+            this.Q.notify("init");
+        }
     },
 
     createTravel: function() {
@@ -129,8 +132,6 @@ Shipper.prototype = {
 
             var target = $(source).data       ("tracking-target");
             var input  = $(source).children   (".address").get(0);
-
-            alert(target);
 
             shipper.services.autoCompleteService[target] = new google.maps.places.Autocomplete(input, { types: [ 'geocode' ] });
 
