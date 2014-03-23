@@ -16,9 +16,9 @@ Workflow:
 
 == WANT-TO FEATURES
 
-* Online tracking
+* Online delivery tracking
 
 == FINANCES
 
-* Restricted to online payments (both acceptance and withdrawal)
+* Restricted to online payments? (both acceptance and withdrawal)
 
