@@ -17,9 +17,16 @@
 
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
 
-      <!-- ... -->
-
       <% if logged_in? %>
+
+        <ul class="nav navbar-nav">
+          <li>
+            <%= link_to user_travels_path(current_user) do %>
+              Travels <span class="badge"> <%= Travels::Travel.of(current_user).select { |t| t.notifications.any? } .length %> </span>
+            <%  end %>
+          </li>
+        </ul>
+
         <p class="navbar-text navbar-right">
           <%= current_user.name %>
         </p>
