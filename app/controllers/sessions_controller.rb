@@ -1,5 +1,7 @@
 class SessionsController < ApplicationController
 
+  protect_from_forgery except: :create
+
   requires_map
 
 
@@ -16,9 +18,16 @@ class SessionsController < ApplicationController
 
     if user && user.authenticate(sanitized[:password])
       session[:user] = user.id
-      redirect_to user_path(user), notice: "Successfully logged in!"
+
+      respond_to do |format|
+        format.html { redirect_to user_path(user), status: 302, notice: "Successfully logged in!" }
+        format.json { redirect_to user_path(user), status: 302 }
+      end
     else
-      redirect_to login_path, alert: "Invalid phone or password!"
+      respond_to do |format|
+        format.html { redirect_to login_path, status: 401, alert: "Invalid phone or password!" }
+        format.json { redirect_to login_path, status: 401 }
+      end
     end
   end
 
