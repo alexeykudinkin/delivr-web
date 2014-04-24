@@ -33,25 +33,51 @@ module Travels
                                   :reject_if => lambda { |place|  place[:address].blank?    ||
                                                                   place[:coordinates].blank? }
 
-    belongs_to  :customer,
-                :class_name => Users::Customer,
-                :inverse_of => :orders
-
-    belongs_to  :performer,
-                :class_name => Users::Performer,
-                :inverse_of => :orders
-
-
     has_one     :state,
                 :class_name => State,
                 :inverse_of => :travel,
                 :autosave   => true
 
 
-    # Persistence
+    belongs_to  :customer,
+                :class_name => Users::Customer,
+                :inverse_of => :orders
+
+
+    belongs_to  :performer,
+                :class_name => Users::Performer,
+                :inverse_of => :orders
+
+    def performer=(performer)
+      super
+      self.state = State.taken
+    end
+
+
+    # Notification system
+
+    has_many    :notifications,
+                :class_name => TravelNotification,
+                :inverse_of => :travel
+
+    def notify(status)
+      case status
+        when :taken
+          self.notifications << TravelNotification.taken_by(performer)
+
+        else raise "Unknown status!"
+      end
+    end
+
+
+    # Initialization
+
+    def self.new(attributes = nil)
+      super (attributes || {}).merge({ state: State.new })
+    end
 
     def self.create(attributes = nil, &block)
-      super attributes.merge({ state: State.new }) do
+      super (attributes || {}).merge({ state: State.new }) do
         block
       end
     end
@@ -59,13 +85,15 @@ module Travels
 
     # Scopes
 
-    scope :submitted, -> { joins(:state).where(states: { completed: false, taken: false, withdrawn: false  }) }
+    scope :of,        -> (owner) { where(customer: owner) }
 
-    scope :completed, -> { joins(:state).where(states: { completed: true                                   }) }
+    scope :submitted, -> { joins(:state).where(states: { completed: false, taken: false, withdrawn: false }) }
 
-    scope :taken,     -> { joins(:state).where(states: { taken: true                                       }) }
+    scope :completed, -> { joins(:state).where(states: { completed: true }) }
 
-    scope :withdrawn, -> { joins(:state).where(states: { withdrawn: true                                   }) }
+    scope :taken,     -> { joins(:state).where(states: { taken: true }) }
+
+    scope :withdrawn, -> { joins(:state).where(states: { withdrawn: true }) }
 
 
     # Validations

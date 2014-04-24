@@ -1,9 +1,16 @@
 class TravelsController < ApplicationController
 
+  #
+  # TODO: CHOKE UP THIS BREACH ASAP
+  #
+  skip_before_action :verify_authenticity_token, only: [ :take ]
+
+
   require_login :show, :index, :new, :create, :take
 
   requires_map
 
+  #################################################################################################
 
   # GET /travels/:id
   def show
@@ -17,11 +24,50 @@ class TravelsController < ApplicationController
 
   # GET /travels
   def index
-    @travels = Travels::Travel.all
+    sanitized = whitelist(params, :index)
+
+    # Extract travels
+    if sanitized[:user_id]
+      # As to Rails 4 doesn't have support for OR operator
+      @travels = Travels::Travel.submitted.where("customer_id = ? OR performer_id = ?", sanitized[:user_id], sanitized[:user_id])
+    else
+      @travels = Travels::Travel.all
+    end
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @travels, status: 200 }
+      format.json { as_json @travels }
+    end
+  end
+
+  # GET /travels/taken
+  def taken
+    @travels = Travels::Travel.taken.where(performer: current_user)
+
+    respond_to do |format|
+      format.html
+      format.json { as_json @travels }
+    end
+  end
+
+
+  # GET /travels/active
+  def active
+    @travels = Travels::Travel.submitted
+
+    respond_to do |format|
+      format.html
+      format.json { as_json @travels }
+    end
+  end
+
+  # GET /travels/created
+  def created
+    @travels = Travels::Travel.of(current_user)
+
+    respond_to do |format|
+      format.html
+      format.json { as_json @travels }
     end
   end
 
@@ -43,10 +89,10 @@ class TravelsController < ApplicationController
 
     respond_to do |format|
       if @travel.save
-        format.html { redirect_to travel_path(@travel), notice: 'Gracefully created!' }
+        format.html { redirect_to travel_path(@travel), notice: "Gracefully created the travel!" }
         format.json { render json: @travel, status: :created, location: @travel }
       else
-        format.html { redirect_to new_travel_path, alert: 'Failed to create!' }
+        format.html { redirect_to new_travel_path, alert: "Failed to create the travel!" }
         format.json { render json: @travel.errors, status: :unprocessable_entity }
       end
     end
@@ -61,8 +107,11 @@ class TravelsController < ApplicationController
 
     travel.performer = performer
 
+    travel.notify(:taken)
+
     respond_to do |format|
       if travel.save
+        format.html { redirect_to travel_path(travel), notice: "You've successfully taken the travel!"  }
         format.json { render json: @travel, status: :ok, location: @travel }
       else
         raise
@@ -77,6 +126,9 @@ class TravelsController < ApplicationController
         when :show
           params.require(:id)
 
+        when :index
+          params.permit(:user_id)
+
         when :create
           params.require(:travel)
                 .permit(
@@ -88,11 +140,34 @@ class TravelsController < ApplicationController
         when :take
           {
             id:         params.require(:id),
-            performer:  params.require(:performer)
+            performer:  current_user.id
           }
 
         else
           raise "Couldn't whitelist unknown action!"
       end
     end
+
+
+    # JSON APIs helpers
+
+    module JSONHelpers
+
+      def as_json(travels)
+        render  json: travels,
+                status: 200,
+                include: {
+                  origin:       { only: [ :id, :address, :coordinates ],  except: [ :updated_at, :created_at ] },
+                  destination:  { only: [ :id, :address, :coordinates ],  except: [ :updated_at, :created_at ] },
+                  customer:     { only: [ :id, :name ],                   except: [ :phone, :password_digest ] },
+                  performer:    { only: [ :id, :name ],                   except: [ :phone, :password_digest ] }
+                },
+                only:   [ :id ],
+                except: [ :created_at, :updated_at ]
+      end
+
+    end
+
+    include JSONHelpers
+
 end

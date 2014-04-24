@@ -93,7 +93,10 @@
             </div>
 
             <div class="travel-dashboard">
-              <a href="#" class="btn btn-primary">Take</a>
+              <%= form_for :travel, url: take_travel_path(travel) do |form| %>
+                <%= form.submit value: "Take", class: "btn btn-primary" %>
+              <%  end %>
+
               <a href="#" class="btn btn-primary">Cancel</a>
             </div>
 

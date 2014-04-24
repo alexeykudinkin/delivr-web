@@ -13,15 +13,37 @@ Shipper::Application.routes.draw do
 
   resources :sessions, only: [ :new, :create, :destroy ]
 
+  # resources :users do
+  #   resources :travels, except: [ :show, :new, :create ] # only: [ :index ]
+  # end
+  #
+  # resources :travels, only: [ :show, :index, :new, :create ] do
+  #   member do
+  #     post  :take
+  #   end
+  #
+  #   collection do
+  #     get   :taken, to: "users#travels#show"
+  #   end
+  # end
+
   resources :users do
-    resources :travels, except: [ :show, :index, :new, :create ]
+    resources :travels, except: [ :show, :new, :create ] # only: [ :index ]
   end
 
   resources :travels, only: [ :show, :index, :new, :create ] do
     member do
-      get :take
+      post  :take
+    end
+
+    collection do
+      get   :taken
+      get   :created
+
+      get   :active
     end
   end
+
 
   get :dashboard, to: "dashboard#show"
 
