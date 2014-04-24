@@ -101,10 +101,10 @@ Shipper.prototype = {
         var target  = null;
 
         google.maps.event.addListener(map, 'click', function (click) {
-            mark(target, map, { coords: click.latLng });
+            mark(target, map, { coordinates: click.latLng });
         });
 
-        $("input[data-tracking-target]").click(function() {
+        $("div[data-tracking-target]").click(function() {
             target = $(this);
         });
     },
@@ -198,30 +198,38 @@ function mark(source, map, position) {
 
     var target = $(source).data("tracking-target");
 
-    if (target && !shipper.travel[target])
-    {
-        var info    = new google.maps.InfoWindow();
-        var marker  = new google.maps.Marker({
-            map:        map,
-            position:   position["coordinates"],
-            draggable:  true
+    if (target) {
+        var travelInfo = shipper.travel[target];
+
+        if (travelInfo) {
+            travelInfo.marker.setMap(null);
+
+            travelInfo.marker   = null;
+            travelInfo.input    = null;
+        }
+
+        var infoW = new google.maps.InfoWindow();
+        var marker = new google.maps.Marker({
+            map: map,
+            position: position["coordinates"],
+            draggable: true
         });
 
-        shipper.travel[target] = {
+        shipper.travel[target] = travelInfo = {
             marker: marker,
-            input:  {
-                address:      $(source).children(".address"),
-                coordinates:  $(source).children(".coordinates")
+            input: {
+                address: $(source).children(".address"),
+                coordinates: $(source).children(".coordinates")
             }
         };
 
         var setResolved =
             function (coordinates, address) {
-                $(shipper.travel[target].input.coordinates) .val(coordinates);
-                $(shipper.travel[target].input.address)     .val(address);
+                $(travelInfo.input.coordinates).val(coordinates);
+                $(travelInfo.input.address).val(address);
 
-                info.setContent(address);
-                info.open(map, marker);
+                infoW.setContent(address);
+                infoW.open(map, marker);
             };
 
         if (position["address"])
