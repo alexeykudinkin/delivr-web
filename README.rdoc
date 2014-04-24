@@ -17,6 +17,7 @@ Workflow:
 == WANT-TO FEATURES
 
 * Online delivery tracking
+* Established API authorizing mechanism (inspired by http://stackoverflow.com/questions/21588781/rails-api-and-native-mobile-app-authentication and https://github.com/mgomes/api_auth)
 
 == FINANCES
 
