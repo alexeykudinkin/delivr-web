@@ -38,6 +38,10 @@ module Travels
                 :inverse_of => :travel,
                 :autosave   => true
 
+    # Include a handful of utility methods
+    # short-circuiting state observation
+    include Travels::State::ExportMethods
+
 
     belongs_to  :customer,
                 :class_name => Users::Customer,

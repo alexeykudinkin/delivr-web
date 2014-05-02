@@ -32,8 +32,14 @@
     text-align: center;
   }
 
-  .travel-dashboard a {
+  .travel-dashboard a, .travel-dashboard .take-btn {
     display: inline-block;
+  }
+
+  .travel .performer-thumb {
+    position: absolute;
+    top:   -15pt;
+    right: -15pt;
   }
 
 </style>
@@ -59,6 +65,14 @@
               <% threefold.each do |travel| %>
 
                 <div class="travel list-group-item">
+
+                  <% if travel.taken? %>
+
+                    <div class="performer-thumb">
+                      <%= render 'users/small' %>
+                    </div>
+
+                  <% end -%>
 
                   <div class="box">
 
@@ -99,11 +113,15 @@
                   </div>
 
                   <div class="travel-dashboard">
-                    <%= form_for :travel, url: take_travel_path(travel) do |form| %>
-                      <%= form.submit value: "Take", class: "btn btn-primary" %>
-                    <%  end %>
+
+                    <div class="take-btn">
+                      <%= form_for :travel, url: take_travel_path(travel) do |form| %>
+                        <%= form.submit value: "Take", class: "btn btn-primary" %>
+                      <%  end %>
+                    </div>
 
                     <a href="#" class="btn btn-primary">Cancel</a>
+
                   </div>
 
                 </div>

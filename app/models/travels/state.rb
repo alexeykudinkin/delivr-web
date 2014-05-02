@@ -34,6 +34,21 @@ module Travels
     end
 
 
+    # Plunges helpers of use inside class possessing state
+    module ExportMethods
+
+      [ :taken, :completed, :withdrawn ].each do |state|
+        # @_state_m = include?.method(:state)
+        self.class_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
+          def #{state.to_s}?
+            state.send(:#{state}?)
+          end
+        RUBY_EVAL
+      end
+
+    end
+
+
     # TODO: THIS IS AN ISOLATION LAYER
     #       PENDING TILL REMASTERING
 
