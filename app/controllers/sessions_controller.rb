@@ -2,12 +2,19 @@ class SessionsController < ApplicationController
 
   protect_from_forgery except: :create
 
+  # Request map as a workplace
   requires_map
 
 
   def new
     respond_to do |format|
-      format.html # new.html.erb
+      format.html do
+        if logged_in?
+          redirect_to user_path(current_user)
+        else
+          render # new.html.erb
+        end
+      end
     end
   end
 
