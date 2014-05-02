@@ -8,9 +8,9 @@ class TravelsController < ApplicationController
 
   require_login :show, :index, :new, :create, :take
 
+  # Request map as a workplace
   requires_map
 
-  #################################################################################################
 
   # GET /travels/:id
   def show
@@ -103,18 +103,25 @@ class TravelsController < ApplicationController
     sanitized = whitelist(params, :take)
 
     travel    = Travels::Travel.find(sanitized[:id])
-    performer = Users::Performer.find(sanitized[:performer])
 
-    travel.performer = performer
+    if travel.state.taken?
+      respond_to do |format|
+        format.html { redirect_to travel_path(travel), status: :bad_request, notice: "Unfortunately, travel's been already taken!" }
+        format.json { redirect_to travel_path(travel), status: :bad_request }
+      end
+    else
+      performer = Users::Performer.find(sanitized[:performer])
 
-    travel.notify(:taken)
+      travel.performer = performer
+      travel.notify(:taken)
 
-    respond_to do |format|
-      if travel.save
-        format.html { redirect_to travel_path(travel), notice: "You've successfully taken the travel!"  }
-        format.json { render json: @travel, status: :ok, location: @travel }
-      else
-        raise
+      respond_to do |format|
+        if travel.save
+          format.html { redirect_to travel_path(travel), notice: "You've successfully taken the travel!"  }
+          format.json { render json: @travel, status: :ok, location: @travel }
+        else
+          raise
+        end
       end
     end
   end
