@@ -48,69 +48,90 @@
         <!--<h3 class="panel-title">Travels</h3>-->
       <!--</div>-->
 
-      <div class="panel-body">
+      <div class="panel-body tab-content">
 
-        <div class="list-group">
+        <% @travels.each_slice(3).each_with_index do |threefold, i| %>
 
-          <% @travels.each do |travel| %>
+          <div id="<%= "travels_page_#{i}" %>" class="tab-pane <%= (i == 0 ? "active" : "") %>">
 
-            <div class="travel list-group-item">
+            <div class="list-group">
 
-              <div class="box">
+              <% threefold.each do |travel| %>
 
-                <div class="stripe">
+                <div class="travel list-group-item">
 
-                  <div class="point">
+                  <div class="box">
 
-                    <div class="dot"></div>
+                    <div class="stripe">
 
-                    <p id="origin" class="name" data-coordinates="<%= travel.origin.coordinates %>">
-                      <%= travel.origin.address %>
-                    </p>
+                      <div class="point">
+
+                        <div class="dot"></div>
+
+                        <p id="origin" class="name" data-coordinates="<%= travel.origin.coordinates %>">
+                          <%= travel.origin.address %>
+                        </p>
+
+                      </div>
+
+                      ----->
+
+                      <div class="point">
+
+                        <div class="dot"></div>
+
+                        <p id="destination" class="name" data-coordinates="<%= travel.destination.coordinates %>">
+                          <%= travel.destination.address %>
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                    <div>
+
+                      <% travel.items.each do |item| %>
+                        <p><%= "#{item.description}, #{item.weight}" %></p>
+                      <% end %>
+
+                    </div>
 
                   </div>
 
-                  ----->
+                  <div class="travel-dashboard">
+                    <%= form_for :travel, url: take_travel_path(travel) do |form| %>
+                      <%= form.submit value: "Take", class: "btn btn-primary" %>
+                    <%  end %>
 
-                  <div class="point">
-
-                    <div class="dot"></div>
-
-                    <p id="destination" class="name" data-coordinates="<%= travel.destination.coordinates %>">
-                      <%= travel.destination.address %>
-                    </p>
-
+                    <a href="#" class="btn btn-primary">Cancel</a>
                   </div>
 
                 </div>
 
-                <div>
-
-                  <% travel.items.each do |item| %>
-                    <p><%= "#{item.description}, #{item.weight}" %></p>
-                  <% end %>
-
-                </div>
-
-              </div>
-
-              <div class="travel-dashboard">
-                <%= form_for :travel, url: take_travel_path(travel) do |form| %>
-                  <%= form.submit value: "Take", class: "btn btn-primary" %>
-                <%  end %>
-
-                <a href="#" class="btn btn-primary">Cancel</a>
-              </div>
+            <% end %>
 
             </div>
 
-          <% end %>
+          </div>
 
-        </div>
+        <% end %>
 
       </div>
 
     </div>
+
+    <ul class="pagination navigation">
+
+      <% tc = @travels.count %>
+      <% (0 .. (tc / 3)).each do |i| %>
+
+        <li class="<%= (i == 0 ? "active" : "") %>">
+          <a data-toggle="tab" href="#<%= "travels_page_#{i}" %>"><%= i + 1 %></a>
+        </li>
+
+      <%  end unless tc <= 3 -%>
+
+    </ul>
 
   </div>
 
