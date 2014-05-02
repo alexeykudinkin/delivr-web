@@ -101,8 +101,7 @@ class TravelsController < ApplicationController
   # POST /travels/:id/take
   def take
     sanitized = whitelist(params, :take)
-
-    travel    = Travels::Travel.find(sanitized[:id])
+    travel = Travels::Travel.find(sanitized[:id])
 
     if travel.state.taken?
       respond_to do |format|

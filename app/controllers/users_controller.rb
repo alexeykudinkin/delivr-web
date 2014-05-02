@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
 
+  # Request map as a workplace
   requires_map
 
 

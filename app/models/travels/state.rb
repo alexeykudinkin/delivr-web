@@ -4,16 +4,49 @@ module Travels
 
   class State < ActiveRecord::Base
 
-    def self.taken
-      State.new({ taken: true,  completed: false, withdrawn: false })
+    module Instances
+
+      # def self.taken
+      #   State.new({ taken: true,  completed: false, withdrawn: false })
+      # end
+      #
+      # def self.completed
+      #   State.new({ taken: true,  completed: true,  withdrawn: false })
+      # end
+      #
+      # def self.withdrawn
+      #   State.new({ taken: false, completed: false, withdrawn: true })
+      # end
+
+      def self.get(state)
+        case state
+          when :taken
+            @taken      ||= State.new({ taken: true,  completed: false, withdrawn: false })
+          when :completed
+            @completed  ||= State.new({ taken: true,  completed: true,  withdrawn: false })
+          when :withdrawn
+            @withdrawn  ||= State.new({ taken: false, completed: false, withdrawn: true })
+          else
+            nil
+        end
+      end
+
     end
 
-    def self.completed
-      State.new({ taken: true,  completed: true,  withdrawn: false })
+
+    # TODO: THIS IS AN ISOLATION LAYER
+    #       PENDING TILL REMASTERING
+
+    def taken?
+      send(:taken)
     end
 
-    def self.withdrawn
-      State.new({ taken: false, completed: false, withdrawn: true })
+    def completed?
+      send(:completed)
+    end
+
+    def withdrawn?
+      send(:withdrawn)
     end
 
 
@@ -22,11 +55,11 @@ module Travels
                 :inverse_of => :state
 
     def to_s
-      if send(:completed)
+      if completed?
         "completed"
-      elsif send(:taken)
+      elsif taken?
         "taken"
-      elsif send(:withdrawn)
+      elsif withdrawn?
         "withdrawn"
       else
         "submitted"

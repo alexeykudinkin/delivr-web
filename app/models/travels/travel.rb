@@ -50,7 +50,7 @@ module Travels
 
     def performer=(performer)
       super
-      self.state = State.taken
+      self.state = State::Instances.get(:taken)
     end
 
 
