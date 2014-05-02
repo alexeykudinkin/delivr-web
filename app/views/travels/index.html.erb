@@ -38,71 +38,75 @@
 
 </style>
 
-<div class="row">
+<div class="map-overlay col-sm-4">
 
-  <div class="panel panel-default">
+  <div class="row">
 
-    <!--<div class="panel-heading">-->
-      <!--<h3 class="panel-title">Travels</h3>-->
-    <!--</div>-->
+    <div class="panel panel-default">
 
-    <div class="panel-body">
+      <!--<div class="panel-heading">-->
+        <!--<h3 class="panel-title">Travels</h3>-->
+      <!--</div>-->
 
-      <div class="list-group">
+      <div class="panel-body">
 
-        <% @travels.each do |travel| %>
+        <div class="list-group">
 
-          <div class="travel list-group-item">
+          <% @travels.each do |travel| %>
 
-            <div class="box">
+            <div class="travel list-group-item">
 
-              <div class="stripe">
+              <div class="box">
 
-                <div class="point">
+                <div class="stripe">
 
-                  <div class="dot"></div>
+                  <div class="point">
 
-                  <p id="origin" class="name" data-coordinates="<%= travel.origin.coordinates %>">
-                    <%= travel.origin.address %>
-                  </p>
+                    <div class="dot"></div>
+
+                    <p id="origin" class="name" data-coordinates="<%= travel.origin.coordinates %>">
+                      <%= travel.origin.address %>
+                    </p>
+
+                  </div>
+
+                  ----->
+
+                  <div class="point">
+
+                    <div class="dot"></div>
+
+                    <p id="destination" class="name" data-coordinates="<%= travel.destination.coordinates %>">
+                      <%= travel.destination.address %>
+                    </p>
+
+                  </div>
 
                 </div>
 
-                ----->
+                <div>
 
-                <div class="point">
-
-                  <div class="dot"></div>
-
-                  <p id="destination" class="name" data-coordinates="<%= travel.destination.coordinates %>">
-                    <%= travel.destination.address %>
-                  </p>
+                  <% travel.items.each do |item| %>
+                    <p><%= "#{item.description}, #{item.weight}" %></p>
+                  <% end %>
 
                 </div>
 
               </div>
 
-              <div>
+              <div class="travel-dashboard">
+                <%= form_for :travel, url: take_travel_path(travel) do |form| %>
+                  <%= form.submit value: "Take", class: "btn btn-primary" %>
+                <%  end %>
 
-                <% travel.items.each do |item| %>
-                  <p><%= "#{item.description}, #{item.weight}" %></p>
-                <% end %>
-
+                <a href="#" class="btn btn-primary">Cancel</a>
               </div>
 
             </div>
 
-            <div class="travel-dashboard">
-              <%= form_for :travel, url: take_travel_path(travel) do |form| %>
-                <%= form.submit value: "Take", class: "btn btn-primary" %>
-              <%  end %>
+          <% end %>
 
-              <a href="#" class="btn btn-primary">Cancel</a>
-            </div>
-
-          </div>
-
-        <% end %>
+        </div>
 
       </div>
 

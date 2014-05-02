@@ -1,16 +1,21 @@
-<h1>Travel</h1>
 
-<div class="content">
+<div class="map-overlay col-sm-4">
 
-  Origin:       <%= @travel.origin %>
-  Destination:  <%= @travel.destination %>
+  <h1>Travel</h1>
 
-  Items to deliver:
+  <div class="content">
 
-  <% @travel.items.each do |item| %>
-    <%= item.name        %>
-    <%= item.description %>
-    <%= item.weight      %>
-  <% end %>
+    Origin:       <%= @travel.origin %>
+    Destination:  <%= @travel.destination %>
+
+    Items to deliver:
+
+    <% @travel.items.each do |item| %>
+      <%= item.name        %>
+      <%= item.description %>
+      <%= item.weight      %>
+    <% end %>
+
+  </div>
 
 </div>
