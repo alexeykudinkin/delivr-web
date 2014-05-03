@@ -81,7 +81,24 @@ Shipper.prototype = {
         if (canvas) {
             var mapOptions = {
                 center: new google.maps.LatLng(59.96512, 30.15732),
-                zoom: 10
+                zoom:   10,
+
+                mapTypeControl: true,
+                mapTypeControlOptions: {
+                    style:      google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                    position:   google.maps.ControlPosition.TOP_RIGHT
+                },
+
+                panControl: true,
+                panControlOptions: {
+                    position:   google.maps.ControlPosition.RIGHT_TOP
+                },
+
+                zoomControl: true,
+                zoomControlOptions: {
+                    style:      google.maps.ZoomControlStyle.LARGE,
+                    position:   google.maps.ControlPosition.RIGHT_TOP
+                }
             };
 
             this.services   = new Services();
