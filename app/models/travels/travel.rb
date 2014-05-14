@@ -91,13 +91,17 @@ module Travels
 
     scope :of,        -> (owner) { where(customer: owner) }
 
-    scope :submitted, -> { joins(:state).where(states: { completed: false, taken: false, withdrawn: false }) }
 
     scope :completed, -> { joins(:state).where(states: { completed: true }) }
 
-    scope :taken,     -> { joins(:state).where(states: { taken: true }) }
+    scope :taken,     -> { joins(:state).where(states: { taken:     true }) }
 
     scope :withdrawn, -> { joins(:state).where(states: { withdrawn: true }) }
+
+    scope :submitted, -> { joins(:state).where(states: { completed: false }) }
+    # scope :submitted, -> { joins(:state).where(states: { completed: false, taken: false, withdrawn: false }) }
+
+    scope :actual,    -> { joins(:state).where(states: { completed: false, taken: false }) }
 
 
     # Validations

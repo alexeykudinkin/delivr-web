@@ -45,7 +45,7 @@ class TravelsController < ApplicationController
     @travels = Travels::Travel.taken.where(performer: current_user)
 
     respond_to do |format|
-      format.html
+      format.html { render 'travels/index' }
       format.json { as_json @travels }
     end
   end
@@ -53,10 +53,10 @@ class TravelsController < ApplicationController
 
   # GET /travels/active
   def active
-    @travels = Travels::Travel.submitted
+    @travels = Travels::Travel.actual
 
     respond_to do |format|
-      format.html
+      format.html { render 'travels/index' }
       format.json { as_json @travels }
     end
   end
@@ -89,7 +89,7 @@ class TravelsController < ApplicationController
 
     respond_to do |format|
       if @travel.save
-        format.html { redirect_to travel_path(@travel), notice: "Gracefully created the travel!" }
+        format.html { redirect_to status_travel_path(@travel), notice: "Gracefully created the travel!" }
         format.json { render json: @travel, status: :created, location: @travel }
       else
         format.html { redirect_to new_travel_path, alert: "Failed to create the travel!" }
@@ -125,6 +125,23 @@ class TravelsController < ApplicationController
     end
   end
 
+
+  # Queries status for the given travel
+  #
+  # GET travels/:id/status
+  # GET travels/:id/status.json
+  def status
+    sanitized = whitelist(params, :status)
+
+    @travel = Travels::Travel.find(sanitized[:id])
+
+    respond_to do |format|
+      format.html # status.html.erb
+      format.json { render json: { status: @travel.state.to_s } }
+    end
+  end
+
+
   private
 
     def whitelist(params, action)
@@ -143,10 +160,13 @@ class TravelsController < ApplicationController
                   { items_attributes:       [ :name, :description, :weight ] }
                 )
 
-        when :take
-          {
+        when :take then {
             id:         params.require(:id),
             performer:  current_user.id
+          }
+
+        when :status then {
+            id: params.require(:id)
           }
 
         else

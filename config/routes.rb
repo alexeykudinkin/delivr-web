@@ -33,7 +33,13 @@ Shipper::Application.routes.draw do
 
   resources :travels, only: [ :show, :index, :new, :create ] do
     member do
+
+      # Allows to grab particular travel
       post  :take
+
+      # Allows to query status of a particular travel
+      get   :status
+
     end
 
     collection do

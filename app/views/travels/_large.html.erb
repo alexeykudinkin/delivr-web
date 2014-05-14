@@ -1,0 +1,67 @@
+
+<style type="text/css">
+
+  .box {
+    background-color: rgba(250, 250, 250, .5);
+    text-align: center;
+    border: 1px dashed rgba(200, 200, 200, .5);
+  }
+
+  .target {
+    overflow-x: hidden;
+  }
+
+  .box-body {
+    margin: 10pt;
+  }
+
+</style>
+
+<div class="box">
+
+  <div class="box-body container-fluid">
+
+    <div class="row">
+
+      <div class="target col-md-5">
+
+        <div class="dot"></div>
+
+        <p id="origin" class="name" data-coordinates="<%= travel.origin.coordinates %>">
+          <%= travel.origin.address %>
+        </p>
+
+      </div>
+
+      <div class="col-md-2">
+
+        ----->
+
+      </div>
+
+      <div class="target col-md-5">
+
+        <div class="dot"></div>
+
+        <p id="destination" class="name" data-coordinates="<%= travel.destination.coordinates %>">
+          <%= travel.destination.address %>
+        </p>
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+  <div>
+
+    <% travel.items.each do |item| %>
+      <p><%= "#{item.description}, #{item.weight}" %></p>
+    <% end %>
+
+  </div>
+
+
+
+</div>

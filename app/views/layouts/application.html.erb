@@ -62,13 +62,11 @@
 
     <div class="container" >
 
+      <%= yield %>
+
       <% if requires_map? %>
-
-          <%= yield %>
-
+        <div id="map-canvas"></div>
       <% end %>
-
-      <div id="map-canvas"></div>
 
     </div>
 
