@@ -1,21 +1,25 @@
 
-<div class="map-overlay col-sm-4">
+<% content_for :map_overlay do %>
 
-  <h1>Travel</h1>
+  <div class="map-overlay col-sm-4">
 
-  <div class="content">
+    <h1>Travel</h1>
 
-    Origin:       <%= @travel.origin %>
-    Destination:  <%= @travel.destination %>
+    <div class="content">
 
-    Items to deliver:
+      Origin:       <%= @travel.origin %>
+      Destination:  <%= @travel.destination %>
 
-    <% @travel.items.each do |item| %>
-      <%= item.name        %>
-      <%= item.description %>
-      <%= item.weight      %>
-    <% end %>
+      Items to deliver:
+
+      <% @travel.items.each do |item| %>
+        <%= item.name        %>
+        <%= item.description %>
+        <%= item.weight      %>
+      <% end %>
+
+    </div>
 
   </div>
 
-</div>
+<% end %>

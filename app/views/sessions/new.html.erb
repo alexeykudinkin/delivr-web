@@ -1,23 +1,27 @@
 
-<div class="map-overlay col-sm-12">
+<% content_for :map_overlay do %>
 
-  <div class="container">
+  <div class="map-overlay col-sm-12">
 
-    <div class="form-signin">
+    <div class="container">
 
-      <h2 class="form-signin-heading">Please sign-in</h2>
+      <div class="form-signin">
 
-      <%= form_tag sessions_path, class: "form-horizontal", role: "form" do %>
+        <h2 class="form-signin-heading">Please sign-in</h2>
 
-          <%= phone_field_tag     :phone,     params[:phone], { id: "phone",    class: "form-control", placeholder: "Phone" } %>
-          <%= password_field_tag  :password,  nil,            { id: "password", class: "form-control", placeholder: "Password" } %>
+        <%= form_tag sessions_path, class: "form-horizontal", role: "form" do %>
 
-          <button type="submit" class="btn btn-primary">Log in</button>
+            <%= phone_field_tag     :phone,     params[:phone], { id: "phone",    class: "form-control", placeholder: "Phone" } %>
+            <%= password_field_tag  :password,  nil,            { id: "password", class: "form-control", placeholder: "Password" } %>
 
-      <% end %>
+            <button type="submit" class="btn btn-primary">Log in</button>
+
+        <% end %>
+
+      </div>
 
     </div>
 
   </div>
 
-</div>
+<% end %>

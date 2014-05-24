@@ -1,65 +1,69 @@
 
-<style type="text/css">
+<% content_for :map_overlay do %>
 
-  .new-travel-form {
-    max-height: 80%;  /* doesn't work unless height of the containing block explicitly specified */
-    overflow: scroll;
-  }
+  <style type="text/css">
 
-</style>
+    .new-travel-form {
+      max-height: 80%;  /* doesn't work unless height of the containing block explicitly specified */
+      overflow: scroll;
+    }
 
-<div class="map-overlay col-sm-4">
+  </style>
 
-  <div class="row">
+  <div class="map-overlay col-sm-4">
 
-    <div class="panel panel-default">
+    <div class="row">
 
-      <!--<div class="panel-heading">-->
-        <!--<h3 class="panel-title">New travel</h3>-->
-      <!--</div>-->
+      <div class="panel panel-default">
 
-      <div class="new-travel-form panel-body">
+        <!--<div class="panel-heading">-->
+          <!--<h3 class="panel-title">New travel</h3>-->
+        <!--</div>-->
 
-        <%= form_for @travel, html: { class: "form-horizontal", role: "form" } do |form| %>
+        <div class="new-travel-form panel-body">
 
-          <div class="form-group">
-            <%= render 'origin_field', form: form %>
-          </div>
+          <%= form_for @travel, html: { class: "form-horizontal", role: "form" } do |form| %>
 
-          <div class="form-group">
-            <%= render 'destination_field', form: form %>
-          </div>
-
-          <div class="form-group">
-            <div class="col-sm-12">
-
-              <%= add_link_to_fields(form, "$(this).parents(\".form-group\")", :items) %>
-
+            <div class="form-group">
+              <%= render 'origin_field', form: form %>
             </div>
-          </div>
 
-          <div class="form-group">
-            <div class="col-sm-12">
-              <%= form.submit(class: "btn btn-primary") %>
+            <div class="form-group">
+              <%= render 'destination_field', form: form %>
             </div>
-          </div>
 
-        <% end %>
+            <div class="form-group">
+              <div class="col-sm-12">
+
+                <%= add_link_to_fields(form, "$(this).parents(\".form-group\")", :items) %>
+
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-sm-12">
+                <%= form.submit(class: "btn btn-primary") %>
+              </div>
+            </div>
+
+          <% end %>
+
+        </div>
 
       </div>
 
-    </div>
+  </div>
 
-</div>
+  </div>
 
-</div>
+  <script>
+    shipper.Q.queue("init", function() {
 
-<script>
-  shipper.Q.queue("init", function() {
+      shipper.createTravel();
+      shipper.registerTracker();
+      shipper.registerAutoComplete();
 
-    shipper.createTravel();
-    shipper.registerTracker();
-    shipper.registerAutoComplete();
+    });
+  </script>
 
-  });
-</script>
+<% end %>
