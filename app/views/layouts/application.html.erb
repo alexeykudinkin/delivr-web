@@ -62,15 +62,18 @@
 
     <div class="container" >
 
-      <%= yield %>
+      <% if content_for? :map_overlay %>
 
-      <% if requires_map? %>
+        <%= yield :map_overlay %>
         <div id="map-canvas"></div>
-      <% end %>
+
+      <%  else -%>
+
+        <%= yield %>
+
+      <%  end -%>
 
     </div>
-
-
 
   </div>
 

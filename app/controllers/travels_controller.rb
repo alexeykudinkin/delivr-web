@@ -8,9 +8,6 @@ class TravelsController < ApplicationController
 
   require_login :show, :index, :new, :create, :take
 
-  # Request map as a workplace
-  requires_map
-
 
   # GET /travels/:id
   def show
