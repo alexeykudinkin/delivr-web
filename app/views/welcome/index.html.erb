@@ -10,6 +10,9 @@
   <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
 
+  //= depend_on_asset "header.bg.jpg"
+  //= depend_on_asset "footer.bg.jpg"
+
   <style type="text/css">
 
     * {
@@ -29,7 +32,7 @@
     .intro {
       width: 100%;
       height: 100vh;
-      background-image: url("/assets/header.bg.jpg");
+      background-image: url(<%= asset_path 'header.bg.jpg' %>);
       background-attachment: fixed;
       background-position: center center;
       background-repeat: no-repeat;
@@ -96,7 +99,7 @@
     .outro {
       width: 100%;
       height: 350pt;
-      background-image: url("/assets/footer.bg.jpg");
+      background-image: url(<%= asset_path 'footer.bg.jpg' %>);
       background-attachment: fixed;
       background-clip: border-box;
       -webkit-background-clip: border-box;
