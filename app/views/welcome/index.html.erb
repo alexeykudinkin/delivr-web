@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shipper</title>
+
+  <!--<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />-->
+
+  <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,300,400italic,400,600italic,600,700italic,700,800italic,800" rel="stylesheet" type="text/css">
+
+  <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+  <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+
+  <style type="text/css">
+
+    * {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-weight: 200;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
+    .marketing .col-lg-4 {
+      text-align: center;
+    }
+
+    .intro {
+      min-height: 100vh;
+      height: 100vh;
+      width: 100%;
+      -webkit-background-clip: border-box;
+      -webkit-background-size: cover;
+      background-clip: border-box;
+      background-size: cover;
+      background: url("/assets/header.bg.jpg") fixed no-repeat;
+    }
+
+    .intro-name {
+      padding-top: 25vh;
+      font-size: 50pt;
+      font-weight: 100;
+    }
+
+    .intro-cap {
+      width: 50%;
+      font-size: 35pt;
+      font-weight: 100;
+    }
+
+    .intro-scroll {
+      width: 10%;
+      font-family: "Open Sans",serif;
+      color: #ffffff;
+    }
+
+    .intro-form input, .outro button {
+      font-family: "Open Sans", serif;
+    }
+
+    .intro-form .col-md-4,
+    .intro-form .col-md-8 {
+      padding-right: 15px;
+      padding-left: 0;
+    }
+
+    .intro-form .form-inline {
+      width: 35%;
+      box-sizing: border-box;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .intro-form .form-control, .intro-form .form-group {
+      width: 100%;
+    }
+
+    .intro-name,
+    .intro-cap,
+    .intro-scroll {
+      color: #ffffff;
+      width: 100%;
+      text-align: center;
+    }
+
+    .intro-scroll {
+      position: absolute;
+      bottom: 3%;
+    }
+
+    .outro {
+      width: 100%;
+      height: 350pt;
+      background-image: url("/assets/footer.bg.jpg");
+      background-attachment: fixed;
+      background-clip: border-box;
+      -webkit-background-clip: border-box;
+      background-position: 50% 50%;
+      background-repeat: no-repeat;
+      background-size: cover;
+      -webkit-background-size: cover;
+      line-height: 350pt;
+      text-align: center;
+      margin-bottom: 50pt;
+    }
+
+
+    .outro-content {
+      display: inline-block;
+      position: relative;
+      line-height: 100%;
+      font-size: 30pt;
+      vertical-align: middle;
+    }
+
+    .intro-cap, .outro-cap {
+      margin-bottom: 15pt;
+    }
+
+    .outro-cap p {
+      font-weight: 100;
+      color: #ffffff;
+    }
+
+    .bold {
+      font-weight: 200;
+    }
+
+    .center {
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    .featurette-divider {
+      margin: 45pt 0 30pt;
+    }
+
+    .featurette-header {
+      position: relative;
+      height: 50pt;
+      line-height: 50pt;
+      width: 100%;
+      /*border: 1px #000000 dotted;*/
+      text-align: center;
+      font-size: 20pt;
+      margin: 75pt 0 75pt 0;
+    }
+
+    .featurette-hr {
+      display: inline-block;
+      width: 34%;
+    }
+
+    .featurette-hr .hr-left, .featurette-hr .hr-right {
+      /*background-color: #DADADA;*/
+      display: inline-block;
+      line-height: inherit;
+      height: 1px;
+      /*box-sizing: padding-box;*/
+      vertical-align: middle;
+      width: 100%;
+    }
+
+    .featurette-hr .hr-left {
+      background-image: linear-gradient(to right, #eee 75%, #fff 100%);
+      background-image: -webkit-linear-gradient(right, #eee 75%, #fff 100%);
+      background-image: -moz-linear-gradient(right, #eee 75%, #fff 100%);
+      /*background-image: radial-gradient(farthest-side at right top, #f0f0f0, rgba(244,244,244,0));*/
+      /*background-image: -webkit-radial-gradient(farthest-side at right top, #f0f0f0, rgba(244,244,244,0));*/
+      /*background-image: -moz-radial-gradient(farthest-side at right top, #f0f0f0, rgba(244,244,244,0));*/
+    }
+
+    .featurette-hr .hr-right {
+      background-image: linear-gradient(to left, #eee 75%, #fff 100%);
+      background-image: -webkit-linear-gradient(left, #eee 75%, #fff 100%);
+      background-image: -moz-linear-gradient(left, #eee 75%, #fff 100%);
+      /*background-image: radial-gradient(farthest-side at left top, #f0f0f0, rgba(244,244,244,0));*/
+      /*background-image: -webkit-radial-gradient(farthest-side at left top, #f0f0f0, rgba(244,244,244,0));*/
+      /*background-image: -moz-radial-gradient(farthest-side at left top, #f0f0f0, rgba(244,244,244,0));;*/
+    }
+
+
+    .featurette-header .featurette-heading {
+      display: inline-block;
+      height: inherit;
+      line-height: inherit;
+      width: 30%;
+    }
+
+    .featurette-header .featurette-heading, .lead {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-weight: 200;
+    }
+
+    .featurette-heading {
+      margin-top: 0;
+    }
+
+    .footer {
+      margin-bottom: 20pt;
+    }
+
+    #thanking-modal .modal-body {
+      font-size: 13pt;
+    }
+
+    .input {
+      font-family: monospace;
+      background-color: #f5f5f5;
+      box-shadow: 1px 1px 1px #dadada;
+      -webkit-box-shadow: 1px 1px 1px #dadada;
+      -moz-box-shadow: 1px 1px 1px #dadada;
+      border-radius: 1px;
+      -webkit-border-radius: 1px;
+      -moz-border-radius: 1px;
+      padding-left: 5pt;
+      padding-right: 5pt;
+    }
+
+    form input.invalid {
+      outline: none;
+      border-color: #ff7076;
+      border-top-color: #ff5c61;
+      -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0), 0 1px 0 rgba(255, 255, 255, 0), 0 0 2px 0 rgba(255, 0, 0, 0.5);
+      -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0), 0 1px 0 rgba(255, 255, 255, 0), 0 0 2px 0 rgba(255, 0, 0, 0.5);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0), 0 1px 0 rgba(255, 255, 255, 0), 0 0 2px 0 rgba(255, 0, 0, 0.5)
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <!--<div style="height: auto !important; min-height: 100%">-->
+
+    <div class="intro">
+      <div class="intro-name">
+        Shiper
+      </div>
+
+      <p class="intro-cap center">
+        The simplest way to ship locally
+      </p>
+
+      <div class="intro-form">
+
+        <%= form_for :adopter, url: adopt_users_path, remote: true, html: { id: "eac-form", class: "form-inline", role: "form" } do |form| %>
+
+          <div class="row">
+
+            <div class="col-md-8">
+              <div class="form-group">
+                <%= form.email_field :email, placeholder: "Email", id: "eac-email-input", class: "form-control input-lg" %>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <%= form.submit value: "GET EARLY ACCESS", id: "get-eac-btn", class: "btn btn-eac btn-success btn-lg" %>
+            </div>
+
+          </div>
+
+        <%  end -%>
+
+        <div class="modal fade" id="thanking-modal" tabindex="-1" role="dialog" aria-labelledby="thanking-modal-label" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times</button>
+                <h4 class="modal-title" id="thanking-modal-label">Thank you so much!</h4>
+              </div>
+
+              <div class="modal-body">
+
+                <div id="thanking-text">
+                  You're awesome! We will reach you at <span class="input">your@email.com</span> shortly to let you know
+                  that everything is ready and awaits you to use it!
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="intro-scroll center">
+        EXPLORE
+      </p>
+    </div>
+
+    <div class="container marketing">
+
+      <div class="featurette-header">
+        <div class="row">
+          <div class="featurette-hr">
+            <div class="hr-left"></div>
+          </div>
+
+          <h1 class="featurette-heading">Why Shiper?</h1>
+
+          <div class="featurette-hr">
+            <div class="hr-right"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+
+        <div class="center col-lg-4">
+          <img class="img-circle" data-src="holder.js/140x140" alt="140x140" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDAiIGhlaWdodD0iMTQwIj48cmVjdCB3aWR0aD0iMTQwIiBoZWlnaHQ9IjE0MCIgZmlsbD0iI2VlZSI+PC9yZWN0Pjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjcwIiB5PSI3MCIgc3R5bGU9ImZpbGw6I2FhYTtmb250LXdlaWdodDpib2xkO2ZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5OkFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmO2RvbWluYW50LWJhc2VsaW5lOmNlbnRyYWwiPjE0MHgxNDA8L3RleHQ+PC9zdmc+" style="width: 140px; height: 140px;">
+          <h2>Simple</h2>
+          <p class="lead">Say where and when. We'll make the rest.</p>
+          <!--<p><a class="btn btn-default" href="#" role="button">View details »</a></p>-->
+        </div>
+
+        <div class="center col-lg-4">
+          <img class="img-circle" data-src="holder.js/140x140" alt="140x140" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDAiIGhlaWdodD0iMTQwIj48cmVjdCB3aWR0aD0iMTQwIiBoZWlnaHQ9IjE0MCIgZmlsbD0iI2VlZSI+PC9yZWN0Pjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjcwIiB5PSI3MCIgc3R5bGU9ImZpbGw6I2FhYTtmb250LXdlaWdodDpib2xkO2ZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5OkFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmO2RvbWluYW50LWJhc2VsaW5lOmNlbnRyYWwiPjE0MHgxNDA8L3RleHQ+PC9zdmc+" style="width: 140px; height: 140px;">
+          <h2>Fair</h2>
+          <p class="lead">Pay for delivery. Not more.</p>
+          <!--<p><a class="btn btn-default" href="#" role="button">View details »</a></p>-->
+        </div>
+
+        <div class="center col-lg-4">
+          <img class="img-circle" data-src="holder.js/140x140" alt="140x140" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDAiIGhlaWdodD0iMTQwIj48cmVjdCB3aWR0aD0iMTQwIiBoZWlnaHQ9IjE0MCIgZmlsbD0iI2VlZSI+PC9yZWN0Pjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjcwIiB5PSI3MCIgc3R5bGU9ImZpbGw6I2FhYTtmb250LXdlaWdodDpib2xkO2ZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5OkFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmO2RvbWluYW50LWJhc2VsaW5lOmNlbnRyYWwiPjE0MHgxNDA8L3RleHQ+PC9zdmc+" style="width: 140px; height: 140px;">
+          <h2>Safe</h2>
+          <p class="lead">We will save your from logistic pain. And will care as much as you do.</p>
+          <!--<p><a class="btn btn-default" href="#" role="button">View details »</a></p>-->
+        </div>
+
+      </div>
+
+      <!--<div class="row featurette">-->
+        <!--<div class="col-md-7">-->
+          <!--<h2 class="featurette-heading">Say where and when. <span class="text-muted">We'll make the rest.</span></h2>-->
+          <!--<p class="lead">-->
+            <!--Delivery never was that easy.-->
+          <!--</p>-->
+        <!--</div>-->
+        <!--<div class="col-md-5">-->
+          <!--<img class="featurette-image img-responsive" data-src="holder.js/500x500/auto" alt="500x500" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48cmVjdCB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgZmlsbD0iI2VlZSI+PC9yZWN0Pjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjI1MCIgeT0iMjUwIiBzdHlsZT0iZmlsbDojYWFhO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1zaXplOjMxcHg7Zm9udC1mYW1pbHk6QXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7ZG9taW5hbnQtYmFzZWxpbmU6Y2VudHJhbCI+NTAweDUwMDwvdGV4dD48L3N2Zz4=">-->
+        <!--</div>-->
+      <!--</div>-->
+
+      <!--<hr class="featurette-divider">-->
+
+      <!--<div class="row featurette">-->
+        <!--<div class="col-md-5">-->
+          <!--<img class="featurette-image img-responsive" data-src="holder.js/500x500/auto" alt="500x500" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48cmVjdCB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgZmlsbD0iI2VlZSI+PC9yZWN0Pjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjI1MCIgeT0iMjUwIiBzdHlsZT0iZmlsbDojYWFhO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1zaXplOjMxcHg7Zm9udC1mYW1pbHk6QXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7ZG9taW5hbnQtYmFzZWxpbmU6Y2VudHJhbCI+NTAweDUwMDwvdGV4dD48L3N2Zz4=">-->
+        <!--</div>-->
+        <!--<div class="col-md-7">-->
+          <!--<h2 class="featurette-heading">Pay for delivery. <span class="text-muted">Not more.</span></h2>-->
+          <!--<p class="lead">-->
+            <!--Fare is fair, the bill is plain.-->
+          <!--</p>-->
+        <!--</div>-->
+      <!--</div>-->
+
+      <!--<hr class="featurette-divider">-->
+
+      <!--<div class="row featurette">-->
+        <!--<div class="col-md-7">-->
+          <!--<h2 class="featurette-heading">Do not care. <span class="text-muted">We do for you.</span></h2>-->
+          <!--<p class="lead">-->
+            <!--We will save your from logistic pain. And will care as much as you do. -->
+          <!--</p>-->
+        <!--</div>-->
+        <!--<div class="col-md-5">-->
+          <!--<img class="featurette-image img-responsive" data-src="holder.js/500x500/auto" alt="500x500" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48cmVjdCB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgZmlsbD0iI2VlZSI+PC9yZWN0Pjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjI1MCIgeT0iMjUwIiBzdHlsZT0iZmlsbDojYWFhO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1zaXplOjMxcHg7Zm9udC1mYW1pbHk6QXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7ZG9taW5hbnQtYmFzZWxpbmU6Y2VudHJhbCI+NTAweDUwMDwvdGV4dD48L3N2Zz4=">-->
+        <!--</div>-->
+      <!--</div>-->
+
+    </div>
+
+    <div class="container">
+      <div class="featurette-header">
+        <div class="row">
+          <div class="featurette-hr">
+            <div class="hr-left"></div>
+          </div>
+
+          <h1 class="featurette-heading">Not sure yet?</h1>
+
+          <div class="featurette-hr">
+            <div class="hr-right"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="outro">
+      <div class="outro-content">
+        <div class="container">
+          <div class="outro-cap">
+            <p>The Most <span class="bold">Simple</span> & Yet <span class="bold">Powerful</span> Way</p>
+            <p>To Ship Anything</p>
+          </div>
+
+          <button class="btn btn-success btn-eac btn-lg" id="request-demo-btn">REQUEST A DEMO</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <!--<hr class="featurette-divider">-->
+      <footer class="footer">
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>© 2014 Shiper, Inc. · <a href="#">Privacy</a> · <a href="#">Terms</a></p>
+      </footer>
+    </div>
+
+  <script>
+
+    // TODO: MAKE PROPER ANIMATED SCROLLING
+    $(document).ready(function () {
+
+      $("#request-demo-btn").click(function (event){
+        event.preventDefault();
+        $('html, body').animate(
+            {
+              scrollTop: $('body').offset().top
+            },
+            750
+        );
+      });
+
+      $("#eac-form")
+
+          .on("ajax:error", function(XHR, data, s) {
+
+            if (s === "error") {
+              $("#eac-email-input") .addClass("invalid")
+                                    .focus(function() { $(this).removeClass("invalid"); })
+            }
+
+          })
+
+          .on("ajax:success", function (XHR, data, s) {
+
+            data = $.parseJSON(data);
+
+            $("#eac-email-input").removeClass("invalid");
+
+            $("#thanking-modal").find(".modal-body")
+                                .find(".input")
+                                .text(data[0]['email']);
+
+            $("#thanking-modal").modal("show");
+
+          })
+
+    });
+  </script>
+
+</body>
+
+</html>

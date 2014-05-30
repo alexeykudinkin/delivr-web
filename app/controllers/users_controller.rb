@@ -1,6 +1,5 @@
 class UsersController < ApplicationController
 
-
   def new
     @user = Users::User.new
 
@@ -31,6 +30,24 @@ class UsersController < ApplicationController
     end
   end
 
+  def adopt
+    adopters = Users::Adopter.where(email: whitelist(params, :adopt)[:input])
+
+    respond_to do |format|
+      format.js { render json: adopters, status: :ok }
+    end && return unless adopters.blank?
+
+    adopter = Users::Adopter.new(whitelist(params, :adopt))
+
+    respond_to do |format|
+      if adopter.save
+        format.js { render json: [ adopter ], status: :created }
+      else
+        format.js { render json: adopter.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
   private
 
     def whitelist(params, action)
@@ -43,8 +60,14 @@ class UsersController < ApplicationController
                   :password,
                   :password_confirmation
                 )
+
         when :show
           params.require(:id)
+
+        when :adopt
+          params.require(:adopter)
+                .permit(:email)
+
         else
           raise "Couldn't whitelist unknown action!"
       end
