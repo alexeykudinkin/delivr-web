@@ -3,7 +3,7 @@ Shipper::Application.routes.draw do
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
-  # root 'welcome#index'
+  root "welcome#index"
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
@@ -29,6 +29,10 @@ Shipper::Application.routes.draw do
 
   resources :users do
     resources :travels, except: [ :show, :new, :create ] # only: [ :index ]
+
+    collection do
+      post  :adopt
+    end
   end
 
   resources :travels, only: [ :show, :index, :new, :create ] do
