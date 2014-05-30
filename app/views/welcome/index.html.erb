@@ -27,14 +27,18 @@
     }
 
     .intro {
-      min-height: 100vh;
-      height: 100vh;
       width: 100%;
-      -webkit-background-clip: border-box;
-      -webkit-background-size: cover;
+      height: 100vh;
+      background-image: url("/assets/header.bg.jpg");
+      background-attachment: fixed;
+      background-position: center center;
+      background-repeat: no-repeat;
       background-clip: border-box;
+      -webkit-background-clip: border-box;
+      -moz-background-clip: border-box;
       background-size: cover;
-      background: url("/assets/header.bg.jpg") fixed no-repeat;
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
     }
 
     .intro-name {
@@ -51,7 +55,7 @@
 
     .intro-scroll {
       width: 10%;
-      font-family: "Open Sans",serif;
+      font-family: "Open Sans", serif;
       color: #ffffff;
     }
 
@@ -96,10 +100,12 @@
       background-attachment: fixed;
       background-clip: border-box;
       -webkit-background-clip: border-box;
+      -moz-background-clip: border-box;
       background-position: 50% 50%;
       background-repeat: no-repeat;
       background-size: cover;
       -webkit-background-size: cover;
+      -moz-background-size: cover;
       line-height: 350pt;
       text-align: center;
       margin-bottom: 50pt;
