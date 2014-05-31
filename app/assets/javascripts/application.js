@@ -78,34 +78,43 @@ Shipper.prototype = {
 
     init: function () {
         var canvas = $("#map-canvas").get(0);
-        if (canvas) {
-            var mapOptions = {
-                center: new google.maps.LatLng(59.96512, 30.15732),
-                zoom:   10,
 
-                mapTypeControl: true,
-                mapTypeControlOptions: {
-                    style:      google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-                    position:   google.maps.ControlPosition.TOP_RIGHT
-                },
+        this.initMap(canvas);
 
-                panControl: true,
-                panControlOptions: {
-                    position:   google.maps.ControlPosition.RIGHT_TOP
-                },
+        this.services = new Services();
 
-                zoomControl: true,
-                zoomControlOptions: {
-                    style:      google.maps.ZoomControlStyle.LARGE,
-                    position:   google.maps.ControlPosition.RIGHT_TOP
-                }
-            };
+        this.Q.notify("init");
+    },
 
-            this.services   = new Services();
-            this.map        = new google.maps.Map(canvas, mapOptions);
+    initMap: function (canvas, options) {
+        if (!canvas)
+            return;
 
-            this.Q.notify("init");
-        }
+        var mapOptions = $.extend({}, {
+            center: new google.maps.LatLng(59.96512, 30.15732),
+            zoom:   10,
+
+            mapTypeControl: true,
+            mapTypeControlOptions: {
+                style:      google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                position:   google.maps.ControlPosition.TOP_RIGHT
+            },
+
+            panControl: true,
+            panControlOptions: {
+                position:   google.maps.ControlPosition.RIGHT_TOP
+            },
+
+            zoomControl: true,
+            zoomControlOptions: {
+                style:      google.maps.ZoomControlStyle.LARGE,
+                position:   google.maps.ControlPosition.RIGHT_TOP
+            }
+        }, options);
+
+        this.map = new google.maps.Map(canvas, mapOptions);
+
+        this.Q.notify("init:map");
     },
 
     createTravel: function() {

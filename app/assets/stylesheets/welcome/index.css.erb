@@ -1,6 +1,6 @@
 
-//= depend_on_asset 'footer.bg.jpg'
-//= depend_on_asset 'header.bg.jpg'
+/*= depend_on_asset 'footer.bg.jpg' */
+/*= depend_on_asset 'header.bg.jpg' */
 
 * {
     font-family: "Helvetica Neue", Arial, sans-serif;
@@ -16,7 +16,7 @@ html, body {
     text-align: center;
 }
 
-.intro {
+.welcome .intro {
     width: 100%;
     height: 100vh;
     background-image: url(<%= asset_path 'header.bg.jpg' %>);
@@ -83,7 +83,7 @@ html, body {
     bottom: 3%;
 }
 
-.outro {
+.welcome .outro {
     width: 100%;
     height: 350pt;
     background-image: url(<%= asset_path 'footer.bg.jpg' %>);
@@ -98,7 +98,6 @@ html, body {
     -moz-background-size: cover;
     line-height: 350pt;
     text-align: center;
-    margin-bottom: 50pt;
 }
 
 
@@ -177,23 +176,23 @@ html, body {
 }
 
 
-.featurette-header .featurette-heading {
+.welcome .featurette-header .featurette-heading {
     display: inline-block;
     height: inherit;
     line-height: inherit;
     width: 30%;
 }
 
-.featurette-header .featurette-heading, .lead {
+.welcome .featurette-header .featurette-heading, .lead {
     font-family: "Helvetica Neue", Arial, sans-serif;
-    font-weight: 200;
+    font-weight: 100;
 }
 
-.featurette-heading {
+.welcome .featurette-heading {
     margin-top: 0;
 }
 
-.footer {
+.welcome .footer {
     margin-bottom: 20pt;
 }
 
@@ -201,7 +200,7 @@ html, body {
     font-size: 13pt;
 }
 
-.input {
+.welcome .input {
     font-family: monospace;
     background-color: #f5f5f5;
     box-shadow: 1px 1px 1px #dadada;
@@ -221,4 +220,10 @@ form input.invalid {
     -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0), 0 1px 0 rgba(255, 255, 255, 0), 0 0 2px 0 rgba(255, 0, 0, 0.5);
     -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0), 0 1px 0 rgba(255, 255, 255, 0), 0 0 2px 0 rgba(255, 0, 0, 0.5);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0), 0 1px 0 rgba(255, 255, 255, 0), 0 0 2px 0 rgba(255, 0, 0, 0.5)
+}
+
+.welcome #map-canvas {
+  width: 100% !important;
+  height: 350pt;
+  margin-bottom: 50pt;
 }
