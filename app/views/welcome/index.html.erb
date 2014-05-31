@@ -9,16 +9,16 @@
 
   <%= stylesheet_link_tag     "application",    media: "all",   "data-turbolinks-track" => true %>
   <%= javascript_include_tag  "application",                    "data-turbolinks-track" => true %>
-
-  <%= stylesheet_link_tag     "welcome/index",  media: "all",   "data-turbolinks-track" => true %>
+  <%= javascript_include_tag  "https://maps.googleapis.com/maps/api/js?v=release&libraries=places&sensor=true&key=AIzaSyCH-W-G8oHPVT647mSRseuSvRhLUWMQPps" %>
 
 </head>
 
 <body>
 
-  <!--<div style="height: auto !important; min-height: 100%">-->
+  <div class="welcome">
 
     <div class="intro">
+
       <div class="intro-name">
         Shiper
       </div>
@@ -189,6 +189,24 @@
     </div>
 
     <div class="container">
+      <div class="featurette-header">
+        <div class="row">
+          <div class="featurette-hr">
+            <div class="hr-left"></div>
+          </div>
+
+          <h1 class="featurette-heading">Soon in</h1>
+
+          <div class="featurette-hr">
+            <div class="hr-right"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="map-canvas"></div>
+
+    <div class="container">
       <!--<hr class="featurette-divider">-->
       <footer class="footer">
         <p class="pull-right"><a href="#">Back to top</a></p>
@@ -196,11 +214,12 @@
       </footer>
     </div>
 
+  </div>
+
   <script>
 
     // TODO: MAKE PROPER ANIMATED SCROLLING
     $(document).ready(function () {
-
       $("#request-demo-btn").click(function (event){
         event.preventDefault();
         $('html, body').animate(
@@ -212,18 +231,13 @@
       });
 
       $("#eac-form")
-
           .on("ajax:error", function(XHR, data, s) {
-
             if (s === "error") {
               $("#eac-email-input") .addClass("invalid")
                                     .focus(function() { $(this).removeClass("invalid"); })
             }
-
           })
-
           .on("ajax:success", function (XHR, data, s) {
-
             data = $.parseJSON(data);
 
             $("#eac-email-input").removeClass("invalid");
@@ -233,8 +247,9 @@
                                 .text(data[0]['email']);
 
             $("#thanking-modal").modal("show");
+          });
 
-          })
+      shipper.initMap($("#map-canvas").get(0), { scrollwheel: false });
 
     });
   </script>
