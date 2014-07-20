@@ -44,28 +44,14 @@ module Travels
              :class_name  => Travels::Places::Destination,
              :autosave => true
 
-    # has_many :_t2d,
-    #          :class_name  => Joins::TravelsToDestinations,
-    #          :inverse_of  => :travel,
-    #          :autosave    => true
     #
-    # has_many :destinations,
-    #          :through     => :_t2d,
-    #          :class_name  => Travels::Places::Destination,
-    #          :autosave    => true
+    # NOTE: This is a HACK to allow complex forms involving nested attributes
+    #       to be constructed, DO NOT USE it straightforward-ly
+    #
 
-    # has_and_belongs_to_many :destinations,
-    #                         :class_name => Travels::Places::Destination,
-    #                         :join_table => "destinations_travels",
-    #                         :autosave   => true
-
-    def destinations_attributes=(attrs)
+    def destinations_attributes=(_)
       raise
     end
-
-    # accepts_nested_attributes_for :destinations,
-    #                               :reject_if => lambda { |place|  place[:address].blank?      ||
-    #                                                               place[:coordinates].blank? }
 
     #
     # State
