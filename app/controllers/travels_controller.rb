@@ -92,7 +92,7 @@ class TravelsController < ApplicationController
 
       iattrs.each_key do |key|
         @travel.items.build(iattrs[key]).destination = dest
-      end
+      end if iattrs
     end
 
     respond_to do |format|

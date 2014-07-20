@@ -25,43 +25,77 @@
 
       <div class="target col-md-5">
 
-        <div class="dot"></div>
+        <span class="glyphicon glyphicon-flag"></span>
 
-        <p id="origin" class="name" data-coordinates="<%= travel.origin.coordinates %>">
-          <%= travel.origin.address %>
-        </p>
+        <div id="origin" class="origin list-group-item" data-coordinates="<%= travel.origin.coordinates %>">
+
+          <h5 class="list-group-item-heading">
+
+            <%= travel.origin.address %>
+
+          </h5>
+
+        </div>
 
       </div>
 
       <div class="col-md-2">
-
-        ----->
-
+        <span class="glyphicon glyphicon-arrow-right"></span>
       </div>
 
       <div class="target col-md-5">
 
-        <div class="dot"></div>
+        <span class="glyphicon glyphicon-flag"></span>
 
-        <p id="destination" class="name" data-coordinates="<%= travel.destination.coordinates %>">
-          <%= travel.destination.address %>
-        </p>
+        <div id="destinations" class="list-group">
+
+          <% travel.destinations.each do |destination| %>
+
+            <div id="#" class="destination list-group-item" data-coordinates="<%= destination.coordinates %>">
+
+              <h5 class="list-group-item-heading">
+
+                <%= destination.address %>
+
+              </h5>
+
+              <div class="destination-items-list list-group">
+
+                <% destination.items.each do |item| %>
+
+                  <span class="list-group-item">
+                    <%= item.name %>
+                  </span>
+                  <p class="list-group-item-text">
+                    <%= item.description %>
+                    <%= item.weight %>
+                  </p>
+
+                <% end %>
+
+              </div>
+
+            </div>
+
+          <% end %>
+
+        </div>
 
       </div>
-
 
     </div>
 
   </div>
 
-  <div>
+  <script type="text/javascript">
 
-    <% travel.items.each do |item| %>
-      <p><%= "#{item.description}, #{item.weight}" %></p>
-    <% end %>
+    $(".destination-items-list").hide();
+    $("div .destination").hover(function() {
+      $(".destination-items-list", $(this))
+          .stop(true, true)
+          .slideToggle();
+    });
 
-  </div>
-
-
+  </script>
 
 </div>

@@ -107,7 +107,8 @@
 
   <script type="text/javascript">
 
-    var origin, destination;
+    // FIXME
+    var originMarker, destinationMarkers;
 
     var pairMatcher = new RegExp("\\(([\\d]+\\.[\\d]+),\\s*([\\d]+\\.[\\d]+)\\)");
 
@@ -125,38 +126,43 @@
 
     function showTravel (event) {
 
-      var coordinates = {
-        origin:       decouple($("p#origin",      $(this)).data("coordinates")),
-        destination:  decouple($("p#destination", $(this)).data("coordinates"))
-      };
+      // FIXME: ASAP
 
-      var travel  = {
-        origin:       new google.maps.LatLng(coordinates.origin.latitude,       coordinates.origin.longitude),
-        destination:  new google.maps.LatLng(coordinates.destination.latitude,  coordinates.destination.longitude)
-      };
+      var originRaw         = decouple($("div #origin", $(this)).data("coordinates"));
+      var destinationsRaw   = $("div #destinations > .destination", $(this)).toArray()
+                                .map(function (dest) {
+                                  return decouple($(dest).data("coordinates"))
+                                });
 
-      origin = new google.maps.Marker({
-        position:   travel.origin,
+      var originLL          = new google.maps.LatLng(originRaw.latitude, originRaw.longitude);
+      var destinationsLL    = destinationsRaw.map(function (dest, i, a) { return new google.maps.LatLng(dest.latitude, dest.longitude); } );
+
+      originMarker = new google.maps.Marker({
+        position:   originLL,
         map:        shipper.map,
         draggable:  false
       });
 
-      destination = new google.maps.Marker({
-        position:   travel.destination,
-        map:        shipper.map,
-        draggable:  false
-      });
+      destinationMarkers =
+          destinationsLL.map(function (dest, i, a) {
+            return new google.maps.Marker({
+              position: dest,
+              map: shipper.map,
+              draggable: false
+            });
+          });
     }
 
     function hideTravel (event) {
-      origin      .setMap(null);
-      destination .setMap(null);
+      originMarker.setMap(null);
+      destinationMarkers.forEach(function (marker) { marker.setMap(null); });
     }
 
-    $("div.list-group > div.list-group-item").hover(showTravel, hideTravel);
+    $("div .travel.list-group-item").hover(showTravel, hideTravel);
+
+    // Dumb sliding animation
 
     $(".travel-dashboard").hide();
-
     $(".travel")
         .hover(function () {
           $(".travel-dashboard", $(this))
