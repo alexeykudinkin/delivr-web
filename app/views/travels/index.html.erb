@@ -135,7 +135,7 @@
                                 });
 
       var originLL          = new google.maps.LatLng(originRaw.latitude, originRaw.longitude);
-      var destinationsLL    = destinationsRaw.map(function (dest, i, a) { return new google.maps.LatLng(dest.latitude, dest.longitude); } );
+      var destinationsLL    = destinationsRaw.map(function (dest) { return new google.maps.LatLng(dest.latitude, dest.longitude); } );
 
       originMarker = new google.maps.Marker({
         position:   originLL,
@@ -144,7 +144,7 @@
       });
 
       destinationMarkers =
-          destinationsLL.map(function (dest, i, a) {
+          destinationsLL.map(function (dest) {
             return new google.maps.Marker({
               position: dest,
               map: shipper.map,
@@ -162,6 +162,8 @@
 
     // Dumb sliding animation
 
+    // For travel dashboard
+
     $(".travel-dashboard").hide();
     $(".travel")
         .hover(function () {
@@ -169,6 +171,16 @@
               .stop(true, true)
               .slideToggle();
         });
+
+    // And travel's items
+
+    $(".destination-items-list").hide();
+    $("div .destination").hover(function() {
+      console.log($(this));
+      $(".destination-items-list", $(this))
+          .stop(true, true)
+          .slideToggle();
+    });
 
   </script>
 

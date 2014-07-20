@@ -25,4 +25,15 @@
 
   </div>
 
+  <script type="text/javascript">
+
+    $(".destination-items-list").hide();
+    $("div .destination").hover(function() {
+      $(".destination-items-list", $(this))
+          .stop(true, true)
+          .slideToggle();
+    });
+
+  </script>
+
 <% end %>
