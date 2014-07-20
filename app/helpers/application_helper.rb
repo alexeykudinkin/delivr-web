@@ -4,16 +4,26 @@ module ApplicationHelper
 
   module ViewHelper
 
-    def add_link_to_fields(form, anchor, association)
+    def push_fields_for(form, association)
       singular  = association.to_s.singularize.sub(/[\[\]]/, '')
       instance  = form.object.class.reflect_on_association(association).klass.new
-      content   = form.fields_for(association, instance, :child_index => 'new_' + singular) do |subform|
-        render singular + '_field', :form => subform
+
+      form.fields_for(association, instance) do |subform|
+        render singular + '_field', form: subform
+      end
+    end
+
+    def link_to_add_fields(form, anchor, association)
+      singular  = association.to_s.singularize.sub(/[\[\]]/, '')
+      instance  = form.object.class.reflect_on_association(association).klass.new
+      id        = 'new_' + singular
+      content   = form.fields_for(association, instance, :child_index => id) do |subform|
+        render singular + '_field', form: subform, parent: form, id: "#{singular}-#{id}"
       end
 
       content = "function() {
                   var nid = new Date().getTime();
-                  var re  = new RegExp(\"#{"new_" + singular}\", 'g');
+                  var re  = new RegExp(\"#{id}\", 'g');
 
                   return \"#{escape_javascript(content)}\".replace(re, nid);
                 }"

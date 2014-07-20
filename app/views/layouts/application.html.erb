@@ -62,12 +62,19 @@
 
     <div class="container" >
 
+      <% unless alert.blank? %>
+        <div class="map-overlay alert alert-danger">
+          <%= alert %>
+          <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times</span></button>
+        </div>
+      <% end %>
+
       <% if content_for? :map_overlay %>
 
         <%= yield :map_overlay %>
         <div id="map-canvas"></div>
 
-      <%  else -%>
+      <% else -%>
 
         <%= yield %>
 
@@ -79,7 +86,6 @@
 
   <script>
 
-    //google.maps.event.addDomListener(window, 'load', bind(shipper, "init"));
     $(document).ready(function() {
       shipper.init()
     });

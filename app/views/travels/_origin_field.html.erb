@@ -1,17 +1,13 @@
-<%= form.fields_for(:origin, Travels::Places::Origin.new) do |subform|      %>
+<!--<div class="col-sm-3">-->
+  <!--<%# form.label      :origin %>-->
+<!--</div>-->
 
-  <!--<div class="col-sm-3">-->
-    <!--<%= subform.label      :origin %>-->
-  <!--</div>-->
+<div data-tracking-target="origin">
 
-  <div class="col-sm-12" data-tracking-target="origin">
+  <%= form.text_field :address,     placeholder:  "Origin",
+                                    class:        "address form-control" %>
 
-    <%= subform.text_field :address,      placeholder:  "Origin",
-                                          class:        "address form-control" %>
+  <%= form.text_field :coordinates, type:         "hidden",
+                                    class:        "coordinates" %>
 
-    <%= subform.text_field :coordinates,  type:         "hidden",
-                                          class:        "coordinates" %>
-
-  </div>
-
-<% end %>
+</div>

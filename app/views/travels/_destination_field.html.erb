@@ -1,19 +1,13 @@
-<%= form.fields_for(:destination, Travels::Places::Destination.new) do |subform|  %>
+<!--<div class="col-sm-3">-->
+  <!--<%# form.label :destination %>-->
+<!--</div>-->
 
-  <!--<div class="col-sm-3">-->
-    <!--<%= subform.label :destination %>-->
-  <!--</div>-->
+<div data-tracking-target=<%= local_assigns[:id] || "destination" %>>
+  <%= form.text_field :address,     placeholder:  "Destination",
+                                    class:        "address form-control" %>
 
-  <div class="col-sm-12" data-tracking-target="destination">
+  <%= form.text_field :coordinates, type:         "hidden",
+                                    class:        "coordinates" %>
+</div>
 
-    <%= subform.text_field :address,      placeholder:  "Destination",
-                                          class:        "address form-control" %>
-
-    <%= subform.text_field :coordinates,  type:         "hidden",
-                                          class:        "coordinates" %>
-
-  </div>
-
-
-
-<% end %>
+<%= link_to_add_fields(form, "$(this)", :items) %>

@@ -79,17 +79,28 @@ class TravelsController < ApplicationController
 
   # POST /travels
   def create
-    @travel =
-      Travels::Travel.new(
-        whitelist(params, :create).merge customer: current_user.becomes(Users::Customer)
-      )
+    attrs   = whitelist(params, :create).merge customer: current_user.becomes(Users::Customer)
+    dattrs  = attrs.delete(:destinations_attributes)
+
+    @travel = Travels::Travel.new(attrs)
+
+    dattrs.each_key do |key|
+      dattr   = dattrs[key]
+      iattrs  = dattr.delete(:items_attributes)
+
+      dest = Travels::Places::Destination.new(dattr)
+
+      iattrs.each_key do |key|
+        @travel.items.build(iattrs[key]).destination = dest
+      end
+    end
 
     respond_to do |format|
       if @travel.save
         format.html { redirect_to status_travel_path(@travel), notice: "Gracefully created the travel!" }
         format.json { render json: @travel, status: :created, location: @travel }
       else
-        format.html { redirect_to new_travel_path, alert: "Failed to create the travel!" }
+        format.html { redirect_to new_travel_path, alert: "Failed to create the travel! Errors: #{@travel.errors.full_messages}" }
         format.json { render json: @travel.errors, status: :unprocessable_entity }
       end
     end
@@ -152,9 +163,13 @@ class TravelsController < ApplicationController
         when :create
           params.require(:travel)
                 .permit(
-                  { origin_attributes:      [ :address, :coordinates ] },
-                  { destination_attributes: [ :address, :coordinates ] },
-                  { items_attributes:       [ :name, :description, :weight ] }
+                  { origin_attributes:        [ :address, :coordinates ] },
+                  { destinations_attributes:
+                      [ :address, :coordinates, {
+                        items_attributes: [ :name, :description, :weight ]
+                      } ]
+                  }
+                  # { items_attributes:         [ :name, :description, :weight ] }
                 )
 
         when :take then {
@@ -181,7 +196,7 @@ class TravelsController < ApplicationController
                 status: 200,
                 include: {
                   origin:       { only: [ :id, :address, :coordinates ],  except: [ :updated_at, :created_at ] },
-                  destination:  { only: [ :id, :address, :coordinates ],  except: [ :updated_at, :created_at ] },
+                  destinations: { only: [ :id, :address, :coordinates ],  except: [ :updated_at, :created_at ] },
                   customer:     { only: [ :id, :name ],                   except: [ :phone, :password_digest ] },
                   performer:    { only: [ :id, :name ],                   except: [ :phone, :password_digest ] }
                 },
