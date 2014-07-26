@@ -2,12 +2,21 @@
   <!--<%# form.label      :origin %>-->
 <!--</div>-->
 
+<%  ngmodel_addr   = "#{ngmodel_prefix}.address"
+    ngmodel_coords = "#{ngmodel_prefix}.coordinates" %>
+
 <div data-tracking-target="origin">
 
   <%= form.text_field :address,     placeholder:  "Origin",
-                                    class:        "address form-control" %>
+                                    class:        "address form-control",
+                                    ng_model:     ngmodel_addr %>
 
-  <%= form.text_field :coordinates, type:         "hidden",
-                                    class:        "coordinates" %>
+  {{ <%= ngmodel_addr %> }}
+
+  <%= form.text_field :coordinates, #type:         "hidden",
+                                    class:        "coordinates hidden",
+                                    ng_model:     ngmodel_coords %>
+
+  {{ <%= ngmodel_coords %> }}
 
 </div>

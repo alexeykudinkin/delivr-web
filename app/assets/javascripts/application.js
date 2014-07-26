@@ -188,8 +188,19 @@ Shipper.prototype = {
 
             var setResolved =
                 function (coordinates, address) {
-                    $(travelInfo.input.coordinates).val(coordinates);
-                    $(travelInfo.input.address).val(address);
+                    var addr    = $(travelInfo.input.address);
+                    var coords  = $(travelInfo.input.coordinates);
+
+                    addr    .val(address);
+                    coords  .val(coordinates);
+
+                    // AngularJS compatibility layer
+                    // Please FIXME ASAP
+
+                    console.log(travelInfo.input);
+
+                    addr    .trigger('input');
+                    coords  .trigger('input');
 
                     infoW.setContent(address);
                     infoW.open(map, marker);

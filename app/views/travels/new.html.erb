@@ -19,26 +19,64 @@
           <!--<h3 class="panel-title">New travel</h3>-->
         <!--</div>-->
 
-        <div class="new-travel-form panel-body">
+        <div class="new-travel-form panel-body" ng-controller="TravelFormController">
 
-          <%= form_for @travel, html: { class: "form-horizontal", role: "form" } do |form| %>
+          <%= form_for(@travel, html: { class: "form-horizontal", role: "form" }) do |form| %>
 
-            <div class="form-body col-sm-12">
+            <div class="col-sm-12" ng-switch on="accounted">
 
-              <div class="origin form-group">
-                <%= push_fields_for(form, :origin) %>
+              <div class="form-body" ng-switch-default>
+
+                <% ngmodel_prefix = "travel.model" %>
+
+                <div class="origin form-group">
+                  <%= push_fields_for(form, :origin, ngmodel_prefix) %>
+                </div>
+
+                <div class="destinations form-group">
+                  <%= link_to_add_fields_angular(form, :destinations, ngmodel_prefix) do |gen| %>
+
+                    <%= output = <<-RUBY_EVAL
+                          <div class="" ng-repeat="destination in #{ngmodel_prefix}.destinations_attributes" ng-init="destinationIndex = $index">
+                            #{gen.call({ index: "destinationIndex" })}
+                          </div>
+                        RUBY_EVAL
+
+                        output.html_safe %>
+
+                  <% end %>
+
+                  <%= push_onclick_button_to('Add destination', { ng_click: "pushNextDestination()", class: "btn btn-primary" }) %>
+                </div>
+
+                <!--<div class="destination form-group">-->
+                  <!--<%# push_fields_for(form, :destinations, ngmodel_prefix) %>-->
+                <!--</div>-->
+
+                <!--<div class="form-group">-->
+                  <!--<%# link_to_add_fields(form, "$(this).parents(\".form-group\")", :destinations, ngmodel_prefix) %>-->
+                <!--</div>-->
+
               </div>
 
-              <div class="destination form-group">
-                <%= push_fields_for(form, :destinations) %>
+              <div class="travel-summary" ng-switch-when="true">
+                $$$$
+
+                <div class="form-group">
+                  <%# form.submit(class: "btn btn-primary") %>
+                  <button type="button" class="btn btn-primary" ng-click="submitTravel()">Submit</button>
+                </div>
               </div>
 
               <div class="form-group">
-                <%= link_to_add_fields(form, "$(this).parents(\".form-group\")", :destinations) %>
-              </div>
 
-              <div class="form-group">
-                <%= form.submit(class: "btn btn-primary") %>
+                <button type="button" class="btn" ng-click="back()">Back</button>
+                <button type="button" class="btn" ng-click="forth()">Forth</button>
+
+                <!--<a href="" ng-click="form.account()">-->
+                  <!--<input type="button" name="" value="Preview" class="btn">-->
+                <!--</a>-->
+
               </div>
 
             </div>
@@ -61,6 +99,99 @@
       shipper.createTravel();
 
     });
+  </script>
+
+  <script>
+    angular.module('travelForm', [ 'ngAnimate' ])
+
+        .config([ '$locationProvider', function ($locationProvider) {
+
+          // Configure HTML5 to get links working on JSFiddle
+          $locationProvider.html5Mode(true);
+        } ])
+
+        .factory('travelFormStorageService', [ '$rootScope', function ($rootScope) {
+
+          var storageService = {
+            model: {},
+
+            save: function () {
+              localStorage.travelForm = angular.toJson(storageService.model);
+            },
+
+            restore: function () {
+              storageService.model = angular.fromJson(localStorage.travelForm);
+            }
+          };
+
+          return storageService;
+        } ])
+
+        .controller('TravelFormController', [ '$scope', 'travelFormStorageService', function ($scope, travelFormStorageService) {
+
+          // Sanity checks
+          function validateTravel(travel) { /* NOP */ }
+
+          $scope.log = function () {
+            console.log(arguments[0]);
+          };
+
+          $scope.pushNextItemFor = function (destination) {
+            if (!destination.items_attributes) {
+              destination.items_attributes = {};
+            }
+
+            var next = Object.keys(destination.items_attributes).length;
+
+            destination.items_attributes[next] = {};
+          };
+
+          $scope.pushNextDestination = function () {
+            if (!$scope.travel.model.destinations_attributes) {
+              $scope.travel.model.destinations_attributes = {};
+            }
+
+            var destinations_attributes = $scope.travel.model.destinations_attributes;
+            var next = Object.keys(destinations_attributes).length;
+
+            destinations_attributes[next] = {};
+          };
+
+          $scope.submitTravel = function () {
+            validateTravel($scope.travel.model);
+
+            $.ajax({
+              type:     'POST',
+              url:      '/travels',
+              data:     $scope.travel.model,
+              dataType: 'json'
+            }).done(function (data) {
+  //              console.log(data);
+              alert(data);
+            }).error(function (jqXHR, status, error) {
+              console.log("[AJAX]: " + status + ":" + error);
+            });
+
+          };
+
+          $scope.forth = function () {
+            travelFormStorageService.save();
+            $scope.accounted = true;
+
+            console.log($scope.travel.model);
+          };
+
+          $scope.back = function () {
+            travelFormStorageService.restore();
+            $scope.accounted = false;
+            $scope.travel = travelFormStorageService;
+
+            console.log($scope.travel.model);
+          };
+
+          $scope.accounted = false;
+          $scope.travel = travelFormStorageService;
+        } ])
   </script>
 
 <% end %>

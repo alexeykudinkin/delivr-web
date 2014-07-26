@@ -1,13 +1,34 @@
-<!--<div class="col-sm-3">-->
-  <!--<%# form.label :destination %>-->
-<!--</div>-->
 
-<div data-tracking-target=<%= local_assigns[:id] || "destination" %>>
+<%  ngmodel_addr    = "#{ngmodel_prefix}.address"
+    ngmodel_coords  = "#{ngmodel_prefix}.coordinates"
+    ngmodel_items   = "#{ngmodel_prefix}.items_attributes" %>
+
+<div <%= "data-tracking-target=#{ngmodel_prefix} class=#{local_assigns[:class]}" %>>
+
   <%= form.text_field :address,     placeholder:  "Destination",
-                                    class:        "address form-control" %>
+                                    class:        "address form-control",
+                                    ng_model:     ngmodel_addr %>
 
-  <%= form.text_field :coordinates, type:         "hidden",
-                                    class:        "coordinates" %>
+  {{ <%= ngmodel_addr %> }}
+
+  <%= form.text_field :coordinates, #type:         "hidden",
+                                    class:        "coordinates hidden",
+                                    ng_model:     ngmodel_coords %>
+
+  {{ <%= ngmodel_coords %> }}
+
 </div>
 
-<%= link_to_add_fields(form, "$(this)", :items) %>
+<div style="padding-top: 10pt">
+  <%= link_to_add_fields_angular(form, :items, ngmodel_prefix) do |gen| %>
+    <%= output = <<-RUBY_EVAL
+          <div class="" ng-repeat="item in #{ngmodel_items}" ng-init="itemsIndex = $index">
+            #{gen.call({ index: "itemsIndex" })}
+          </div>
+        RUBY_EVAL
+
+        output.html_safe %>
+  <% end %>
+
+  <%= push_onclick_button_to('Add item', { ng_click: "pushNextItemFor(#{ngmodel_prefix})", class: "btn btn-primary" }) %>
+</div>
