@@ -535,4 +535,90 @@ angular.module('delivr', [ 'ngAnimate' ])
             init();
         });
 
-    } ]);
+    } ])
+
+    .controller('TravelsListingController', [ '$scope', '$rootScope', function ($scope, $rootScope) {
+
+        var map = $rootScope.map;
+
+        // FIXME
+        var originMarker, destinationMarkers;
+
+        var pairMatcher = new RegExp("\\(([\\d]+\\.[\\d]+),\\s*([\\d]+\\.[\\d]+)\\)");
+
+        function decouple(pair) {
+            var r = pairMatcher.exec(pair);
+
+            if (r[0] != pair || r.length != 3)
+                throw "Failed to decouple given pair: " + pair;
+
+            return {
+                latitude:  r[1],
+                longitude: r[2]
+            };
+        }
+
+        $scope.showTravel = function ($event) {
+
+            // FIXME: ASAP
+
+            var travelDOM = $($event.target).closest("div .travel");
+
+            var originRaw         = decouple($("div #origin", travelDOM).data("coordinates"));
+            var destinationsRaw   =
+                $("div #destinations > .destination", travelDOM)
+                    .toArray()
+                    .map(function (dest) {
+                        return decouple($(dest).data("coordinates"))
+                    });
+
+            var originLL          = new google.maps.LatLng(originRaw.latitude, originRaw.longitude);
+            var destinationsLL    = destinationsRaw.map(function (dest) { return new google.maps.LatLng(dest.latitude, dest.longitude); } );
+
+            originMarker = new google.maps.Marker({
+                position:   originLL,
+                map:        map,
+                draggable:  false
+            });
+
+            destinationMarkers =
+                destinationsLL.map(function (dest) {
+                    return new google.maps.Marker({
+                        position:   dest,
+                        map:        map,
+                        draggable:  false
+                    });
+                });
+        };
+
+        $scope.hideTravel = function ($event) {
+            originMarker.setMap(null);
+            destinationMarkers.forEach(function (marker) { marker.setMap(null); });
+        };
+
+        // Dumb sliding animation
+
+        // For travel dashboard
+
+        // FIXME: Replace with native Angular animation
+
+        $scope.slideTravelDashboard = function ($event) {
+            var travelDOM = $($event.target).closest("div .travel");
+
+            $(".travel-dashboard", travelDOM)
+                .stop(true, true)
+                .slideToggle()
+                .removeClass('ng-hide'); // FIXME
+        };
+
+        // And travel's items
+
+        $scope.slideItemsList = function ($event) {
+            var travelDOM = $($event.target).closest("div .destination");
+
+            $(".destination-items-list", travelDOM)
+                .stop(true, true)
+                .slideToggle()
+                .removeClass('ng-hide'); // FIXME
+        };
+    }]);

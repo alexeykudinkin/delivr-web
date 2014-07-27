@@ -40,7 +40,7 @@
           <!--<h3 class="panel-title">Travels</h3>-->
         <!--</div>-->
 
-        <div class="panel-body tab-content">
+        <div class="panel-body tab-content" ng-controller="TravelsListingController">
 
           <% @travels.each_slice(3).each_with_index do |threefold, i| %>
 
@@ -50,7 +50,7 @@
 
                 <% threefold.each do |travel| %>
 
-                  <div class="travel list-group-item">
+                  <div class="travel list-group-item" ng-mouseenter="showTravel($event); slideTravelDashboard($event)" ng-mouseleave="hideTravel($event); slideTravelDashboard($event)">
 
                     <% if travel.taken? %>
 
@@ -62,7 +62,7 @@
 
                     <%= render 'small', travel: travel %>
 
-                    <div class="travel-dashboard">
+                    <div class="travel-dashboard ng-hide">
 
                       <div class="take-btn">
                         <%= form_for :travel, url: take_travel_path(travel) do |form| %>
@@ -104,84 +104,5 @@
     </div>
 
   </div>
-
-  <script type="text/javascript">
-
-    // FIXME
-    var originMarker, destinationMarkers;
-
-    var pairMatcher = new RegExp("\\(([\\d]+\\.[\\d]+),\\s*([\\d]+\\.[\\d]+)\\)");
-
-    function decouple(pair) {
-      var r = pairMatcher.exec(pair);
-
-      if (r[0] != pair || r.length != 3)
-        throw "Failed to decouple given pair: " + pair;
-
-      return {
-        latitude:  r[1],
-        longitude: r[2]
-      };
-    }
-
-    function showTravel (event) {
-
-      // FIXME: ASAP
-
-      var originRaw         = decouple($("div #origin", $(this)).data("coordinates"));
-      var destinationsRaw   = $("div #destinations > .destination", $(this)).toArray()
-                                .map(function (dest) {
-                                  return decouple($(dest).data("coordinates"))
-                                });
-
-      var originLL          = new google.maps.LatLng(originRaw.latitude, originRaw.longitude);
-      var destinationsLL    = destinationsRaw.map(function (dest) { return new google.maps.LatLng(dest.latitude, dest.longitude); } );
-
-      originMarker = new google.maps.Marker({
-        position:   originLL,
-        map:        shipper.map,
-        draggable:  false
-      });
-
-      destinationMarkers =
-          destinationsLL.map(function (dest) {
-            return new google.maps.Marker({
-              position: dest,
-              map: shipper.map,
-              draggable: false
-            });
-          });
-    }
-
-    function hideTravel (event) {
-      originMarker.setMap(null);
-      destinationMarkers.forEach(function (marker) { marker.setMap(null); });
-    }
-
-    $("div .travel.list-group-item").hover(showTravel, hideTravel);
-
-    // Dumb sliding animation
-
-    // For travel dashboard
-
-    $(".travel-dashboard").hide();
-    $(".travel")
-        .hover(function () {
-          $(".travel-dashboard", $(this))
-              .stop(true, true)
-              .slideToggle();
-        });
-
-    // And travel's items
-
-    $(".destination-items-list").hide();
-    $("div .destination").hover(function() {
-      console.log($(this));
-      $(".destination-items-list", $(this))
-          .stop(true, true)
-          .slideToggle();
-    });
-
-  </script>
 
 <% end %>

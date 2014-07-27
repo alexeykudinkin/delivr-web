@@ -50,7 +50,7 @@
 
           <% travel.destinations.each do |destination| %>
 
-            <div class="destination list-group-item" data-coordinates="<%= destination.coordinates %>">
+            <div class="destination list-group-item" data-coordinates="<%= destination.coordinates %>" ng-mouseenter="slideItemsList($event)" ng-mouseleave="slideItemsList($event)">
 
               <h5 class="list-group-item-heading">
 
@@ -60,7 +60,7 @@
 
               <% if destination.items.length > 0 %>
 
-                <div class="destination-items-list list-group">
+                <div class="destination-items-list list-group ng-hide">
 
                   <% destination.items.each do |item| %>
 
