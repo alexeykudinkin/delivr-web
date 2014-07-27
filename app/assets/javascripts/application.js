@@ -75,7 +75,13 @@ angular.module('delivr', [ 'ngAnimate' ])
 
         function Services() {
 
-            this.geoCodingService = new google.maps.Geocoder();
+            function imbue(self, map) {
+                self.directionsRenderingService.setMap(map);
+            }
+
+            this.geoCodingService           = new google.maps.Geocoder();
+            this.directionsService          = new google.maps.DirectionsService();
+            this.directionsRenderingService = new google.maps.DirectionsRenderer();
 
             this.navigatorService = {
                 atCurrentPosition: function (handler) {
@@ -96,12 +102,14 @@ angular.module('delivr', [ 'ngAnimate' ])
                 });
             };
 
-            this.initMap = function (scope, canvas, options) {
+            this.init = function (scope, canvas, options) {
 
                 if (!canvas)
                     throw "Canvas supplied may not be 'undefined'";
 
                 var mapOptions = $.extend({}, {
+
+                    // FIXME
                     center: new google.maps.LatLng(59.96512, 30.15732),
                     zoom:   10,
 
@@ -123,7 +131,9 @@ angular.module('delivr', [ 'ngAnimate' ])
                     }
                 }, options);
 
-                scope.map = new google.maps.Map(canvas, mapOptions);
+                var map = scope.map = new google.maps.Map(canvas, mapOptions);
+
+                imbue(this, map);
             };
         }
 
@@ -281,7 +291,7 @@ angular.module('delivr', [ 'ngAnimate' ])
                 }
 
                 function initGoogleMaps() {
-                    delivrEnvironmentService.initMap($rootScope, element[0], scope.googleMapOptions || {});
+                    delivrEnvironmentService.init($rootScope, element[0], scope.googleMapOptions || {});
                 }
 
                 if ($window.google && $window.google.maps) {
@@ -350,6 +360,7 @@ angular.module('delivr', [ 'ngAnimate' ])
         };
 
         $scope.pushNextDestination = function () {
+
             if (!$scope.travel.model.destinations_attributes) {
                 $scope.travel.model.destinations_attributes = {};
             }
@@ -487,8 +498,8 @@ angular.module('delivr', [ 'ngAnimate' ])
                     // callback of the geocoding service
                     $scope.$apply(
                         function () {
-                            target.address = address;
-                            target.coordinates = coordinates.toString();
+                            target.address      = address;
+                            target.coordinates  = coordinates.toString(); // FIXME: Replace with LatLng
                         });
 
                     infoW.setContent(address);
@@ -506,10 +517,58 @@ angular.module('delivr', [ 'ngAnimate' ])
             });
         };
 
+        $scope.calculateRoute = function () {
+
+            function makeReqBy(model) {
+                var origin = new Coordinates(model.origin_attributes.coordinates).toLatLng();
+
+                var waypoints = delivr.util.values(model.destinations_attributes).map(function (destination) {
+                    return new Coordinates(destination.coordinates).toLatLng();
+                });
+
+                // FIXME
+                var destination = waypoints.last();
+
+                waypoints = waypoints.slice(0, waypoints.length - 1);
+
+                return {
+                    origin:         origin,
+                    destination:    destination,
+
+                    waypoints:      waypoints.map(function (waypoint) {
+                                        return {
+                                            location: waypoint,
+                                            stopover: true
+                                        }
+                                    }),
+
+                    optimizeWaypoints: true,
+
+                    provideRouteAlternatives: false,
+                    travelMode: google.maps.TravelMode.DRIVING,
+                    unitSystem: google.maps.UnitSystem.METRIC
+                }
+            }
+
+            var request = makeReqBy($scope.travel.model);
+
+            console.log(request);
+
+            delivrEnvironmentService.directionsService.route(request, function(result, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    delivrEnvironmentService.directionsRenderingService.setDirections(result);
+                }
+            });
+        };
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
+
         $scope.forth = function () {
             travelFormStorageService.save();
 
             $scope.accounted = true;
+
+            $scope.calculateRoute();
         };
 
         $scope.back = function () {
@@ -544,45 +603,28 @@ angular.module('delivr', [ 'ngAnimate' ])
         // FIXME
         var originMarker, destinationMarkers;
 
-        var pairMatcher = new RegExp("\\(([\\d]+\\.[\\d]+),\\s*([\\d]+\\.[\\d]+)\\)");
-
-        function decouple(pair) {
-            var r = pairMatcher.exec(pair);
-
-            if (r[0] != pair || r.length != 3)
-                throw "Failed to decouple given pair: " + pair;
-
-            return {
-                latitude:  r[1],
-                longitude: r[2]
-            };
-        }
-
         $scope.showTravel = function ($event) {
 
             // FIXME: ASAP
 
             var travelDOM = $($event.target).closest("div .travel");
 
-            var originRaw         = decouple($("div #origin", travelDOM).data("coordinates"));
-            var destinationsRaw   =
+            var origin          = new Coordinates($("div #origin", travelDOM).data("coordinates")).toLatLng();
+            var destinations    =
                 $("div #destinations > .destination", travelDOM)
                     .toArray()
                     .map(function (dest) {
-                        return decouple($(dest).data("coordinates"))
+                        return new Coordinates($(dest).data("coordinates")).toLatLng();
                     });
 
-            var originLL          = new google.maps.LatLng(originRaw.latitude, originRaw.longitude);
-            var destinationsLL    = destinationsRaw.map(function (dest) { return new google.maps.LatLng(dest.latitude, dest.longitude); } );
-
             originMarker = new google.maps.Marker({
-                position:   originLL,
+                position:   origin,
                 map:        map,
                 draggable:  false
             });
 
             destinationMarkers =
-                destinationsLL.map(function (dest) {
+                destinations.map(function (dest) {
                     return new google.maps.Marker({
                         position:   dest,
                         map:        map,
