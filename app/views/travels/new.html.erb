@@ -92,106 +92,17 @@
   </div>
 
   <script>
-    shipper.Q.enqueue("init", function() {
-
-      shipper.registerTrackerAndAutoComplete();
-
-      shipper.createTravel();
-
-    });
+//    shipper.Q.enqueue("init", function() {
+//
+//      shipper.registerTrackerAndAutoComplete();
+//
+//      shipper.createTravel();
+//
+//    });
   </script>
 
   <script>
-    angular.module('travelForm', [ 'ngAnimate' ])
 
-        .config([ '$locationProvider', function ($locationProvider) {
-
-          // Configure HTML5 to get links working on JSFiddle
-          $locationProvider.html5Mode(true);
-        } ])
-
-        .factory('travelFormStorageService', [ '$rootScope', function ($rootScope) {
-
-          var storageService = {
-            model: {},
-
-            save: function () {
-              localStorage.travelForm = angular.toJson(storageService.model);
-            },
-
-            restore: function () {
-              storageService.model = angular.fromJson(localStorage.travelForm);
-            }
-          };
-
-          return storageService;
-        } ])
-
-        .controller('TravelFormController', [ '$scope', 'travelFormStorageService', function ($scope, travelFormStorageService) {
-
-          // Sanity checks
-          function validateTravel(travel) { /* NOP */ }
-
-          $scope.log = function () {
-            console.log(arguments[0]);
-          };
-
-          $scope.pushNextItemFor = function (destination) {
-            if (!destination.items_attributes) {
-              destination.items_attributes = {};
-            }
-
-            var next = Object.keys(destination.items_attributes).length;
-
-            destination.items_attributes[next] = {};
-          };
-
-          $scope.pushNextDestination = function () {
-            if (!$scope.travel.model.destinations_attributes) {
-              $scope.travel.model.destinations_attributes = {};
-            }
-
-            var destinations_attributes = $scope.travel.model.destinations_attributes;
-            var next = Object.keys(destinations_attributes).length;
-
-            destinations_attributes[next] = {};
-          };
-
-          $scope.submitTravel = function () {
-            validateTravel($scope.travel.model);
-
-            $.ajax({
-              type:     'POST',
-              url:      '/travels',
-              data:     $scope.travel.model,
-              dataType: 'json'
-            }).done(function (data) {
-  //              console.log(data);
-              alert(data);
-            }).error(function (jqXHR, status, error) {
-              console.log("[AJAX]: " + status + ":" + error);
-            });
-
-          };
-
-          $scope.forth = function () {
-            travelFormStorageService.save();
-            $scope.accounted = true;
-
-            console.log($scope.travel.model);
-          };
-
-          $scope.back = function () {
-            travelFormStorageService.restore();
-            $scope.accounted = false;
-            $scope.travel = travelFormStorageService;
-
-            console.log($scope.travel.model);
-          };
-
-          $scope.accounted = false;
-          $scope.travel = travelFormStorageService;
-        } ])
   </script>
 
 <% end %>

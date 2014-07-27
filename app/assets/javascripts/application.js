@@ -15,286 +15,498 @@
 //= require turbolinks
 //= require_tree .
 
+'use strict';
 
 //
 // Services
 //
 
-function Shipper() {
-    this.activeInput    = null;
-    this.travels        = [];
-}
-
-function Services() {
-
-    this.geoCodingService = new google.maps.Geocoder();
-
-    this.autoCompleteService = {};
-
-    this.navigatorService = {
-        atCurrentPosition: function (handler) {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    handler(position);
-                })
-            }
-        }
-    }
-}
+//function Shipper() {
+//    this.activeInput    = null;
+//    this.travels        = [];
+//}
 
 
 //
 // Queue
 //
 
-function Queue() {}
-
-Queue.prototype = {
-
-    callbacks: {},
-
-    enqueue: function(event, callback) {
-        if (!this.callbacks[event])
-            this.callbacks[event] = [];
-
-        this.callbacks[event].push(callback);
-    },
-
-    notify: function(event) {
-        if (this.callbacks[event])
-        {
-            this.callbacks[event].forEach(function (callback) {
-                callback(event)
-            });
-        }
-    }
-};
+//function Queue() {}
+//
+//Queue.prototype = {
+//
+//    callbacks: {},
+//
+//    enqueue: function(event, callback) {
+//        if (!this.callbacks[event])
+//            this.callbacks[event] = [];
+//
+//        this.callbacks[event].push(callback);
+//    },
+//
+//    notify: function(event) {
+//        if (this.callbacks[event])
+//        {
+//            this.callbacks[event].forEach(function (callback) {
+//                callback(event)
+//            });
+//        }
+//    }
+//};
 
 
 //
-// Travels
+// Modules
 //
 
-function Address() {}
+angular.module('delivr', [ 'ngAnimate' ])
 
-Address.prototype.format = function() {
-    return this["route"] + ", " + this["street_number"] + ", " + this["locality"];
-};
+    .config([ '$locationProvider', function ($locationProvider) {
 
-function Travel() {}
+        // Configure HTML5 to get links working on JSFiddle
+        $locationProvider.html5Mode(true);
+    } ])
 
+    //
+    // Services
+    //
 
-//
-// Shipper
-//
+    .factory('delivrEnvironmentService', [ function() {
 
-Shipper.prototype = {
+        function Services() {
 
-    Q: new Queue(),
+            this.geoCodingService = new google.maps.Geocoder();
 
-    init: function () {
-        var canvas = $("#map-canvas").get(0);
-
-        this.initMap(canvas);
-
-        this.services = new Services();
-
-        this.Q.notify("init");
-    },
-
-    initMap: function (canvas, options) {
-        if (!canvas)
-            return;
-
-        var mapOptions = $.extend({}, {
-            center: new google.maps.LatLng(59.96512, 30.15732),
-            zoom:   10,
-
-            mapTypeControl: true,
-            mapTypeControlOptions: {
-                style:      google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-                position:   google.maps.ControlPosition.TOP_RIGHT
-            },
-
-            panControl: true,
-            panControlOptions: {
-                position:   google.maps.ControlPosition.RIGHT_TOP
-            },
-
-            zoomControl: true,
-            zoomControlOptions: {
-                style:      google.maps.ZoomControlStyle.LARGE,
-                position:   google.maps.ControlPosition.RIGHT_TOP
-            }
-        }, options);
-
-        this.map = new google.maps.Map(canvas, mapOptions);
-
-        this.Q.notify("init:map");
-    },
-
-    createTravel: function() {
-        this.travels.push(new Travel());
-    },
-
-    registerTrackerAndAutoComplete: function () {
-        var thisT   = this;
-        var map     = this.map;
-
-        $("div .form-body").on("click", "div[data-tracking-target]", function() {
-            var input = $(this);
-
-            thisT.activeInput = input;
-            thisT.bindAutoComplete(input);
-        });
-
-        google.maps.event.addListener(map, 'click', function (click) {
-            thisT.markPosition({ coordinates: click.latLng });
-        });
-    },
-
-    markPosition: function (position) {
-        var input   = this.activeInput;
-        var map     = this.map;
-
-        var travel  = this.travels.last();
-
-        var target = $(input).data("tracking-target");
-
-        if (target) {
-            var travelInfo = travel[target];
-
-            if (travelInfo) {
-                travelInfo.marker.setMap(null);
-
-                travelInfo.marker   = null;
-                travelInfo.input    = null;
-            }
-
-            var infoW = new google.maps.InfoWindow();
-            var marker = new google.maps.Marker({
-                map: map,
-                position: position["coordinates"],
-                draggable: true
-            });
-
-            travel[target] = travelInfo = {
-                marker: marker,
-                input: {
-                    address:        $(input).children(".address"),
-                    coordinates:    $(input).children(".coordinates")
+            this.navigatorService = {
+                atCurrentPosition: function (handler) {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function (position) {
+                            handler(position);
+                        })
+                    }
                 }
             };
 
-            var setResolved =
-                function (coordinates, address) {
-                    var addr    = $(travelInfo.input.address);
-                    var coords  = $(travelInfo.input.coordinates);
+            this.reverseGC = function (coordinates, callback) {
+                this.geoCodingService.geocode({ latLng: coordinates }, function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK)
+                        callback(coordinates, results[0].formatted_address);
+                    else
+                        callback(coordinates, coordinates);
+                });
+            };
 
-                    addr    .val(address);
-                    coords  .val(coordinates);
+            this.initMap = function (scope, canvas, options) {
 
-                    // AngularJS compatibility layer
-                    // Please FIXME ASAP
+                if (!canvas)
+                    throw "Canvas supplied may not be 'undefined'";
 
-                    console.log(travelInfo.input);
+                var mapOptions = $.extend({}, {
+                    center: new google.maps.LatLng(59.96512, 30.15732),
+                    zoom:   10,
 
-                    addr    .trigger('input');
-                    coords  .trigger('input');
+                    mapTypeControl: true,
+                    mapTypeControlOptions: {
+                        style:      google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                        position:   google.maps.ControlPosition.TOP_RIGHT
+                    },
 
-                    infoW.setContent(address);
-                    infoW.open(map, marker);
-                };
+                    panControl: true,
+                    panControlOptions: {
+                        position:   google.maps.ControlPosition.RIGHT_TOP
+                    },
 
-            if (position["address"])
-                setResolved(marker.getPosition(), position["address"]);
-            else
-                this.reverseGC(marker.getPosition(), setResolved);
+                    zoomControl: true,
+                    zoomControlOptions: {
+                        style:      google.maps.ZoomControlStyle.LARGE,
+                        position:   google.maps.ControlPosition.RIGHT_TOP
+                    }
+                }, options);
 
-            var thisT = this;
+                scope.map = new google.maps.Map(canvas, mapOptions);
+            };
+        }
 
-            google.maps.event.addListener(marker, 'dragend', function (_) {
-                thisT.reverseGC(marker.getPosition(), setResolved);
+        return new Services();
+    }])
+
+    .factory('travelFormStorageService', [ function () {
+
+        var storageService = {
+            model: {},
+
+            save: function () {
+                localStorage.travelForm = angular.toJson(storageService.model);
+            },
+
+            restore: function () {
+                storageService.model = angular.fromJson(localStorage.travelForm);
+            }
+        };
+
+        return storageService;
+    } ])
+
+
+    //
+    // Directives
+    //
+
+    .directive('googleMap', [ '$window', '$rootScope', 'delivrEnvironmentService', function ($window, $rootScope, delivrEnvironmentService) {
+        return {
+            restrict: 'A',
+            scope: {
+                googleMapOptions:   '='
+            },
+            link: function (scope, element, attrs) {
+
+                function loadGoogleMapsAsync() {
+
+                    var loadGoogleMaps =
+                        (function ($, window) {
+                            "use strict";
+
+                            var now = $.now();
+                            var promise;
+
+                            return function (version, apiKey, language, sensor) {
+                                if (promise) {
+                                    return promise;
+                                }
+
+                                var deferred = $.Deferred();
+
+                                var resolveDeferred = function () {
+                                    deferred.resolve(window.google && window.google.maps ? window.google.maps : false);
+                                };
+
+                                var callbackName = "loadGoogleMaps_" + (now++);
+
+                                // Default params
+                                var params =
+                                    $.extend({
+                                            "sensor": sensor || "false"
+                                        },
+                                        apiKey ? {
+                                            "key": apiKey
+                                        } : {},
+                                        language ? {
+                                            "language": language
+                                        } : {});
+
+                                if (window.google && window.google.maps) {
+                                    resolveDeferred();
+                                } else if (window.google && window.google.load) {
+                                    window.google.load("maps", version || 3, {
+                                        "other_params": $.param(params),
+                                        "callback": resolveDeferred
+                                    });
+                                } else {
+                                    params = $.extend(params, {
+                                        'callback': callbackName
+                                    });
+
+                                    window[callbackName] = function () {
+                                        resolveDeferred();
+
+                                        //Delete callback
+                                        setTimeout(function () {
+                                            try {
+                                                delete window[callbackName];
+                                            } catch (e) {
+                                            }
+                                        }, 20);
+                                    };
+
+                                    // Can't use the jXHR promise actually because 'script' doesn't support 'callback=?'
+                                    $.ajax({
+                                        dataType: 'script',
+                                        data: params,
+                                        url: '//maps.googleapis.com/maps/api/js'
+                                    });
+
+                                }
+
+                                promise = deferred.promise();
+
+                                return promise;
+                            };
+
+                        })(jQuery, window);
+
+                    $.when(loadGoogleMaps())
+                        .then(function () {
+                            /* NOP */
+                        })
+                        .done(function () {
+                            initGoogleMaps();
+                        });
+                }
+
+                function initGoogleMaps() {
+                    delivrEnvironmentService.initMap($rootScope, element[0], scope.googleMapOptions || {});
+                }
+
+                if ($window.google && $window.google.maps) {
+                    initGoogleMaps();
+                } else {
+                    loadGoogleMapsAsync();
+                }
+            }
+        };
+    }])
+
+
+    //
+    // Controllers
+    //
+
+    .controller('DelivrEnvironmentController', [ '$scope', '$rootScope', 'delivrEnvironmentService', function ($scope, $rootScope, delivrEnvironmentService) {
+        // NOP
+    } ])
+
+    //
+    // Controllers
+    //
+
+    .controller('TravelFormController', [ '$window', '$document', '$rootScope', '$scope', 'delivrEnvironmentService', 'travelFormStorageService', function ($window, $document, $rootScope, $scope, delivrEnvironmentService, travelFormStorageService) {
+
+        // Travels
+
+        function Travel() {}
+
+        function Address() {}
+
+        Address.prototype.format = function() {
+            return this["route"] + ", " + this["street_number"] + ", " + this["locality"];
+        };
+
+        //
+        // Local declarations
+        //
+
+        // Sanity checking harness
+
+        function validateTravel(travel) { /* NOP */ }
+
+        function init() {
+
+            $scope.accounted            = false;
+            $scope.travel               = travelFormStorageService;
+            $scope.autoCompleteServices = {};
+
+            $document.ready(function () {
+                $scope.registerTrackerAndAutoComplete();
             });
         }
-    },
 
-    reverseGC: function (location, callback) {
-        this.services.geoCodingService.geocode({ latLng: location }, function (results, status) {
-            if (status == google.maps.GeocoderStatus.OK)
-                callback(location, results[0].formatted_address);
-            else
-                callback(location, location);
-        });
-    },
+        //
+        // Scope declarations
+        //
 
-    bindAutoComplete: function (form) {
-        var target  = $(form).data("tracking-target");
-        var input   = $(form).children(".address").get(0);
-
-        if (this.services.autoCompleteService[target])
-            return;
-
-        this.services.autoCompleteService[target] = new google.maps.places.Autocomplete(input, { types: [ 'geocode' ] });
-
-        var thisT   = this;
-        var map     = this.map;
-
-        this.services.navigatorService.atCurrentPosition(function (position) {
-            var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-            thisT.services.autoCompleteService[target].setBounds(new google.maps.LatLngBounds(location, location));
-        });
-
-        google.maps.event.addDomListener(input, 'keydown', function (event) {
-                switch (event.keyCode) {
-                    case 13: /* Stop bubbling up the form! */
-                        event.preventDefault();
-                        break;
-                }
+        $scope.pushNextItemFor = function (destination) {
+            if (!destination.items_attributes) {
+                destination.items_attributes = {};
             }
-        );
 
-        google.maps.event.addListener(this.services.autoCompleteService[target], 'place_changed', function () {
+            var next = Object.keys(destination.items_attributes).length;
 
-            var place = thisT.services.autoCompleteService[target].getPlace();
+            destination.items_attributes[next] = {};
+        };
 
-            console.log(place);
+        $scope.pushNextDestination = function () {
+            if (!$scope.travel.model.destinations_attributes) {
+                $scope.travel.model.destinations_attributes = {};
+            }
 
-            // Hide elements not providing corresponding geometry-info
-            if (place.geometry) {
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(10);
-                }
+            var destinations_attributes = $scope.travel.model.destinations_attributes;
+            var next = Object.keys(destinations_attributes).length;
 
-                var filtered = new Address();
+            destinations_attributes[next] = {};
+        };
 
-                var format = {
-                    street_number:  'short_name',
-                    route:          'long_name',
-                    locality:       'long_name'
-                };
+        $scope.submitTravel = function () {
+            validateTravel($scope.travel.model);
 
-                for (var i = 0; i < place.address_components.length; ++i) {
-                    var type = place.address_components[i].types[0];
+            $.ajax({
+                type:     'POST',
+                url:      '/travels',
+                data:     $scope.travel.model,
+                dataType: 'json'
+            }).done(function (data) {
+                //              console.log(data);
+                alert(data);
+            }).error(function (jqXHR, status, error) {
+                console.log("[AJAX]: " + status + ":" + error);
+            });
 
-                    if (format[type]) {
-                        filtered[type] = place.address_components[i][format[type]]
+        };
+
+        $scope.createTravel = function() {
+            $scope.travels.push(new Travel());
+        };
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
+
+        $scope.registerTrackerAndAutoComplete = function () {
+
+            $("div .form-body").on("click", "div[data-tracking-target]", function() {
+                var input = $(this);
+
+                $scope.activeInput = input;
+                $scope.bindAutoComplete(input);
+            });
+
+            google.maps.event.addListener($rootScope.map, 'click', function (click) {
+                $scope.markPosition({ coordinates: click.latLng });
+            });
+        };
+
+        $scope.bindAutoComplete = function (form) {
+            var target  = $(form).data("tracking-target");
+            var input   = $(form).children(".address").get(0);
+
+            if ($scope.autoCompleteServices[target])
+                return;
+
+            $scope.autoCompleteServices[target] = new google.maps.places.Autocomplete(input, { types: [ 'geocode' ] });
+
+            delivrEnvironmentService.navigatorService.atCurrentPosition(function (position) {
+                var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                $scope.autoCompleteServices[target].setBounds(new google.maps.LatLngBounds(location, location));
+            });
+
+            google.maps.event.addDomListener(input, 'keydown', function (event) {
+                    switch (event.keyCode) {
+                        case 13: /* Stop bubbling up the form! */
+                            event.preventDefault();
+                            break;
                     }
                 }
+            );
 
-                var position = {
-                    coordinates:    place.geometry.location,
-                    address:        filtered.format()
+            google.maps.event.addListener($scope.autoCompleteServices[target], 'place_changed', function () {
+
+                var map     = $rootScope.map;
+                var place   = $scope.autoCompleteServices[target].getPlace();
+
+                // Hide elements not providing corresponding geometry-info
+                if (place.geometry) {
+                    if (place.geometry.viewport) {
+
+                        map.fitBounds(place.geometry.viewport);
+                    } else {
+                        map.setCenter(place.geometry.location);
+                        map.setZoom(10);
+                    }
+
+                    var filtered = new Address();
+
+                    var format = {
+                        street_number:  'short_name',
+                        route:          'long_name',
+                        locality:       'long_name'
+                    };
+
+                    for (var i = 0; i < place.address_components.length; ++i) {
+                        var type = place.address_components[i].types[0];
+
+                        if (format[type]) {
+                            filtered[type] = place.address_components[i][format[type]]
+                        }
+                    }
+
+                    var position = {
+                        coordinates:    place.geometry.location,
+                        address:        filtered.format()
+                    };
+
+                    $scope.markPosition(position);
+                }
+            })
+        };
+
+        $scope.markPosition = function (position) {
+            var map     = $rootScope.map;
+
+            var input   = $scope.activeInput;
+            var travel  = $scope.travel;
+
+            var target = $(input).data("tracking-target");
+
+            if (target) {
+                var travelInfo = travel[target];
+
+                if (travelInfo) {
+                    travelInfo.marker.setMap(null);
+
+                    travelInfo.marker   = null;
+                    travelInfo.input    = null;
+                }
+
+                var infoW   = new google.maps.InfoWindow();
+                var marker  = new google.maps.Marker({
+                    map: map,
+                    position: position["coordinates"],
+                    draggable: true
+                });
+
+                travel[target] = travelInfo = {
+                    marker: marker,
+                    input: {
+                        address:        $(input).children(".address"),
+                        coordinates:    $(input).children(".coordinates")
+                    }
                 };
 
-                thisT.markPosition(position);
+                var setResolved =
+                    function (coordinates, address) {
+                        var addr    = $(travelInfo.input.address);
+                        var coords  = $(travelInfo.input.coordinates);
+
+                        addr    .val(address);
+                        coords  .val(coordinates);
+
+                        // AngularJS compatibility layer
+                        // Please FIXME ASAP
+
+                        console.log(travelInfo.input);
+
+                        addr    .trigger('input');
+                        coords  .trigger('input');
+
+                        infoW.setContent(address);
+                        infoW.open(map, marker);
+                    };
+
+                if (position["address"])
+                    setResolved(marker.getPosition(), position["address"]);
+                else
+                    delivrEnvironmentService.reverseGC(marker.getPosition(), setResolved);
+
+                google.maps.event.addListener(marker, 'dragend', function (_) {
+                    delivrEnvironmentService.reverseGC(marker.getPosition(), setResolved);
+                });
             }
-        })
-    }
+        };
 
-};
+        ///////////////////////////////////////////////////////////////////////////////////////////
 
-var shipper = new Shipper();
+        $scope.forth = function () {
+            travelFormStorageService.save();
+            $scope.accounted = true;
+
+            console.log($scope.travel.model);
+        };
+
+        $scope.back = function () {
+            travelFormStorageService.restore();
+            $scope.accounted = false;
+            $scope.travel = travelFormStorageService;
+
+            console.log($scope.travel.model);
+        };
+
+        init();
+
+    } ]);
