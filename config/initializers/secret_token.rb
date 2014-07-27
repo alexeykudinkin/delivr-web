@@ -9,4 +9,18 @@
 
 # Make sure your secret_key_base is kept private
 # if you're sharing your code publicly.
-Shipper::Application.config.secret_key_base = '259ca4651cc70a5b6fc3799adf470368140bb4c3b2ea7e3d6146a5c78d4d9f5f583a1750a2b473ae770c5bcfd37d4436b035ccf16163981684aae7f6b60c73a9'
+
+require 'securerandom'
+
+def secure_token
+  token_file = Rails.root.join('.secret')
+  if File.exists? token_file
+    File.read(token_file).chomp
+  else
+    token = SecureRandom.hex(64)
+    File.write(token_file, token)
+    token
+  end
+end
+
+Shipper::Application.config.secret_key_base = secure_token

@@ -18,3 +18,10 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
+
+# ignore temporaries
+*.~
+*.swp
+
+# do not store secret token
+.secret

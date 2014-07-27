@@ -1,17 +1,16 @@
-<%= form.fields_for(:origin, Travels::Places::Origin.new) do |subform|      %>
 
-  <!--<div class="col-sm-3">-->
-    <!--<%= subform.label      :origin %>-->
-  <!--</div>-->
+<%  ngmodel_addr   = "#{ngmodel_prefix}.address"
+    ngmodel_coords = "#{ngmodel_prefix}.coordinates" %>
 
-  <div class="col-sm-12" data-tracking-target="origin">
+<div ng-click="<%= "registerClickerAndAutoComplete(#{ngmodel_prefix}, $event)" %>">
 
-    <%= subform.text_field :address,      placeholder:  "Origin",
-                                          class:        "address form-control" %>
+  <%= form.text_field :address,     placeholder:  "Origin",
+                                    class:        "address form-control",
+                                    ng_model:     ngmodel_addr,
+                                    ng_attr_value: "#{ngmodel_addr}" %>
 
-    <%= subform.text_field :coordinates,  type:         "hidden",
-                                          class:        "coordinates" %>
+  <%= form.text_field :coordinates, #type:         "hidden",
+                                    class:        "coordinates hidden",
+                                    ng_model:     ngmodel_coords %>
 
-  </div>
-
-<% end %>
+</div>

@@ -1,19 +1,29 @@
-<%= form.fields_for(:destination, Travels::Places::Destination.new) do |subform|  %>
+<%  ngmodel_addr    = "#{ngmodel_prefix}.address"
+    ngmodel_coords  = "#{ngmodel_prefix}.coordinates"
+    ngmodel_items   = "#{ngmodel_prefix}.items_attributes" %>
 
-  <!--<div class="col-sm-3">-->
-    <!--<%= subform.label :destination %>-->
-  <!--</div>-->
+<div class="<%= local_assigns[:class] %>" ng-click="<%= "registerClickerAndAutoComplete(#{ngmodel_prefix}, $event)" %>">
 
-  <div class="col-sm-12" data-tracking-target="destination">
+  <%= form.text_field :address,     placeholder:  "Destination",
+                                    class:        "address form-control",
+                                    ng_model:     ngmodel_addr %>
 
-    <%= subform.text_field :address,      placeholder:  "Destination",
-                                          class:        "address form-control" %>
+  <%= form.text_field :coordinates, #type:         "hidden",
+                                    class:        "coordinates hidden",
+                                    ng_model:     ngmodel_coords %>
 
-    <%= subform.text_field :coordinates,  type:         "hidden",
-                                          class:        "coordinates" %>
+</div>
 
-  </div>
+<div style="padding-top: 10pt">
+  <%= link_to_add_fields_angular(form, :items, ngmodel_prefix) do |gen| %>
+    <%= output = <<-RUBY_EVAL
+          <div class="" ng-repeat="item in #{ngmodel_items}" ng-init="itemsIndex = $index">
+            #{gen.call({ index: "itemsIndex" })}
+          </div>
+        RUBY_EVAL
 
+        output.html_safe %>
+  <% end %>
 
-
-<% end %>
+  <%= push_onclick_button_to('Add item', { ng_click: "pushNextItemFor(#{ngmodel_prefix})", class: "btn btn-primary" }) %>
+</div>

@@ -7,31 +7,13 @@
     border: 1px dashed rgba(200, 200, 200, .5);
   }
 
-  /*.dot {*/
-    /*margin: auto;*/
-    /*border: 5pt solid lightgray;*/
-    /*border-radius: 10pt;*/
-    /*height: 10pt;*/
-    /*width: 10pt;*/
-  /*}*/
-
-  /*.stripe {*/
-    /*display: inline-block;*/
-    /*margin: 10pt;*/
-  /*}*/
-
-  /*.point {*/
-    /*display: inline-block;*/
-    /*vertical-align: middle;*/
-    /*width: 30%;*/
-  /*}*/
-
-  /*.point .name {*/
-    /*margin: 0;*/
-  /*}*/
-
   .target {
     overflow-x: hidden;
+  }
+
+  .towards {
+    padding-top: 5pt;
+    padding-bottom: 5pt;
   }
 
   .box-body {
@@ -46,45 +28,66 @@
 
     <div class="row">
 
-      <div class="target col-md-5">
+      <div class="target">
 
-        <div class="dot"></div>
+        <div id="origin" class="origin list-group-item" data-coordinates="<%= travel.origin.coordinates %>">
 
-        <p id="origin" class="name" data-coordinates="<%= travel.origin.coordinates %>">
-          <%= travel.origin.address %>
-        </p>
+          <h5 class="list-group-item-heading">
 
-      </div>
+            <%= travel.origin.address %>
 
-      <div class="col-md-2">
+          </h5>
 
-        ----->
+        </div>
 
       </div>
 
-      <div class="target col-md-5">
+      <span class="towards glyphicon glyphicon-arrow-down"></span>
 
-        <div class="dot"></div>
+      <div class="target">
 
-        <p id="destination" class="name" data-coordinates="<%= travel.destination.coordinates %>">
-          <%= travel.destination.address %>
-        </p>
+        <div id="destinations" class="list-group">
+
+          <% travel.destinations.each do |destination| %>
+
+            <div class="destination list-group-item" data-coordinates="<%= destination.coordinates %>" ng-mouseenter="slideItemsList($event)" ng-mouseleave="slideItemsList($event)">
+
+              <h5 class="list-group-item-heading">
+
+                <%= destination.address %>
+
+              </h5>
+
+              <% if destination.items.length > 0 %>
+
+                <div class="destination-items-list list-group ng-hide">
+
+                  <% destination.items.each do |item| %>
+
+                    <span class="list-group-item">
+                      <%= item.name %>
+                    </span>
+                    <p class="list-group-item-text">
+                      <%= item.description %>
+                      <%= item.weight %>
+                    </p>
+
+                  <% end %>
+
+                </div>
+
+              <% end %>
+
+            </div>
+
+          <% end %>
+
+        </div>
 
       </div>
-
 
     </div>
 
   </div>
-
-  <div>
-
-    <% travel.items.each do |item| %>
-      <p><%= "#{item.description}, #{item.weight}" %></p>
-    <% end %>
-
-  </div>
-
-
 
 </div>
