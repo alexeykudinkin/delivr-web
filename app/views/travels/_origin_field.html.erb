@@ -5,11 +5,12 @@
 <%  ngmodel_addr   = "#{ngmodel_prefix}.address"
     ngmodel_coords = "#{ngmodel_prefix}.coordinates" %>
 
-<div data-tracking-target="origin">
+<div ng-click="<%= "registerClickerAndAutoComplete(#{ngmodel_prefix}, $event)" %>">
 
   <%= form.text_field :address,     placeholder:  "Origin",
                                     class:        "address form-control",
-                                    ng_model:     ngmodel_addr %>
+                                    ng_model:     ngmodel_addr,
+                                    ng_attr_value: "#{ngmodel_addr}" %>
 
   {{ <%= ngmodel_addr %> }}
 

@@ -1,9 +1,8 @@
-
 <%  ngmodel_addr    = "#{ngmodel_prefix}.address"
     ngmodel_coords  = "#{ngmodel_prefix}.coordinates"
     ngmodel_items   = "#{ngmodel_prefix}.items_attributes" %>
 
-<div <%= "data-tracking-target=#{ngmodel_prefix} class=#{local_assigns[:class]}" %>>
+<div class="<%= local_assigns[:class] %>" ng-click="<%= "registerClickerAndAutoComplete(#{ngmodel_prefix}, $event)" %>">
 
   <%= form.text_field :address,     placeholder:  "Destination",
                                     class:        "address form-control",

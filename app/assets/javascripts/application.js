@@ -22,7 +22,7 @@
 //
 
 //function Shipper() {
-//    this.activeInput    = null;
+//    this.current    = null;
 //    this.travels        = [];
 //}
 
@@ -87,7 +87,7 @@ angular.module('delivr', [ 'ngAnimate' ])
                 }
             };
 
-            this.reverseGC = function (coordinates, callback) {
+            this.resolveAddress = function (coordinates, callback) {
                 this.geoCodingService.geocode({ latLng: coordinates }, function (results, status) {
                     if (status == google.maps.GeocoderStatus.OK)
                         callback(coordinates, results[0].formatted_address);
@@ -132,15 +132,52 @@ angular.module('delivr', [ 'ngAnimate' ])
 
     .factory('travelFormStorageService', [ function () {
 
+        function strip(source) {
+            if (!angular.isObject(source))
+                return source;
+
+            var stripped = {};
+            Object.keys(source).forEach(function (key, index, array) {
+                    if (String(key)[0] !== "$") {
+                        stripped[key] = strip(source[key]);
+                    }
+                }
+            );
+
+            return stripped;
+        }
+
+        function update(source, target) {
+            Object.keys(source).forEach(function (key, index, array) {
+                target[key] = source[key];
+            })
+        }
+
         var storageService = {
-            model: {},
+
+            model: {
+                origin_attributes:          {},
+                destinations_attributes:    {},
+
+                $bare: function () {
+                    return strip(this);
+                },
+
+                $serialize: function() {
+                    return {
+                        travel: this.$bare()
+                    }
+                }
+            },
 
             save: function () {
-                localStorage.travelForm = angular.toJson(storageService.model);
+                localStorage.travelForm = angular.toJson(storageService.model.$bare());
             },
 
             restore: function () {
-                storageService.model = angular.fromJson(localStorage.travelForm);
+                if (localStorage.travelForm) {
+                    update(angular.fromJson(localStorage.travelForm), this.model);
+                }
             }
         };
 
@@ -290,13 +327,11 @@ angular.module('delivr', [ 'ngAnimate' ])
         function validateTravel(travel) { /* NOP */ }
 
         function init() {
-
             $scope.accounted            = false;
             $scope.travel               = travelFormStorageService;
-            $scope.autoCompleteServices = {};
 
-            $document.ready(function () {
-                $scope.registerTrackerAndAutoComplete();
+            google.maps.event.addListener($rootScope.map, 'click', function (click) {
+                $scope.$activeTracker && $scope.$activeTracker(click.latLng);
             });
         }
 
@@ -326,54 +361,50 @@ angular.module('delivr', [ 'ngAnimate' ])
         };
 
         $scope.submitTravel = function () {
+
             validateTravel($scope.travel.model);
+
+            console.log($scope.travel.model);
+            console.log($scope.travel.model.$bare());
 
             $.ajax({
                 type:     'POST',
                 url:      '/travels',
-                data:     $scope.travel.model,
+                data:     $scope.travel.model.$serialize(),
                 dataType: 'json'
             }).done(function (data) {
-                //              console.log(data);
-                alert(data);
+                console.log("[AJAX][S]: Successfully created!");
             }).error(function (jqXHR, status, error) {
-                console.log("[AJAX]: " + status + ":" + error);
+                console.log("[AJAX][E]: " + status + ":" + error);
             });
 
         };
 
-        $scope.createTravel = function() {
-            $scope.travels.push(new Travel());
+        $scope.registerClickerAndAutoComplete = function (target, $event) {
+            $scope.tryBindTracker(target);
+            $scope.tryBindAutoComplete(target, $event.target);
+
+            $scope.$activeTracker = target.$trackingService;
         };
 
-        ///////////////////////////////////////////////////////////////////////////////////////////
-
-        $scope.registerTrackerAndAutoComplete = function () {
-
-            $("div .form-body").on("click", "div[data-tracking-target]", function() {
-                var input = $(this);
-
-                $scope.activeInput = input;
-                $scope.bindAutoComplete(input);
-            });
-
-            google.maps.event.addListener($rootScope.map, 'click', function (click) {
-                $scope.markPosition({ coordinates: click.latLng });
-            });
-        };
-
-        $scope.bindAutoComplete = function (form) {
-            var target  = $(form).data("tracking-target");
-            var input   = $(form).children(".address").get(0);
-
-            if ($scope.autoCompleteServices[target])
+        $scope.tryBindTracker = function (target) {
+            if (target.$trackingService)
                 return;
 
-            $scope.autoCompleteServices[target] = new google.maps.places.Autocomplete(input, { types: [ 'geocode' ] });
+            target.$trackingService = function (position) {
+                $scope.markPosition({ coordinates: position }, target);
+            };
+        };
+
+        $scope.tryBindAutoComplete = function (target, input) {
+            if (target.$autoCompleteService)
+                return;
+
+            target.$autoCompleteService = new google.maps.places.Autocomplete(input, { types: [ 'geocode' ] });
 
             delivrEnvironmentService.navigatorService.atCurrentPosition(function (position) {
                 var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                $scope.autoCompleteServices[target].setBounds(new google.maps.LatLngBounds(location, location));
+                target.$autoCompleteService.setBounds(new google.maps.LatLngBounds(location, location));
             });
 
             google.maps.event.addDomListener(input, 'keydown', function (event) {
@@ -385,15 +416,15 @@ angular.module('delivr', [ 'ngAnimate' ])
                 }
             );
 
-            google.maps.event.addListener($scope.autoCompleteServices[target], 'place_changed', function () {
+            google.maps.event.addListener(target.$autoCompleteService, 'place_changed', function () {
 
-                var map     = $rootScope.map;
-                var place   = $scope.autoCompleteServices[target].getPlace();
+                var map = $rootScope.map;
+
+                var place = target.$autoCompleteService.getPlace();
 
                 // Hide elements not providing corresponding geometry-info
                 if (place.geometry) {
                     if (place.geometry.viewport) {
-
                         map.fitBounds(place.geometry.viewport);
                     } else {
                         map.setCenter(place.geometry.location);
@@ -421,92 +452,87 @@ angular.module('delivr', [ 'ngAnimate' ])
                         address:        filtered.format()
                     };
 
-                    $scope.markPosition(position);
+                    $scope.markPosition(position, target);
                 }
             })
         };
 
-        $scope.markPosition = function (position) {
+        $scope.markPosition = function (position, target) {
+
             var map     = $rootScope.map;
 
-            var input   = $scope.activeInput;
-            var travel  = $scope.travel;
+            var mapInfo = target.$mapInfo;
 
-            var target = $(input).data("tracking-target");
+            if (mapInfo) {
+                mapInfo.marker.setMap(null);
+                mapInfo.marker = null;
+            }
 
-            if (target) {
-                var travelInfo = travel[target];
+            var infoW   = new google.maps.InfoWindow();
+            var marker  = new google.maps.Marker({
+                map:        map,
+                position:   position["coordinates"],
+                draggable:  true
+            });
 
-                if (travelInfo) {
-                    travelInfo.marker.setMap(null);
+            target.$mapInfo = {
+                marker: marker
+            };
 
-                    travelInfo.marker   = null;
-                    travelInfo.input    = null;
-                }
+            var setResolved =
+                function (coordinates, address) {
 
-                var infoW   = new google.maps.InfoWindow();
-                var marker  = new google.maps.Marker({
-                    map: map,
-                    position: position["coordinates"],
-                    draggable: true
-                });
+                    // This is for all models bound to the `address` and `coordinates`
+                    // to be notified of change, due to `setResolved` being fired as a
+                    // callback of the geocoding service
+                    $scope.$apply(
+                        function () {
+                            target.address = address;
+                            target.coordinates = coordinates.toString();
+                        });
 
-                travel[target] = travelInfo = {
-                    marker: marker,
-                    input: {
-                        address:        $(input).children(".address"),
-                        coordinates:    $(input).children(".coordinates")
-                    }
+                    infoW.setContent(address);
+                    infoW.open(map, marker);
                 };
 
-                var setResolved =
-                    function (coordinates, address) {
-                        var addr    = $(travelInfo.input.address);
-                        var coords  = $(travelInfo.input.coordinates);
-
-                        addr    .val(address);
-                        coords  .val(coordinates);
-
-                        // AngularJS compatibility layer
-                        // Please FIXME ASAP
-
-                        console.log(travelInfo.input);
-
-                        addr    .trigger('input');
-                        coords  .trigger('input');
-
-                        infoW.setContent(address);
-                        infoW.open(map, marker);
-                    };
-
-                if (position["address"])
-                    setResolved(marker.getPosition(), position["address"]);
-                else
-                    delivrEnvironmentService.reverseGC(marker.getPosition(), setResolved);
-
-                google.maps.event.addListener(marker, 'dragend', function (_) {
-                    delivrEnvironmentService.reverseGC(marker.getPosition(), setResolved);
-                });
+            if (position["address"]) {
+                setResolved(marker.getPosition(), position["address"]);
+            } else {
+                delivrEnvironmentService.resolveAddress(marker.getPosition(), setResolved);
             }
-        };
 
-        ///////////////////////////////////////////////////////////////////////////////////////////
+            google.maps.event.addListener(marker, 'dragend', function (_) {
+                delivrEnvironmentService.resolveAddress(marker.getPosition(), setResolved);
+            });
+        };
 
         $scope.forth = function () {
             travelFormStorageService.save();
-            $scope.accounted = true;
 
-            console.log($scope.travel.model);
+            $scope.accounted = true;
         };
 
         $scope.back = function () {
             travelFormStorageService.restore();
-            $scope.accounted = false;
-            $scope.travel = travelFormStorageService;
 
-            console.log($scope.travel.model);
+            $scope.accounted = false;
+
+            $scope.travel = travelFormStorageService;
         };
 
-        init();
+        ///////////////////////////////////////////////////////////////////////////////////////////
+
+        // DEBUG_ONLY
+
+        $scope.$dumpTravel = function () {
+            console.log("Travel: \n");
+            console.log($scope.travel);
+        };
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
+
+        $document.ready(function (_) {
+            init();
+        });
 
     } ]);

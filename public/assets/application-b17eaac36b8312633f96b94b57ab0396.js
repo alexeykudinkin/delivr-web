@@ -15096,7 +15096,7 @@ function Services() {
 
     this.geoCodingService = new google.maps.Geocoder();
 
-    this.autoCompleteService = {};
+    this.autoCompleteServices = {};
 
     this.navigatorService = {
         atCurrentPosition: function (handler) {
@@ -15220,11 +15220,11 @@ Shipper.prototype = {
             var target = $(source).data       ("tracking-target");
             var input  = $(source).children   (".address").get(0);
 
-            shipper.services.autoCompleteService[target] = new google.maps.places.Autocomplete(input, { types: [ 'geocode' ] });
+            shipper.services.autoCompleteServices[target] = new google.maps.places.Autocomplete(input, { types: [ 'geocode' ] });
 
             shipper.services.navigatorService.atCurrentPosition(function (position) {
                 var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                shipper.services.autoCompleteService[target].setBounds(new google.maps.LatLngBounds(location, location));
+                shipper.services.autoCompleteServices[target].setBounds(new google.maps.LatLngBounds(location, location));
             });
 
             google.maps.event.addDomListener(input, 'keydown', function (event) {
@@ -15236,9 +15236,9 @@ Shipper.prototype = {
                 }
             );
 
-            google.maps.event.addListener(shipper.services.autoCompleteService[target], 'place_changed', function () {
+            google.maps.event.addListener(shipper.services.autoCompleteServices[target], 'place_changed', function () {
 
-                var place = shipper.services.autoCompleteService[target].getPlace();
+                var place = shipper.services.autoCompleteServices[target].getPlace();
 
                 // Hide elements not providing corresponding geometry-info
                 if (place.geometry) {

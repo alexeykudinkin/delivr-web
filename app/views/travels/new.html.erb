@@ -15,10 +15,6 @@
 
       <div class="panel panel-default">
 
-        <!--<div class="panel-heading">-->
-          <!--<h3 class="panel-title">New travel</h3>-->
-        <!--</div>-->
-
         <div class="new-travel-form panel-body" ng-controller="TravelFormController">
 
           <%= form_for(@travel, html: { class: "form-horizontal", role: "form" }) do |form| %>
@@ -49,21 +45,12 @@
                   <%= push_onclick_button_to('Add destination', { ng_click: "pushNextDestination()", class: "btn btn-primary" }) %>
                 </div>
 
-                <!--<div class="destination form-group">-->
-                  <!--<%# push_fields_for(form, :destinations, ngmodel_prefix) %>-->
-                <!--</div>-->
-
-                <!--<div class="form-group">-->
-                  <!--<%# link_to_add_fields(form, "$(this).parents(\".form-group\")", :destinations, ngmodel_prefix) %>-->
-                <!--</div>-->
-
               </div>
 
               <div class="travel-summary" ng-switch-when="true">
                 $$$$
 
                 <div class="form-group">
-                  <%# form.submit(class: "btn btn-primary") %>
                   <button type="button" class="btn btn-primary" ng-click="submitTravel()">Submit</button>
                 </div>
               </div>
@@ -72,10 +59,7 @@
 
                 <button type="button" class="btn" ng-click="back()">Back</button>
                 <button type="button" class="btn" ng-click="forth()">Forth</button>
-
-                <!--<a href="" ng-click="form.account()">-->
-                  <!--<input type="button" name="" value="Preview" class="btn">-->
-                <!--</a>-->
+                <button type="button" class="btn" ng-click="$dumpTravel()">DUMP</button>
 
               </div>
 
@@ -90,19 +74,5 @@
   </div>
 
   </div>
-
-  <script>
-//    shipper.Q.enqueue("init", function() {
-//
-//      shipper.registerTrackerAndAutoComplete();
-//
-//      shipper.createTravel();
-//
-//    });
-  </script>
-
-  <script>
-
-  </script>
 
 <% end %>
