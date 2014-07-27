@@ -1,6 +1,3 @@
-<!--<div class="col-sm-3">-->
-  <!--<%# form.label      :origin %>-->
-<!--</div>-->
 
 <%  ngmodel_addr   = "#{ngmodel_prefix}.address"
     ngmodel_coords = "#{ngmodel_prefix}.coordinates" %>
@@ -12,12 +9,8 @@
                                     ng_model:     ngmodel_addr,
                                     ng_attr_value: "#{ngmodel_addr}" %>
 
-  {{ <%= ngmodel_addr %> }}
-
   <%= form.text_field :coordinates, #type:         "hidden",
                                     class:        "coordinates hidden",
                                     ng_model:     ngmodel_coords %>
-
-  {{ <%= ngmodel_coords %> }}
 
 </div>
