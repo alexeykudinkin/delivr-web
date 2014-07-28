@@ -20,16 +20,17 @@ class ApplicationController < ActionController::Base
   #
 
   def self.require_login(*actions)
+    # FIXME
     _fenced_actions.concat [ *actions ]
 
-    before_action only: _fenced_actions do |controller|
+    prepend_before_action only: _fenced_actions do |controller|
       demand_login(controller)
     end
   end
 
   def demand_login(controller)
     unless controller.send(:logged_in?)
-      redirect_to login_path, status: :forbidden, flash: { error: 'You must be logged in!' }
+        redirect_to login_path, status: :forbidden, alert: "You must be logged in!"
     end
   end
 
