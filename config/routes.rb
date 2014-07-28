@@ -27,7 +27,7 @@ Shipper::Application.routes.draw do
   #   end
   # end
 
-  resources :users do
+  resources :users, only: [ :show ] do
     resources :travels, except: [ :show, :new, :create ] # only: [ :index ]
 
     collection do
@@ -54,10 +54,21 @@ Shipper::Application.routes.draw do
     end
   end
 
+  resources :dashboard, only: [ :show ]
 
   get :dashboard, to: "dashboard#show"
 
-  resources :dashboard, only: [ :show ]
+
+  # Administrative dashboard
+
+  namespace :admin do
+    resources :users, only: [ :create, :new ] do
+      get   :new,     to: "users#new"
+      post  :create,  to: "users#create"
+    end
+
+    get "", to: "dashboard#show", as: "/"
+  end
 
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase

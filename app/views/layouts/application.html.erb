@@ -79,6 +79,11 @@
         <%= yield :map_overlay %>
         <div id="map-canvas" google-map></div>
 
+      <% elsif content_for? :dashboard -%>
+
+        <!-- FIXME: Layout -->
+        <%= yield :dashboard %>
+
       <% else -%>
 
         <%= yield %>
