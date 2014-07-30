@@ -517,38 +517,125 @@ angular.module('delivr', [ 'ngAnimate' ])
             });
         };
 
-        $scope.calculateRoute = function () {
 
-            function makeReqBy(model) {
-                var origin = new Coordinates(model.origin_attributes.coordinates).toLatLng();
+        // Make Directions API proper request by supplied travel model
 
-                var waypoints = delivr.util.values(model.destinations_attributes).map(function (destination) {
-                    return new Coordinates(destination.coordinates).toLatLng();
-                });
+        function makeReqBy(model) {
 
-                // FIXME
-                var destination = waypoints.last();
+            var origin = new Coordinates(model.origin_attributes.coordinates).toLatLng();
+            var destination;
 
-                waypoints = waypoints.slice(0, waypoints.length - 1);
+            var waypoints = delivr.util.values(model.destinations_attributes).map(function (destination) {
+                return new Coordinates(destination.coordinates).toLatLng();
+            });
 
-                return {
-                    origin:         origin,
-                    destination:    destination,
 
-                    waypoints:      waypoints.map(function (waypoint) {
-                                        return {
-                                            location: waypoint,
-                                            stopover: true
-                                        }
-                                    }),
-
-                    optimizeWaypoints: true,
-
-                    provideRouteAlternatives: false,
-                    travelMode: google.maps.TravelMode.DRIVING,
-                    unitSystem: google.maps.UnitSystem.METRIC
-                }
+            function euclidSquaredDistance(a, b) {
+                return Math.pow(a.latitude - b.latitude, 2) + Math.pow(a.longitude - b.longitude, 2);
             }
+
+            if (waypoints.length < 2) {
+
+                destination = waypoints[0];
+
+            } else {
+
+                var bb = (function (points) {
+                    var nw, se;
+
+                    if (points.length < 2)
+                        throw "";
+
+                    nw = points[0];
+                    se = points[1];
+
+                    for (var i = 2; i < points.length; ++i) {
+                        var p = points[i];
+
+                        if (p.latitude > se.latitude || p.longitude > se.longitude)
+                            se = p;
+                        else if (p.latitude < nw.latitude || p.longitude < nw.longitude)
+                            nw = p;
+                    }
+
+                    return [ nw, se ];
+                })(waypoints);
+
+                if (euclidSquaredDistance(origin, bb[0]) > euclidSquaredDistance(origin, bb[1]))
+                    destination = bb[1];
+                else
+                    destination = bb[0];
+            }
+
+            waypoints = waypoints.filter(function (wp) { return !wp.equals(destination); });
+
+            return {
+                origin:         origin,
+                destination:    destination,
+
+                waypoints:      waypoints.map(function (waypoint) {
+                    return {
+                        location: waypoint,
+                        stopover: true
+                    }
+                }),
+
+                optimizeWaypoints: true,
+
+                provideRouteAlternatives: false,
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.METRIC
+            }
+        }
+
+        $scope.calculateRoute = function () {
+            var map = $rootScope.map;
+            var elem = angular.element($("div #travel-summary"));
+
+            // Create the tsp object
+            tsp = new BpTspSolver(map, elem, delivrEnvironmentService.geoCodingService, delivrEnvironmentService.directionsService);
+
+            tsp.setTravelMode(google.maps.DirectionsTravelMode.DRIVING);
+
+            // Add points (by coordinates, or by address).
+            // The first point added is the starting location.
+            // The last point added is the final destination (in the case of A - Z mode)
+
+            var r = makeReqBy($scope.travel.model);
+
+            tsp.addWaypoint(r.origin);  // Note: The callback is new for version 3, to ensure waypoints and addresses appear in the order they were added in.
+            //tsp.addAddress(r.origin, null);
+
+            r.waypoints.forEach(function (wp) {
+                tsp.addWaypoint(wp.location);
+            });
+
+            tsp.addWaypoint(r.destination);
+
+            // Solve the problem (start and end up at the first location)
+            //tsp.solveRoundTrip(null);
+
+            // Or, if you want to start in the first location and end at the last,
+            // but don't care about the order of the points in between:
+            tsp.solveAtoZ(function () {
+                // Retrieve the solution (so you can display it to the user or do whatever :-)
+                var dir = tsp.getGDirections();  // This is a normal GDirections object.
+
+                delivrEnvironmentService.directionsRenderingService.setDirections(dir);
+            });
+
+            // The order of the elements in dir now correspond to the optimal route.
+
+            // If you just want the permutation of the location indices that is the best route:
+            //var order = tsp.getOrder();
+
+            // If you want the duration matrix that was used to compute the route:
+            //var durations = tsp.getDurations();
+
+            // There are also other utility functions, see the source.
+        };
+
+        $scope.calculateRoute0 = function () {
 
             var request = makeReqBy($scope.travel.model);
 
