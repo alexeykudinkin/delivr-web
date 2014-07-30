@@ -375,9 +375,6 @@ angular.module('delivr', [ 'ngAnimate' ])
 
             validateTravel($scope.travel.model);
 
-            console.log($scope.travel.model);
-            console.log($scope.travel.model.$bare());
-
             $.ajax({
                 type:     'POST',
                 url:      '/travels',
@@ -385,6 +382,10 @@ angular.module('delivr', [ 'ngAnimate' ])
                 dataType: 'json'
             }).done(function (data) {
                 console.log("[AJAX][S]: Successfully created!");
+
+                // FIXME
+                alert("Successfully created!");
+
             }).error(function (jqXHR, status, error) {
                 console.log("[AJAX][E]: " + status + ":" + error);
             });
@@ -566,6 +567,56 @@ angular.module('delivr', [ 'ngAnimate' ])
                 else
                     destination = bb[0];
             }
+        }
+
+        $scope.calculateRoute = function () {
+            var map = $rootScope.map;
+            var elem = angular.element($("div #travel-summary"));
+
+            // Create the tsp object
+            tsp = new BpTspSolver(map, elem, delivrEnvironmentService.geoCodingService, delivrEnvironmentService.directionsService);
+
+            tsp.setTravelMode(google.maps.DirectionsTravelMode.DRIVING);
+
+            // Add points (by coordinates, or by address).
+            // The first point added is the starting location.
+            // The last point added is the final destination (in the case of A - Z mode)
+
+            var r = makeReqBy($scope.travel.model);
+
+            tsp.addWaypoint(r.origin);  // Note: The callback is new for version 3, to ensure waypoints and addresses appear in the order they were added in.
+            //tsp.addAddress(r.origin, null);
+
+            r.waypoints.forEach(function (wp) {
+                tsp.addWaypoint(wp.location);
+            });
+
+            tsp.addWaypoint(r.destination);
+
+            // Solve the problem (start and end up at the first location)
+            //tsp.solveRoundTrip(null);
+
+            // Or, if you want to start in the first location and end at the last,
+            // but don't care about the order of the points in between:
+            tsp.solveAtoZ(function () {
+                // Retrieve the solution (so you can display it to the user or do whatever :-)
+                var directions = tsp.getGDirections();  // This is a normal GDirections object.
+
+                delivrEnvironmentService.directionsRenderingService.setDirections(directions);
+            });
+
+            // The order of the elements in dir now correspond to the optimal route.
+
+            // If you just want the permutation of the location indices that is the best route:
+            //var order = tsp.getOrder();
+
+            // If you want the duration matrix that was used to compute the route:
+            //var durations = tsp.getDurations();
+
+            // There are also other utility functions, see the source.
+        };
+
+        $scope.calculateRoute0 = function () {
 
             waypoints = waypoints.filter(function (wp) { return !wp.equals(destination); });
 
@@ -619,9 +670,9 @@ angular.module('delivr', [ 'ngAnimate' ])
             // but don't care about the order of the points in between:
             tsp.solveAtoZ(function () {
                 // Retrieve the solution (so you can display it to the user or do whatever :-)
-                var directions = tsp.getGDirections();  // This is a normal GDirections object.
+                var dir = tsp.getGDirections();  // This is a normal GDirections object.
 
-                delivrEnvironmentService.directionsRenderingService.setDirections(directions);
+                delivrEnvironmentService.directionsRenderingService.setDirections(dir);
             });
 
             // The order of the elements in dir now correspond to the optimal route.
@@ -685,12 +736,12 @@ angular.module('delivr', [ 'ngAnimate' ])
 
     .controller('TravelsListingController', [ '$scope', '$rootScope', function ($scope, $rootScope) {
 
-        var map = $rootScope.map;
-
         // FIXME
         var originMarker, destinationMarkers;
 
         $scope.showTravel = function ($event) {
+
+            var map = $rootScope.map;
 
             // FIXME: ASAP
 

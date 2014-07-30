@@ -34,7 +34,7 @@
 
                     <%= output = <<-RUBY_EVAL
                           <div class="" ng-repeat="destination in #{ngmodel_prefix}.destinations_attributes" ng-init="destinationIndex = $index">
-                            #{gen.call({ index: "destinationIndex" })}
+                            #{ gen.call({ index: "destinationIndex" }) }
                           </div>
                         RUBY_EVAL
 
@@ -48,6 +48,7 @@
               </div>
 
               <div id="travel-summary" ng-switch-when="true">
+
                 $$$$
 
                 <div class="form-group">
