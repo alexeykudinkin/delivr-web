@@ -619,9 +619,9 @@ angular.module('delivr', [ 'ngAnimate' ])
             // but don't care about the order of the points in between:
             tsp.solveAtoZ(function () {
                 // Retrieve the solution (so you can display it to the user or do whatever :-)
-                var dir = tsp.getGDirections();  // This is a normal GDirections object.
+                var directions = tsp.getGDirections();  // This is a normal GDirections object.
 
-                delivrEnvironmentService.directionsRenderingService.setDirections(dir);
+                delivrEnvironmentService.directionsRenderingService.setDirections(directions);
             });
 
             // The order of the elements in dir now correspond to the optimal route.
