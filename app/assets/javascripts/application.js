@@ -375,9 +375,6 @@ angular.module('delivr', [ 'ngAnimate' ])
 
             validateTravel($scope.travel.model);
 
-            console.log($scope.travel.model);
-            console.log($scope.travel.model.$bare());
-
             $.ajax({
                 type:     'POST',
                 url:      '/travels',
@@ -385,6 +382,10 @@ angular.module('delivr', [ 'ngAnimate' ])
                 dataType: 'json'
             }).done(function (data) {
                 console.log("[AJAX][S]: Successfully created!");
+
+                // FIXME
+                alert("Successfully created!");
+
             }).error(function (jqXHR, status, error) {
                 console.log("[AJAX][E]: " + status + ":" + error);
             });
@@ -685,12 +686,12 @@ angular.module('delivr', [ 'ngAnimate' ])
 
     .controller('TravelsListingController', [ '$scope', '$rootScope', function ($scope, $rootScope) {
 
-        var map = $rootScope.map;
-
         // FIXME
         var originMarker, destinationMarkers;
 
         $scope.showTravel = function ($event) {
+
+            var map = $rootScope.map;
 
             // FIXME: ASAP
 
