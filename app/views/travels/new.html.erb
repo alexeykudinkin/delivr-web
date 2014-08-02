@@ -25,11 +25,11 @@
 
                 <% ngmodel_prefix = "travel.model" %>
 
-                <div class="origin form-group">
+                <div class="origin">
                   <%= push_fields_for(form, :origin, ngmodel_prefix) %>
                 </div>
 
-                <div class="destinations form-group" ng-init="pushNextDestination()">
+                <div class="destinations" ng-init="pushNextDestination()">
                   <%= link_to_add_fields_angular(form, :destinations, ngmodel_prefix) do |gen| %>
 
                     <%= output = <<-RUBY_EVAL
@@ -42,6 +42,9 @@
 
                   <% end %>
 
+                </div>
+
+                <div class="form-group">
                   <%= push_onclick_button_to('Add destination', { ng_click: "pushNextDestination()", class: "btn btn-primary" }) %>
                 </div>
 

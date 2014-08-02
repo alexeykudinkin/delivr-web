@@ -1,21 +1,27 @@
 <% subform = local_assigns[:subform] %>
 
-<div>
+<div class="form-group" ng-class="{ 'has-error': <%= subform %>.address.$error.required && <%= subform %>.address.$dirty }">
 
   <div>
-    <label class="control-label" ng-if="  <%= subform %>.address.$touched
-                                      &&  <%= subform %>.address.$invalid">
-      Missing address
-    </label>
-  </div>
+
+    <div>
+      <label class="control-label" ng-if="  <%= subform %>.address.$touched
+                                        &&  <%= subform %>.address.$invalid">
+        Missing address
+      </label>
+    </div>
 
 
-  <div>
-    <label class="control-label" ng-if="  <%= subform %>.address.$valid
-                                      &&  <%= subform %>.coordinates.$touched
-                                      &&  <%= subform %>.coordinates.$invalid">
-      Couldn't resolve address
-    </label>
+    <div>
+      <label class="control-label" ng-if="  <%= subform %>.address.$valid
+                                        &&  <%= subform %>.coordinates.$touched
+                                        &&  <%= subform %>.coordinates.$invalid">
+        Couldn't resolve address
+      </label>
+    </div>
+
   </div>
+
+  <%= yield %>
 
 </div>

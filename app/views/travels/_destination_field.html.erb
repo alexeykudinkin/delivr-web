@@ -1,38 +1,40 @@
-<%  ngmodel_prefix  = local_assigns[:ngmodel_prefix]
+<%  ng_model_prefix  = local_assigns[:ngmodel_prefix]
 
-    ngmodel_addr    = "#{ngmodel_prefix}.address"
-    ngmodel_coords  = "#{ngmodel_prefix}.coordinates"
-    ngmodel_items   = "#{ngmodel_prefix}.items_attributes"
+    ng_model_addr    = "#{ng_model_prefix}.address"
+    ng_model_coords  = "#{ng_model_prefix}.coordinates"
+    ng_model_items   = "#{ng_model_prefix}.items_attributes"
 
-    ngform = "destinationSubForm" %>
+    ng_form = "destinationSubForm" %>
 
-<div class="<%= local_assigns[:class] %>" ng-click="<%= "registerClickerAndAutoComplete(#{ngmodel_prefix}, $event)"%>" ng-form="<%= ngform %>" verify-address>
+<div class="<%= local_assigns[:class] %>" ng-click="<%= "registerClickerAndAutoComplete(#{ng_model_prefix}, $event)"%>" ng-form="<%= ng_form %>" verify-address>
 
-  <%= render 'travel_address_error_labels', subform: ngform %>
+  <%= render layout: 'travel_address_error_labels', locals: { subform: ng_form } do %>
 
-  <%= form.text_field :address,     name:         "address",
-                                    placeholder:  "Destination",
-                                    class:        "address form-control",
-                                    ng_model:     ngmodel_addr,
-                                    ng_required:  true %>
+    <%= form.text_field :address,     name:         "address",
+                                      placeholder:  "Destination",
+                                      class:        "address form-control",
+                                      ng_model:     ng_model_addr,
+                                      ng_required:  true %>
 
-  <%= form.text_field :coordinates, name:         "coordinates",
-                                    class:        "coordinates hidden",
-                                    ng_model:     ngmodel_coords,
-                                    ng_required:  true %>
+    <%= form.text_field :coordinates, name:         "coordinates",
+                                      class:        "coordinates hidden",
+                                      ng_model:     ng_model_coords,
+                                      ng_required:  true %>
+
+  <% end %>
 
 </div>
 
-<div style="padding-top: 10pt">
-  <%= link_to_add_fields_angular(form, :items, ngmodel_prefix) do |gen| %>
-    <%= output = <<-RUBY_EVAL
-          <div class="" ng-repeat="item in #{ngmodel_items}" ng-init="itemsIndex = $index">
-            #{ gen.call({ index: "itemsIndex" })}
-          </div>
-        RUBY_EVAL
+<%= link_to_add_fields_angular(form, :items, ng_model_prefix) do |gen| %>
+  <%= output = <<-RUBY_EVAL
+        <div class="" ng-repeat="item in #{ng_model_items}" ng-init="itemsIndex = $index">
+          #{ gen.call({ index: "itemsIndex" })}
+        </div>
+      RUBY_EVAL
 
-        output.html_safe %>
-  <% end %>
+      output.html_safe %>
+<% end %>
 
-  <%= push_onclick_button_to('Add item', { ng_click: "pushNextItemFor(#{ngmodel_prefix})", class: "btn btn-primary" }) %>
+<div class="form-group">
+  <%= push_onclick_button_to('Add item', { ng_click: "pushNextItemFor(#{ng_model_prefix})", class: "btn btn-primary" }) %>
 </div>

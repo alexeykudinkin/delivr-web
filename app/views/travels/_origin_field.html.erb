@@ -7,24 +7,21 @@
 
 <div ng-click="<%= "registerClickerAndAutoComplete(#{ngmodel_prefix}, $event)" %>" ng-form="<%= ngform %>" verify-address>
 
-  <div class="form-group" ng-class="{ 'has-error': <%= ngform %>.address.$error.required && <%= ngform %>.address.$dirty }">
+    <%= render layout: 'travel_address_error_labels', locals: { subform: ngform } do %>
 
-    <%= render 'travel_address_error_labels', subform: ngform %>
+      <%= form.text_field :address,     name:         "address",
+                                        placeholder:  "Origin",
+                                        class:        "address form-control",
+                                        ng_model:     ngmodel_addr,
+                                        ng_required:  true %>
 
-    <%= form.text_field :address,     name:         "address",
-                                      placeholder:  "Origin",
-                                      class:        "address form-control",
-                                      ng_model:     ngmodel_addr,
-                                      ng_required:  true %>
+      <%= form.text_field :coordinates, name:         "coordinates",
+                                        class:        "coordinates hidden",
+                                        ng_model:     ngmodel_coords,
+                                        ng_required:  true %>
 
-
-    <%= form.text_field :coordinates, name:         "coordinates",
-                                      class:        "coordinates hidden",
-                                      ng_model:     ngmodel_coords,
-                                      ng_required:  true %>
+    <% end %>
 
     <!--<span ng-show="originSubForm.coordinates.$error.required">Couldn't resolve place supplied!</span>-->
-
-  </div>
 
 </div>
