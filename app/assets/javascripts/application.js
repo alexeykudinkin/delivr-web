@@ -656,7 +656,7 @@ angular.module('delivr', [ 'ngAnimate' ])
 
             $scope.accounted = true;
 
-            $scope.calculateRoute();
+            $scope.calculateRoute0();
         };
 
         $scope.back = function () {
