@@ -1,16 +1,25 @@
-<%  ngmodel_addr    = "#{ngmodel_prefix}.address"
+<%  ngmodel_prefix  = local_assigns[:ngmodel_prefix]
+
+    ngmodel_addr    = "#{ngmodel_prefix}.address"
     ngmodel_coords  = "#{ngmodel_prefix}.coordinates"
-    ngmodel_items   = "#{ngmodel_prefix}.items_attributes" %>
+    ngmodel_items   = "#{ngmodel_prefix}.items_attributes"
 
-<div class="<%= local_assigns[:class] %>" ng-click="<%= "registerClickerAndAutoComplete(#{ngmodel_prefix}, $event)" %>">
+    ngform = "destinationSubForm" %>
 
-  <%= form.text_field :address,     placeholder:  "Destination",
+<div class="<%= local_assigns[:class] %>" ng-click="<%= "registerClickerAndAutoComplete(#{ngmodel_prefix}, $event)"%>" ng-form="<%= ngform %>" verify-address>
+
+  <%= render 'travel_address_error_labels', subform: ngform %>
+
+  <%= form.text_field :address,     name:         "address",
+                                    placeholder:  "Destination",
                                     class:        "address form-control",
-                                    ng_model:     ngmodel_addr %>
+                                    ng_model:     ngmodel_addr,
+                                    ng_required:  true %>
 
-  <%= form.text_field :coordinates, #type:         "hidden",
+  <%= form.text_field :coordinates, name:         "coordinates",
                                     class:        "coordinates hidden",
-                                    ng_model:     ngmodel_coords %>
+                                    ng_model:     ngmodel_coords,
+                                    ng_required:  true %>
 
 </div>
 
@@ -18,7 +27,7 @@
   <%= link_to_add_fields_angular(form, :items, ngmodel_prefix) do |gen| %>
     <%= output = <<-RUBY_EVAL
           <div class="" ng-repeat="item in #{ngmodel_items}" ng-init="itemsIndex = $index">
-            #{gen.call({ index: "itemsIndex" })}
+            #{ gen.call({ index: "itemsIndex" })}
           </div>
         RUBY_EVAL
 

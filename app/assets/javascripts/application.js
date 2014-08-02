@@ -15,51 +15,15 @@
 //= require turbolinks
 //= require_tree .
 
+(function ($) {
+
 'use strict';
-
-//
-// Services
-//
-
-//function Shipper() {
-//    this.current    = null;
-//    this.travels        = [];
-//}
-
-
-//
-// Queue
-//
-
-//function Queue() {}
-//
-//Queue.prototype = {
-//
-//    callbacks: {},
-//
-//    enqueue: function(event, callback) {
-//        if (!this.callbacks[event])
-//            this.callbacks[event] = [];
-//
-//        this.callbacks[event].push(callback);
-//    },
-//
-//    notify: function(event) {
-//        if (this.callbacks[event])
-//        {
-//            this.callbacks[event].forEach(function (callback) {
-//                callback(event)
-//            });
-//        }
-//    }
-//};
-
 
 //
 // Modules
 //
 
-angular.module('delivr', [ 'ngAnimate' ])
+angular.module('delivr', [ 'ngAnimate', 'ngMessages' ])
 
     .config([ '$locationProvider', function ($locationProvider) {
 
@@ -71,7 +35,7 @@ angular.module('delivr', [ 'ngAnimate' ])
     // Services
     //
 
-    .factory('delivrEnvironmentService', [ function() {
+    .factory('delivrEnvironmentService', [ function () {
 
         function Services() {
 
@@ -79,8 +43,8 @@ angular.module('delivr', [ 'ngAnimate' ])
                 self.directionsRenderingService.setMap(map);
             }
 
-            this.geoCodingService           = new google.maps.Geocoder();
-            this.directionsService          = new google.maps.DirectionsService();
+            this.geoCodingService = new google.maps.Geocoder();
+            this.directionsService = new google.maps.DirectionsService();
             this.directionsRenderingService = new google.maps.DirectionsRenderer();
 
             this.navigatorService = {
@@ -93,12 +57,25 @@ angular.module('delivr', [ 'ngAnimate' ])
                 }
             };
 
-            this.resolveAddress = function (coordinates, callback) {
+            this.resolveByCoordinates = function (coordinates, callback) {
                 this.geoCodingService.geocode({ latLng: coordinates }, function (results, status) {
+                    var resolved;
+
                     if (status == google.maps.GeocoderStatus.OK)
-                        callback(coordinates, results[0].formatted_address);
-                    else
-                        callback(coordinates, coordinates);
+                        resolved = results[0].formatted_address;
+
+                    callback({ coordinates: coordinates, address: resolved });
+                });
+            };
+
+            this.resolveByAddress = function (address, callback) {
+                this.geoCodingService.geocode({ address: address }, function (results, status) {
+                    var found;
+
+                    if (status == google.maps.GeocoderStatus.OK)
+                        found = results[0].geometry.location;
+
+                    callback({ coordinates: found, address: address });
                 });
             };
 
@@ -111,23 +88,23 @@ angular.module('delivr', [ 'ngAnimate' ])
 
                     // FIXME
                     center: new google.maps.LatLng(59.96512, 30.15732),
-                    zoom:   10,
+                    zoom: 10,
 
                     mapTypeControl: true,
                     mapTypeControlOptions: {
-                        style:      google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-                        position:   google.maps.ControlPosition.TOP_RIGHT
+                        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                        position: google.maps.ControlPosition.TOP_RIGHT
                     },
 
                     panControl: true,
                     panControlOptions: {
-                        position:   google.maps.ControlPosition.RIGHT_TOP
+                        position: google.maps.ControlPosition.RIGHT_TOP
                     },
 
                     zoomControl: true,
                     zoomControlOptions: {
-                        style:      google.maps.ZoomControlStyle.LARGE,
-                        position:   google.maps.ControlPosition.RIGHT_TOP
+                        style: google.maps.ZoomControlStyle.LARGE,
+                        position: google.maps.ControlPosition.RIGHT_TOP
                     }
                 }, options);
 
@@ -163,17 +140,21 @@ angular.module('delivr', [ 'ngAnimate' ])
             })
         }
 
+        function Place() {
+            this.items_attributes = {}
+        }
+
         var storageService = {
 
             model: {
-                origin_attributes:          {},
-                destinations_attributes:    {},
+                origin_attributes: {},
+                destinations_attributes: {},
 
                 $bare: function () {
                     return strip(this);
                 },
 
-                $serialize: function() {
+                $serialize: function () {
                     return {
                         travel: this.$bare()
                     }
@@ -203,7 +184,7 @@ angular.module('delivr', [ 'ngAnimate' ])
         return {
             restrict: 'A',
             scope: {
-                googleMapOptions:   '='
+                googleMapOptions: '='
             },
             link: function (scope, element, attrs) {
 
@@ -303,6 +284,37 @@ angular.module('delivr', [ 'ngAnimate' ])
         };
     }])
 
+    .directive('verifyAddress', [ '$window', '$rootScope', 'delivrEnvironmentService', function ($window, $rootScope, delivrEnvironmentService) {
+        return {
+            restrict:   'A',
+            require:    [ 'form' /* WTF? Why 'ngForm' breaks? */ ],
+            link: function (scope, element, attrs, controller) {
+
+                var form = controller[0];
+
+                $(element).find(".address").bind('blur', function () {
+                    scope.$apply(
+                        function () {
+                            if (form.address.$touched) {
+                                if (form.address.$invalid) {
+                                    form.address.$setValidity("required", false);
+                                } else if (form.coordinates.$invalid) {
+                                    form.coordinates.$setValidity("required", false);
+                                }
+
+                                // TODO:
+                                //      This is a hack to imitate coordinates sub-form
+                                //      being touched
+
+                                form.coordinates.$setTouched();
+                            }
+                        }
+                    )
+                });
+            }
+        }
+    }])
+
 
     //
     // Controllers
@@ -320,13 +332,23 @@ angular.module('delivr', [ 'ngAnimate' ])
 
         // Travels
 
-        function Travel() {}
+        function Travel() {
+        }
 
-        function Address() {}
+        function Address() {
+        }
 
-        Address.prototype.format = function() {
+        Address.prototype.format = function () {
             return this["route"] + ", " + this["street_number"] + ", " + this["locality"];
         };
+
+        // Initialize current scope
+
+        (function init() {
+            $scope.accounted = false;
+            $scope.travel = travelFormStorageService;
+        }());
+
 
         //
         // Local declarations
@@ -334,12 +356,10 @@ angular.module('delivr', [ 'ngAnimate' ])
 
         // Sanity checking harness
 
-        function validateTravel(travel) { /* NOP */ }
+        function validateTravel(travel) { /* NOP */
+        }
 
-        function init() {
-            $scope.accounted            = false;
-            $scope.travel               = travelFormStorageService;
-
+        function initOnDOMReady() {
             google.maps.event.addListener($rootScope.map, 'click', function (click) {
                 $scope.$activeTracker && $scope.$activeTracker(click.latLng);
             });
@@ -349,26 +369,29 @@ angular.module('delivr', [ 'ngAnimate' ])
         // Scope declarations
         //
 
-        $scope.pushNextItemFor = function (destination) {
-            if (!destination.items_attributes) {
-                destination.items_attributes = {};
-            }
+        // FIXME: Move out constructors
 
+        function Place() {
+            this.items_attributes = {}
+        }
+
+        function Item() {
+        }
+
+        $scope.pushNextItemFor = function (destination) {
             var next = Object.keys(destination.items_attributes).length;
 
-            destination.items_attributes[next] = {};
+            destination.items_attributes[next] = new Item();
         };
 
         $scope.pushNextDestination = function () {
 
-            if (!$scope.travel.model.destinations_attributes) {
-                $scope.travel.model.destinations_attributes = {};
-            }
-
             var destinations_attributes = $scope.travel.model.destinations_attributes;
             var next = Object.keys(destinations_attributes).length;
 
-            destinations_attributes[next] = {};
+            destinations_attributes[next] = new Place();
+
+            $scope.pushNextItemFor(destinations_attributes[next]);
         };
 
         $scope.submitTravel = function () {
@@ -376,9 +399,9 @@ angular.module('delivr', [ 'ngAnimate' ])
             validateTravel($scope.travel.model);
 
             $.ajax({
-                type:     'POST',
-                url:      '/travels',
-                data:     $scope.travel.model.$serialize(),
+                type: 'POST',
+                url: '/travels',
+                data: $scope.travel.model.$serialize(),
                 dataType: 'json'
             }).done(function (data) {
                 console.log("[AJAX][S]: Successfully created!");
@@ -404,7 +427,7 @@ angular.module('delivr', [ 'ngAnimate' ])
                 return;
 
             target.$trackingService = function (position) {
-                $scope.markPosition({ coordinates: position }, target);
+                $scope.tryResolveAndMarkPosition({ coordinates: position }, target);
             };
         };
 
@@ -419,14 +442,14 @@ angular.module('delivr', [ 'ngAnimate' ])
                 target.$autoCompleteService.setBounds(new google.maps.LatLngBounds(location, location));
             });
 
-            google.maps.event.addDomListener(input, 'keydown', function (event) {
-                    switch (event.keyCode) {
-                        case 13: /* Stop bubbling up the form! */
-                            event.preventDefault();
-                            break;
-                    }
-                }
-            );
+//            google.maps.event.addDomListener(input, 'keydown', function (event) {
+//                    switch (event.keyCode) {
+//                        case 13: /* Stop bubbling up the form! */
+//                            event.preventDefault();
+//                            break;
+//                    }
+//                }
+//            );
 
             google.maps.event.addListener(target.$autoCompleteService, 'place_changed', function () {
 
@@ -434,8 +457,13 @@ angular.module('delivr', [ 'ngAnimate' ])
 
                 var place = target.$autoCompleteService.getPlace();
 
-                // Hide elements not providing corresponding geometry-info
+                //
+                // Check whether place lookup succeeded: reset marker if it did,
+                // and drop previously resolved coordinates otherwise
+                //
+
                 if (place.geometry) {
+
                     if (place.geometry.viewport) {
                         map.fitBounds(place.geometry.viewport);
                     } else {
@@ -446,9 +474,9 @@ angular.module('delivr', [ 'ngAnimate' ])
                     var filtered = new Address();
 
                     var format = {
-                        street_number:  'short_name',
-                        route:          'long_name',
-                        locality:       'long_name'
+                        street_number: 'short_name',
+                        route: 'long_name',
+                        locality: 'long_name'
                     };
 
                     for (var i = 0; i < place.address_components.length; ++i) {
@@ -460,31 +488,64 @@ angular.module('delivr', [ 'ngAnimate' ])
                     }
 
                     var position = {
-                        coordinates:    place.geometry.location,
-                        address:        filtered.format()
+                        coordinates: place.geometry.location,
+                        address: filtered.format()
                     };
 
-                    $scope.markPosition(position, target);
+                    $scope.tryResolveAndMarkPosition(position, target);
+
+                } else {
+
+                    $scope.tryResolveAndMarkPosition({ address: place.name }, target);
+
                 }
             })
         };
 
-        $scope.markPosition = function (position, target) {
+        $scope.tryResolveAndMarkPosition = function (position, target) {
 
-            var map     = $rootScope.map;
+            //
+            // TODO: For the sake of god: GET RID OF THIS BULLSHIT!
+            //
 
-            var mapInfo = target.$mapInfo;
+            var map = $rootScope.map;
 
-            if (mapInfo) {
-                mapInfo.marker.setMap(null);
-                mapInfo.marker = null;
+            if (target.$mapInfo) {
+                target.$mapInfo.marker.setMap(null);
+
+                target.$mapInfo = null;
             }
 
-            var infoW   = new google.maps.InfoWindow();
-            var marker  = new google.maps.Marker({
-                map:        map,
-                position:   position["coordinates"],
-                draggable:  true
+            if (!position.coordinates) {
+
+                //
+                // Last chance: try find address supplied
+                //
+
+                if (position.address) {
+                    delivrEnvironmentService.resolveByAddress(position.address, function (opts) {
+                        position.coordinates = opts.coordinates;
+                    })
+                }
+
+                // SOL
+                if (!position.coordinates) {
+                    $scope.$apply(
+                        function () {
+                            target.address      = position.address;
+                            target.coordinates  = null;
+                        });
+
+                    return;
+                }
+            }
+
+
+            var infoW = new google.maps.InfoWindow();
+            var marker = new google.maps.Marker({
+                map: map,
+                position: position.coordinates,
+                draggable: true
             });
 
             target.$mapInfo = {
@@ -492,7 +553,10 @@ angular.module('delivr', [ 'ngAnimate' ])
             };
 
             var setResolved =
-                function (coordinates, address) {
+                function (opts) {
+
+                    var coordinates = opts.coordinates;
+                    var address     = opts.address;
 
                     // This is for all models bound to the `address` and `coordinates`
                     // to be notified of change, due to `setResolved` being fired as a
@@ -507,14 +571,16 @@ angular.module('delivr', [ 'ngAnimate' ])
                     infoW.open(map, marker);
                 };
 
-            if (position["address"]) {
-                setResolved(marker.getPosition(), position["address"]);
+            if (position.address) {
+                setResolved(position);
             } else {
-                delivrEnvironmentService.resolveAddress(marker.getPosition(), setResolved);
+                delivrEnvironmentService.resolveByCoordinates(marker.getPosition(), setResolved);
             }
 
+            // Push listener to re-resolve address after marker being drag-and-drop'ed
+
             google.maps.event.addListener(marker, 'dragend', function (_) {
-                delivrEnvironmentService.resolveAddress(marker.getPosition(), setResolved);
+                delivrEnvironmentService.resolveByCoordinates(marker.getPosition(), setResolved);
             });
         };
 
@@ -568,13 +634,15 @@ angular.module('delivr', [ 'ngAnimate' ])
                     destination = bb[0];
             }
 
-            waypoints = waypoints.filter(function (wp) { return !wp.equals(destination); });
+            waypoints = waypoints.filter(function (wp) {
+                return !wp.equals(destination);
+            });
 
             return {
-                origin:         origin,
-                destination:    destination,
+                origin: origin,
+                destination: destination,
 
-                waypoints:      waypoints.map(function (waypoint) {
+                waypoints: waypoints.map(function (waypoint) {
                     return {
                         location: waypoint,
                         stopover: true
@@ -642,7 +710,7 @@ angular.module('delivr', [ 'ngAnimate' ])
 
             console.log(request);
 
-            delivrEnvironmentService.directionsService.route(request, function(result, status) {
+            delivrEnvironmentService.directionsService.route(request, function (result, status) {
                 if (status == google.maps.DirectionsStatus.OK) {
                     delivrEnvironmentService.directionsRenderingService.setDirections(result);
                 }
@@ -671,6 +739,10 @@ angular.module('delivr', [ 'ngAnimate' ])
 
         // DEBUG_ONLY
 
+        $scope.log = function (o) {
+            console.log(o);
+        }
+
         $scope.$dumpTravel = function () {
             console.log("Travel: \n");
             console.log($scope.travel);
@@ -679,7 +751,7 @@ angular.module('delivr', [ 'ngAnimate' ])
         ///////////////////////////////////////////////////////////////////////////////////////////
 
         $document.ready(function (_) {
-            init();
+            initOnDOMReady();
         });
 
     } ])
@@ -697,8 +769,8 @@ angular.module('delivr', [ 'ngAnimate' ])
 
             var travelDOM = $($event.target).closest("div .travel");
 
-            var origin          = new Coordinates($("div #origin", travelDOM).data("coordinates")).toLatLng();
-            var destinations    =
+            var origin = new Coordinates($("div #origin", travelDOM).data("coordinates")).toLatLng();
+            var destinations =
                 $("div #destinations > .destination", travelDOM)
                     .toArray()
                     .map(function (dest) {
@@ -706,24 +778,26 @@ angular.module('delivr', [ 'ngAnimate' ])
                     });
 
             originMarker = new google.maps.Marker({
-                position:   origin,
-                map:        map,
-                draggable:  false
+                position: origin,
+                map: map,
+                draggable: false
             });
 
             destinationMarkers =
                 destinations.map(function (dest) {
                     return new google.maps.Marker({
-                        position:   dest,
-                        map:        map,
-                        draggable:  false
+                        position: dest,
+                        map: map,
+                        draggable: false
                     });
                 });
         };
 
         $scope.hideTravel = function ($event) {
             originMarker.setMap(null);
-            destinationMarkers.forEach(function (marker) { marker.setMap(null); });
+            destinationMarkers.forEach(function (marker) {
+                marker.setMap(null);
+            });
         };
 
         // Dumb sliding animation
@@ -752,3 +826,5 @@ angular.module('delivr', [ 'ngAnimate' ])
                 .removeClass('ng-hide'); // FIXME
         };
     }]);
+
+})(jQuery);

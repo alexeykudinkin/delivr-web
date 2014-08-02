@@ -1,0 +1,21 @@
+<% subform = local_assigns[:subform] %>
+
+<div>
+
+  <div>
+    <label class="control-label" ng-if="  <%= subform %>.address.$touched
+                                      &&  <%= subform %>.address.$invalid">
+      Missing address
+    </label>
+  </div>
+
+
+  <div>
+    <label class="control-label" ng-if="  <%= subform %>.address.$valid
+                                      &&  <%= subform %>.coordinates.$touched
+                                      &&  <%= subform %>.coordinates.$invalid">
+      Couldn't resolve address
+    </label>
+  </div>
+
+</div>

@@ -1,16 +1,30 @@
+<%  ngmodel_prefix = local_assigns[:ngmodel_prefix]
 
-<%  ngmodel_addr   = "#{ngmodel_prefix}.address"
-    ngmodel_coords = "#{ngmodel_prefix}.coordinates" %>
+    ngmodel_addr   = "#{ngmodel_prefix}.address"
+    ngmodel_coords = "#{ngmodel_prefix}.coordinates"
 
-<div ng-click="<%= "registerClickerAndAutoComplete(#{ngmodel_prefix}, $event)" %>">
+    ngform = "originSubform" %>
 
-  <%= form.text_field :address,     placeholder:  "Origin",
-                                    class:        "address form-control",
-                                    ng_model:     ngmodel_addr,
-                                    ng_attr_value: "#{ngmodel_addr}" %>
+<div ng-click="<%= "registerClickerAndAutoComplete(#{ngmodel_prefix}, $event)" %>" ng-form="<%= ngform %>" verify-address>
 
-  <%= form.text_field :coordinates, #type:         "hidden",
-                                    class:        "coordinates hidden",
-                                    ng_model:     ngmodel_coords %>
+  <div class="form-group" ng-class="{ 'has-error': <%= ngform %>.address.$error.required && <%= ngform %>.address.$dirty }">
+
+    <%= render 'travel_address_error_labels', subform: ngform %>
+
+    <%= form.text_field :address,     name:         "address",
+                                      placeholder:  "Origin",
+                                      class:        "address form-control",
+                                      ng_model:     ngmodel_addr,
+                                      ng_required:  true %>
+
+
+    <%= form.text_field :coordinates, name:         "coordinates",
+                                      class:        "coordinates hidden",
+                                      ng_model:     ngmodel_coords,
+                                      ng_required:  true %>
+
+    <!--<span ng-show="originSubForm.coordinates.$error.required">Couldn't resolve place supplied!</span>-->
+
+  </div>
 
 </div>

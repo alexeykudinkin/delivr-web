@@ -83,26 +83,14 @@ module ApplicationHelper
         singular  = association.to_s.singularize.sub(/[\[\]]/, '')
         instance  = form.object.class.reflect_on_association(association).klass.new
 
-        # id        = 'new_' + singular
-        # wid       = 'field-wrapper'
-
         proc = Proc.new do |options|
           index = options[:index]
           form.fields_for(association, instance, :child_index => index) do |subform| # :child_index is just irrelevant
-            render singular + '_field',
+            render  singular + '_field',
+                    form:    subform,
+                    parent:  form,
 
-                   form:    subform,
-                   parent:  form,
-                   # id:      "#{singular}-#{id}",
-
-                   ngmodel_prefix: "#{ngmodel_prefix}.#{association}_attributes[#{index}]"
-                  # ngmodel_prefix: "#{ngmodel_prefix}.#{association}_attributes[#{id}]"
-
-            # if block_given?
-            #   yield inner
-            # else
-            #   inner
-            # end
+                    ngmodel_prefix:   "#{ngmodel_prefix}.#{association}_attributes[#{index}]"
           end
         end
 

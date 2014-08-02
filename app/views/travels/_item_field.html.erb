@@ -1,18 +1,12 @@
-<%  ngmodel_name        = "#{ngmodel_prefix}.name"
+<%  ngmodel_prefix = local_assigns[:ngmodel_prefix]
+
+    ngmodel_name        = "#{ngmodel_prefix}.name"
     ngmodel_description = "#{ngmodel_prefix}.description"
     ngmodel_weight      = "#{ngmodel_prefix}.weight" %>
 
 <div class="form-group">
   <div class="col-sm-9">
-    <%= form.text_field :name, placeholder: "Name", class: "form-control", ng_model: ngmodel_name %>
-  </div>
-</div>
-
-<!--<%# form.label      :description, class: "col-sm-3" %>-->
-
-<div class="form-group">
-  <div class="col-sm-9">
-    <%= form.text_area  :description, placeholder: "Description", class: "form-control", ng_model: ngmodel_description %>
+    <%= form.text_field :name, placeholder: "Name", class: "form-control", ng_model: ngmodel_name, ng_required: true %>
   </div>
 </div>
 
@@ -21,5 +15,13 @@
 <div class="form-group">
   <div class="col-sm-9">
     <%= form.text_field :weight, placeholder: "Weight", class: "form-control", ng_model: ngmodel_weight %>
+  </div>
+</div>
+
+<!--<%# form.label      :description, class: "col-sm-3" %>-->
+
+<div class="form-group">
+  <div class="col-sm-9">
+    <%= form.text_area  :description, placeholder: "Description", class: "form-control", ng_model: ngmodel_description %>
   </div>
 </div>

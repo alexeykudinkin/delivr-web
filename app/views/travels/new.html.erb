@@ -17,7 +17,7 @@
 
         <div class="new-travel-form panel-body" ng-controller="TravelFormController">
 
-          <%= form_for(@travel, html: { class: "form-horizontal", role: "form" }) do |form| %>
+          <%= form_for(@travel, html: { class: "form-horizontal", role: "form", name: "travelForm" }) do |form| %>
 
             <div class="col-sm-12" ng-switch on="accounted">
 
@@ -29,7 +29,7 @@
                   <%= push_fields_for(form, :origin, ngmodel_prefix) %>
                 </div>
 
-                <div class="destinations form-group">
+                <div class="destinations form-group" ng-init="pushNextDestination()">
                   <%= link_to_add_fields_angular(form, :destinations, ngmodel_prefix) do |gen| %>
 
                     <%= output = <<-RUBY_EVAL
@@ -58,8 +58,8 @@
 
               <div class="form-group">
 
-                <button type="button" class="btn" ng-click="back()">Back</button>
-                <button type="button" class="btn" ng-click="forth()">Forth</button>
+                <!--<button type="button" class="btn" ng-click="back()">Back</button>-->
+                <button type="button" class="btn" ng-click="forth()" ng-disabled="travelForm.$invalid">Forth</button>
 
               </div>
 
