@@ -59,6 +59,12 @@ Shipper::Application.routes.draw do
   get :dashboard, to: "dashboard#show"
 
 
+  # Communications API
+
+  post  :send,  to: "communications#send0"
+  get   :text,  to: "communications#text"
+
+
   # Administrative dashboard
 
   namespace :admin do
