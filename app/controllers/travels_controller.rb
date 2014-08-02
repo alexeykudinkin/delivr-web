@@ -182,7 +182,7 @@ class TravelsController < ApplicationController
           }
 
         else
-          raise "Couldn't whitelist unknown action!"
+          raise "Unknown action: #{action}!"
       end
     end
 

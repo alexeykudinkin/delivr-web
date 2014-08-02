@@ -57,7 +57,7 @@ class SessionsController < ApplicationController
             password: params.require(:password)
           }
         else
-          raise "Couldn't whitelist unknown action!"
+          raise "Unknown action: #{action}!"
       end
     end
 

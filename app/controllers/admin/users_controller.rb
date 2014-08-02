@@ -74,7 +74,7 @@ class Admin::UsersController < ApplicationController
         #         .permit(:email)
 
         else
-          raise "Couldn't whitelist unknown action!"
+          raise "Unknown action: #{action}!"
       end
     end
 
