@@ -12,9 +12,17 @@
 //
 //= require jquery
 //= require jquery_ujs
+
+//= require angular/angular
+//= require angular/angular-messages
+//= require angular/angular-animate
+
 //= require bootstrap/bootstrap.js
+
 //= require turbolinks
+
 //= require_tree .
+
 
 (function ($) {
 
@@ -754,7 +762,7 @@
 
             $scope.log = function (o) {
                 console.log(o);
-            }
+            };
 
             $scope.$dumpTravel = function () {
                 console.log("Travel: \n");
