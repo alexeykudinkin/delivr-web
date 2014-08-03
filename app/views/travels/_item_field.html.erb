@@ -9,18 +9,29 @@
 
   <div class="item row">
 
-    <div class="item-details col-md-8 col-sm-8">
+    <div class="item-details col-md-8 col-sm-8" ng-form="itemSubForm">
 
       <div class="form-group">
-          <%= form.text_field :name, placeholder: "Name", class: "form-control", ng_model: ng_model_name, ng_required: true %>
+          <%= form.text_field :name,  name:         "name",
+                                      placeholder:  "Name",
+                                      class:        "form-control",
+                                      ng_model:     ng_model_name,
+                                      ng_required:  true %>
       </div>
 
       <div class="form-group">
-          <%= form.text_field :weight, placeholder: "Weight", class: "form-control", ng_model: ng_model_weight %>
+          <%= form.text_field :weight,  name:         "weight",
+                                        placeholder:  "Weight",
+                                        class:        "form-control",
+                                        ng_model:     ng_model_weight,
+                                        ng_required:  true %>
       </div>
 
       <div class="form-group">
-          <%= form.text_area  :description, placeholder: "Description", class: "form-control", ng_model: ng_model_description %>
+          <%= form.text_area :description,  name:         "description",
+                                            placeholder:  "Description",
+                                            class:        "form-control",
+                                            ng_model:     ng_model_description %>
       </div>
 
     </div>

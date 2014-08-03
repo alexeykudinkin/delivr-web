@@ -291,27 +291,29 @@
                 require:    [ 'form' /* WTF? Why 'ngForm' breaks? */ ],
                 link: function (scope, element, attrs, controller) {
 
-                    var form = controller[0];
+                       // TODO: Revisit if we still need this
 
-                    $(element).find(".address").bind('blur', function () {
-                        scope.$apply(
-                            function () {
-                                if (form.address.$touched) {
-                                    if (form.address.$invalid) {
-                                        form.address.$setValidity("required", false);
-                                    } else if (form.coordinates.$invalid) {
-                                        form.coordinates.$setValidity("required", false);
-                                    }
-
-                                    // TODO:
-                                    //      This is a hack to imitate coordinates sub-form
-                                    //      being touched
-
-                                    form.coordinates.$setTouched();
-                                }
-                            }
-                        )
-                    });
+//                    var form = controller[0];
+//
+//                    $(element).find(".address").bind('blur', function () {
+//                        scope.$apply(
+//                            function () {
+//                                if (form.address.$touched) {
+//                                    if (form.address.$invalid) {
+//                                        form.address.$setValidity("required", false);
+//                                    } else if (form.coordinates.$invalid) {
+//                                        form.coordinates.$setValidity("required", false);
+//                                    }
+//
+//                                    // TODO:
+//                                    //      This is a hack to imitate coordinates sub-form
+//                                    //      being touched
+//
+//                                    form.coordinates.$setTouched();
+//                                }
+//                            }
+//                        )
+//                    });
                 }
             }
         }])
