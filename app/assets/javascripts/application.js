@@ -628,6 +628,47 @@ angular.module('delivr', [ 'ngAnimate', 'ngMessages', 'ui.bootstrap' ])
         };
 
 
+        function doReqBy(model, callback) {
+
+            var waypoints = [{
+                location: new Coordinates(model.origin_attributes.coordinates).toLatLng(),
+                from: 0,
+                to: 60*24
+            }];
+
+            delivr.util.values(model.destinations_attributes).forEach(function (value, index, array) {
+                waypoints.push({
+                    location: new Coordinates(value.coordinates).toLatLng(),
+                    from: 0,
+                    to: 60 * 24
+                });
+            });
+
+            solveTsp(waypoints, 10, function (path, status) {
+                if (status == "OK") {
+                    var waypoints = [];
+                    for (var i = 1; i < path.length - 1; ++i) {
+                        waypoints.push({
+                            location: path[i].waypoint.location,
+                            stopover: true
+                        });
+                    }
+
+                    var request = {
+                        origin: path.first().waypoint.location,
+                        destination: path.last().waypoint.location,
+                        optimizeWaypoints: false,
+                        provideRouteAlternatives: false,
+                        travelMode: google.maps.TravelMode.DRIVING,
+                        unitSystem: google.maps.UnitSystem.METRIC,
+                        waypoints: waypoints
+                    };
+
+                    delivrEnvironmentService.directionsService.route(request, callback);
+                }
+            });
+        }
+
         // Make Directions API proper request by supplied travel model
 
         function makeReqBy(model) {
@@ -759,6 +800,15 @@ angular.module('delivr', [ 'ngAnimate', 'ngMessages', 'ui.bootstrap' ])
                 }
             });
         };
+
+        $scope.calculateRoute1 = function () {
+
+            doReqBy($scope.travel.model, function (result, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    delivrEnvironmentService.directionsRenderingService.setDirections(result);
+                }
+            });
+        }
 
         ///////////////////////////////////////////////////////////////////////////////////////////
 
