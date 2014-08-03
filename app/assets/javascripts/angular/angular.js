@@ -19119,13 +19119,19 @@
                 if (!ctrl) return;
 
                 var maxlength = 0;
+
                 attr.$observe('maxlength', function(value) {
                     maxlength = int(value) || 0;
+
+                    if (!angular.isDefined(ctrl.$validators.maxlength)) {
+                        ctrl.$validators.maxlength = function(value) {
+                            return ctrl.$isEmpty(value) || value.toString().length <= maxlength;
+                        };
+                    }
+
                     ctrl.$validate();
                 });
-                ctrl.$validators.maxlength = function(value) {
-                    return ctrl.$isEmpty(value) || value.length <= maxlength;
-                };
+
             }
         };
     };
