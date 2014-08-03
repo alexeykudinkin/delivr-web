@@ -619,7 +619,7 @@
 
 
                 function euclidSquaredDistance(a, b) {
-                    return Math.pow(a.latitude - b.latitude, 2) + Math.pow(a.longitude - b.longitude, 2);
+                    return Math.pow(a.lat() - b.lat(), 2) + Math.pow(a.lng() - b.lng(), 2);
                 }
 
                 if (waypoints.length < 2) {
@@ -640,19 +640,25 @@
                         for (var i = 2; i < points.length; ++i) {
                             var p = points[i];
 
-                            if (p.latitude > se.latitude || p.longitude > se.longitude)
+                            // FIXME: Scale those to not to break into denormalized ones
+
+                            if (p.lat() > se.lat() || p.lng() > se.lng())
                                 se = p;
-                            else if (p.latitude < nw.latitude || p.longitude < nw.longitude)
+                            else if (p.lat() < nw.lat() || p.lng() < nw.lng())
                                 nw = p;
                         }
 
                         return [ nw, se ];
                     })(waypoints);
 
+                    //
+                    // Take the most far waypoint as a "destination"
+                    //
+
                     if (euclidSquaredDistance(origin, bb[0]) > euclidSquaredDistance(origin, bb[1]))
-                        destination = bb[1];
-                    else
                         destination = bb[0];
+                    else
+                        destination = bb[1];
                 }
 
                 waypoints = waypoints.filter(function (wp) {
