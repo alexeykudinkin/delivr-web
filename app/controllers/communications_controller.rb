@@ -14,13 +14,13 @@ class CommunicationsController < ApplicationController
   def send0
     attrs = whitelist(params, :send)
 
-    client = Twilio::REST::Client.new(Twilio::ACCOUNT_SID, Twilio::AUTHENTICATION_TOKEN)
+    client = ::Twilio::REST::Client.new(Twilio::ACCOUNT_SID, Twilio::AUTHENTICATION_TOKEN)
 
     to    = attrs[:phone]
     text  = attrs[:text]
 
     if client.account.messages.create(from: Twilio::FROM, to: to, body: text)
-      redirect_to text_path, flash: "Successfully sent!"
+      redirect_to text_path, alert: "Successfully sent!"
     end
   end
 
