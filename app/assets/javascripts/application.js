@@ -12,6 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require bootstrap/bootstrap.js
 //= require turbolinks
 //= require_tree .
 
@@ -23,7 +24,7 @@
 // Modules
 //
 
-angular.module('delivr', [ 'ngAnimate', 'ngMessages' ])
+angular.module('delivr', [ 'ngAnimate', 'ngMessages', 'ui.bootstrap' ])
 
     .config([ '$locationProvider', function ($locationProvider) {
 
@@ -324,13 +325,13 @@ angular.module('delivr', [ 'ngAnimate', 'ngMessages' ])
         // NOP
     } ])
 
-    //
-    // Controllers
-    //
-
     .controller('TravelFormController', [ '$window', '$document', '$rootScope', '$scope', 'delivrEnvironmentService', 'travelFormStorageService', function ($window, $document, $rootScope, $scope, delivrEnvironmentService, travelFormStorageService) {
 
+        //
         // Travels
+        //
+
+        // FIXME: Move out constructors
 
         function Travel() {
         }
@@ -345,8 +346,19 @@ angular.module('delivr', [ 'ngAnimate', 'ngMessages' ])
         // Initialize current scope
 
         (function init() {
-            $scope.accounted = false;
-            $scope.travel = travelFormStorageService;
+            // FIXME
+            $scope.accounted    = false;
+
+            $scope.travel       = travelFormStorageService;
+
+            $scope.settings     = {
+                timepicker: {
+                    hourStep:   1,
+                    minuteStep: 5,
+
+                    isMeridian: false
+                }
+            }
         }());
 
 
@@ -376,7 +388,38 @@ angular.module('delivr', [ 'ngAnimate', 'ngMessages' ])
         }
 
         function Item() {
+            this.changed = function () {
+                console.log(this.time);
+            };
+//            this.updateDeliveryTime = function(item) {
+//                var d = new Date();
+//
+//                d.setHours( 14 );
+//                d.setMinutes( 0 );
+//
+//                item.deliverTime = d;
+//            };
+//
+//            this.clearDeliveryTime = function(item) {
+//                item.deliverTime = null;
+//            };
         }
+
+
+//        $scope.mytime = new Date();
+
+//        $scope.options = {
+//            hstep: [1, 2, 3],
+//            mstep: [1, 5, 10, 15, 25, 30]
+//        };
+//
+//        $scope.ismeridian = true;
+//        $scope.toggleMode = function() {
+//            $scope.ismeridian = ! $scope.ismeridian;
+//        };
+
+
+
 
         $scope.pushNextItemFor = function (destination) {
             var next = Object.keys(destination.items_attributes).length;
@@ -756,6 +799,10 @@ angular.module('delivr', [ 'ngAnimate', 'ngMessages' ])
 
     } ])
 
+    //
+    // Controllers
+    //
+
     .controller('TravelsListingController', [ '$scope', '$rootScope', function ($scope, $rootScope) {
 
         // FIXME
@@ -825,6 +872,22 @@ angular.module('delivr', [ 'ngAnimate', 'ngMessages' ])
                 .slideToggle()
                 .removeClass('ng-hide'); // FIXME
         };
+
     }]);
+
+
+    //
+    // Enable opted-in Bootstrap JS Popover- and Tooltip-API
+    //
+
+    $(function () {
+        $('body').popover({
+            selector: '[data-toggle="popover"]'
+        });
+
+        $('body').tooltip({
+            selector: 'a[rel="tooltip"], [data-toggle="tooltip"]'
+        });
+    });
 
 })(jQuery);
