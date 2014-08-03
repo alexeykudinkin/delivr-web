@@ -3,29 +3,35 @@
     ng_model_name         = "#{ng_model_prefix}.name"
     ng_model_description  = "#{ng_model_prefix}.description"
     ng_model_weight       = "#{ng_model_prefix}.weight"
-    ng_model_time         = "#{ng_model_prefix}.time" %>
+    ng_model_time         = "#{ng_model_prefix}.time"
+
+    ng_form = "itemSubForm" %>
 
 <div class="container-fluid">
 
   <div class="item row">
 
-    <div class="item-details col-md-8 col-sm-8" ng-form="itemSubForm">
+    <div class="item-details col-md-8 col-sm-8" ng-form="<%= ng_form %>">
 
-      <div class="form-group">
-          <%= form.text_field :name,  name:         "name",
-                                      placeholder:  "Name",
+      <%= render layout: "layouts/error_labels_layout", locals: { subform: ng_form, props: :name, message: "Missing name" } do %>
+
+        <%= form.text_field :name,  name:         "name",
+                                    placeholder:  "Name",
+                                    class:        "form-control",
+                                    ng_model:     ng_model_name,
+                                    ng_required:  true %>
+
+      <% end %>
+
+      <%= render layout: "layouts/error_labels_layout", locals: { subform: ng_form, props: :weight, message: "Missing weight" } do %>
+
+        <%= form.text_field :weight,  name:         "weight",
+                                      placeholder:  "Weight",
                                       class:        "form-control",
-                                      ng_model:     ng_model_name,
+                                      ng_model:     ng_model_weight,
                                       ng_required:  true %>
-      </div>
 
-      <div class="form-group">
-          <%= form.text_field :weight,  name:         "weight",
-                                        placeholder:  "Weight",
-                                        class:        "form-control",
-                                        ng_model:     ng_model_weight,
-                                        ng_required:  true %>
-      </div>
+      <% end %>
 
       <div class="form-group">
           <%= form.text_area :description,  name:         "description",

@@ -8,7 +8,7 @@
 
 <div class="<%= local_assigns[:class] %>" ng-click="<%= "registerClickerAndAutoComplete(#{ng_model_prefix}, $event)"%>" ng-form="<%= ng_form %>" verify-address>
 
-  <%= render layout: 'travel_address_error_labels', locals: { subform: ng_form } do %>
+  <%= render layout: "layouts/error_labels_layout", locals: { subform: ng_form, props: :address, message: "Missing address" } do %>
 
     <%= form.text_field :address,     name:         "address",
                                       placeholder:  "Destination",
