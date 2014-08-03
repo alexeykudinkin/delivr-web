@@ -38,10 +38,11 @@
 
     <div class="timepicker col-md-4 col-sm-4" ng-controller="TimepickerController">
 
-      <timepicker ng-model      ="<%= ng_model_time %>"
-                  hour-step     ="settings.timepicker.hourStep"
-                  minute-step   ="settings.timepicker.minuteStep"
-                  show-meridian ="settings.timepicker.isMeridian"></timepicker>
+      <timepicker ng-model      = "<%= ng_model_time %>"
+                  hour-step     = "settings.timepicker.hourStep"
+                  minute-step   = "settings.timepicker.minuteStep"
+                  show-meridian = "settings.timepicker.isMeridian"
+                  mousewheel    = "settings.timepicker.mouseWheel" ></timepicker>
 
     </div>
 

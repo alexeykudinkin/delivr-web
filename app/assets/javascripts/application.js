@@ -366,7 +366,9 @@
                         hourStep:   1,
                         minuteStep: 5,
 
-                        isMeridian: false
+                        isMeridian: false,
+
+                        mouseWheel: false
                     }
                 }
             }());
