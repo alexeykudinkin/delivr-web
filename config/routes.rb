@@ -35,7 +35,15 @@ Shipper::Application.routes.draw do
     end
   end
 
-  resources :travels, only: [ :index, :new, :create ] do
+
+  #
+  # This separation is to assure :index, :new, :create actions' routes
+  # take precedence of the other actions upon `travel` resource
+  #
+
+  resources :travels, only: [ :index, :new, :create ]
+
+  resources :travels do
     member do
 
       # Allows to grab particular travel
