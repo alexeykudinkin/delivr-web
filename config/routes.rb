@@ -44,7 +44,7 @@ Shipper::Application.routes.draw do
       # Allows to query status of a particular travel
       get   :status
 
-      get   :show, to: "travels#status"
+      # get   :show, to: "travels#status"
 
     end
 
