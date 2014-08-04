@@ -4,6 +4,9 @@
     ng_model_coords  = "#{ng_model_prefix}.coordinates"
     ng_model_items   = "#{ng_model_prefix}.items_attributes"
 
+    ng_model_due_date_starts  = "#{ng_model_prefix}.due_date.starts"
+    ng_model_due_date_ends    = "#{ng_model_prefix}.due_date.ends"
+
     ng_form = "destinationSubForm" %>
 
 <div class="<%= local_assigns[:class] %>" ng-click="<%= "registerClickerAndAutoComplete(#{ng_model_prefix}, $event)"%>" ng-form="<%= ng_form %>" verify-address>
@@ -22,6 +25,26 @@
                                       ng_required:  true %>
 
   <% end %>
+
+  <div class="timepicker col-md-6 col-sm-6" ng-controller="TimepickerController">
+
+    <timepicker ng-model      = "<%= ng_model_due_date_starts %>"
+                hour-step     = "settings.timepicker.hourStep"
+                minute-step   = "settings.timepicker.minuteStep"
+                show-meridian = "settings.timepicker.isMeridian"
+                mousewheel    = "settings.timepicker.mouseWheel" ></timepicker>
+
+  </div>
+
+  <div class="timepicker col-md-6 col-sm-6" ng-controller="TimepickerController">
+
+    <timepicker ng-model      = "<%= ng_model_due_date_ends %>"
+                hour-step     = "settings.timepicker.hourStep"
+                minute-step   = "settings.timepicker.minuteStep"
+                show-meridian = "settings.timepicker.isMeridian"
+                mousewheel    = "settings.timepicker.mouseWheel" ></timepicker>
+
+  </div>
 
 </div>
 

@@ -5,6 +5,8 @@ module Travels
 
     class  Destination < Place
 
+      # Items pertaining
+
       has_many :items,
                :class_name  => Item,
                :inverse_of  => :destination
@@ -16,6 +18,13 @@ module Travels
       def self.new(attrs = nil)
         super
       end
+
+
+      # Due dates
+
+      has_one :due_date,
+              :class_name => DueDate,
+              :inverse_of => :destination
 
       # Validations
 

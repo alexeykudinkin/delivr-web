@@ -168,9 +168,6 @@
                 })
             }
 
-            function Place() {
-                this.items_attributes = {}
-            }
 
             var storageService = {
 
@@ -414,11 +411,22 @@
 
             // FIXME: Move out constructors
 
+            // Items
+
+            function Item() {}
+
+
+            // Places
+
             function Place() {
                 this.items_attributes = {}
             }
 
-            function Item() {}
+            function Destination() {
+                this.due_date = {}
+            }
+
+            Destination.prototype = new Place();
 
             $scope.pushNextItemFor = function (destination) {
                 var next = Object.keys(destination.items_attributes).length;
@@ -437,7 +445,7 @@
                 var destinations_attributes = $scope.travel.model.destinations_attributes;
                 var next = Object.keys(destinations_attributes).length;
 
-                destinations_attributes[next] = new Place();
+                destinations_attributes[next] = new Destination();
 
                 $scope.pushNextItemFor(destinations_attributes[next]);
             };
@@ -941,6 +949,10 @@
             ///////////////////////////////////////////////////////////////////////////////////////////
 
             // DEBUG_ONLY
+
+            $scope.$debugLog = function (o) {
+                console.log(o);
+            };
 
             $scope.$dumpTravel = function () {
                 console.log("Route: \n");
