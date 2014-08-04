@@ -19,8 +19,6 @@
 
 //= require bootstrap/bootstrap.js
 
-//= require turbolinks
-
 //= require_tree .
 
 
