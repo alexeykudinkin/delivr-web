@@ -1,5 +1,7 @@
 class CommunicationsController < ApplicationController
 
+  require_login :send0, :text
+
   module Twilio
 
     ACCOUNT_SID           = "ACbd91a5a938455e30db504015fe8530cc"

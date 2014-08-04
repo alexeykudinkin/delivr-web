@@ -29,6 +29,25 @@
     'use strict';
 
     //
+    // Base config
+    //
+
+    function Config() {
+
+        // Delivr API
+
+        this.DELIVR_API_BASE = '//localhost:3000';
+        this.DELIVR_API_ACCOUNTING = this.DELIVR_API_BASE + '/account.json';
+
+        // Google Maps API
+
+        this.GOOGLE_MAPS_API = '//maps.googleapis.com/maps/api/js';
+    }
+
+    var config = new Config();
+
+
+    //
     // Modules
     //
 
@@ -259,7 +278,7 @@
                                         $.ajax({
                                             dataType: 'script',
                                             data: params,
-                                            url: '//maps.googleapis.com/maps/api/js'
+                                            url: config.GOOGLE_MAPS_API
                                         });
 
                                     }
@@ -407,6 +426,12 @@
                 destination.items_attributes[next] = new Item();
             };
 
+            $scope.pushNextDestinationIfNone = function () {
+                if (Object.keys($scope.travel.model.destinations_attributes).length == 0) {
+                    $scope.pushNextDestination()
+                }
+            };
+
             $scope.pushNextDestination = function () {
 
                 var destinations_attributes = $scope.travel.model.destinations_attributes;
@@ -426,14 +451,18 @@
                     url: '/travels',
                     data: $scope.travel.model.$serialize(),
                     dataType: 'json'
-                }).done(function (data) {
-                    console.log("[AJAX][S]: Successfully created!");
+                }).success(function (jqXHR, status, data) {
 
-                    // FIXME
-                    alert("Successfully created!");
+                    $scope.log("[AJAX][S]: Successfully created!");
+
+                    var location = data.getResponseHeader("location");
+
+                    window.location.replace(location);
 
                 }).error(function (jqXHR, status, error) {
-                    console.log("[AJAX][E]: " + status + ":" + error);
+
+                    $scope.log("[AJAX][E]: " + status + "/" + error);
+
                 });
 
             };
@@ -721,13 +750,13 @@
 
                     optimizeWaypoints: true,
 
-                    provideRouteAlternatives: false,
+                    provideRouteAlternatives: true,
                     travelMode: google.maps.TravelMode.DRIVING,
                     unitSystem: google.maps.UnitSystem.METRIC
                 }
             }
 
-            $scope.calculateRoute = function () {
+            $scope.composeTravelRoutes = function (callback) {
                 var map = $rootScope.map;
                 var elem = angular.element($("div #travel-summary"));
 
@@ -760,7 +789,7 @@
                     // Retrieve the solution (so you can display it to the user or do whatever :-)
                     var dir = tsp.getGDirections();  // This is a normal GDirections object.
 
-                    delivrEnvironmentService.directionsRenderingService.setDirections(dir);
+                    callback(dir);
                 });
 
                 // The order of the elements in dir now correspond to the optimal route.
@@ -774,20 +803,16 @@
                 // There are also other utility functions, see the source.
             };
 
-            $scope.calculateRoute0 = function () {
+            $scope.composeTravelRoutes0 = function (callback) {
 
                 var request = makeReqBy($scope.travel.model);
 
-                console.log(request);
-
                 delivrEnvironmentService.directionsService.route(request, function (result, status) {
-                    if (status == google.maps.DirectionsStatus.OK) {
-                        delivrEnvironmentService.directionsRenderingService.setDirections(result);
-                    }
+                    callback(result);
                 });
             };
 
-            $scope.calculateRoute1 = function () {
+            $scope.composeTravelRoutes1 = function () {
 
                 doReqBy($scope.travel.model, function (result, status) {
                     if (status == google.maps.DirectionsStatus.OK) {
@@ -796,14 +821,107 @@
                 });
             }
 
+            $scope.selectRoute = function (route) {
+                $scope.selected = route;
+
+                // FIXME: Move out non-idempotent service out of services
+                delivrEnvironmentService.directionsRenderingService.setRouteIndex(route.index);
+            };
+
             ///////////////////////////////////////////////////////////////////////////////////////////
+
+            //
+            // Route UI harness
+            //
+
+            function lengthOf(route) {
+                return route.legs.reduce(function (acc, leg) {
+                    return acc + leg.distance.value;
+                }, 0);
+            }
+
+            function durationOf(route) {
+                return route.legs.reduce(function (acc, leg) {
+                    return acc + leg.duration.value;
+                }, 0);
+            }
+
+            function costOf(route) {
+                if (!route.length || !route.items)
+                    return NaN;
+
+                var req = {
+                    route: {
+                        length: route.length,
+                        items:  route.items
+                    }
+                };
+
+                var cost;
+
+                $.ajax({
+                    type:   'GET',
+                    url:    '/account.json',
+                    data:   req,
+
+                    async:  false,
+
+                    // FIXME: `success` are deprecated, migrate to `done`
+
+                    success: function (r) {
+                        cost = r.cost;
+                    }
+                });
+
+                return cost;
+            }
+
+            function Route(items, route, index) {
+                this.route      = route;
+                this.index      = index;
+
+                this.items      = items;
+
+                this.length     = lengthOf(route);
+                this.duration   = durationOf(route);
+                this.cost       = costOf(this);
+            }
+
+            Route.prototype.inKilo = function () {
+                return delivr.util.us.toKilo(this.length, 1);
+            };
+
+            Route.prototype.inMinutes = function () {
+                return delivr.util.us.toMinutes(this.duration, 0);
+            };
 
             $scope.forth = function () {
                 travelFormStorageService.save();
 
                 $scope.accounted = true;
 
-                $scope.calculateRoute0();
+                $scope.composeTravelRoutes0(function (result) {
+
+                    if (result.status == google.maps.DirectionsStatus.OK) {
+
+                        delivrEnvironmentService.directionsRenderingService.setDirections(result);
+
+                        var items =
+                            delivr.util.values($scope.travel.model.destinations_attributes)
+                                .map(function (d) { return delivr.util.values(d.items_attributes); })
+//                                .flatten();
+
+                        items.flatten();
+
+                        // This is b/c callback would be run out of Angular's scope,
+                        // therefore making him oblivious to any such a change
+                        $scope.$apply(function () {
+                            $scope.travel.model.routes = result.routes.map(function (route, index) {
+                                return new Route(items, route, index);
+                            });
+                        });
+                    }
+                });
             };
 
             $scope.back = function () {
@@ -816,14 +934,16 @@
 
             ///////////////////////////////////////////////////////////////////////////////////////////
 
-            // DEBUG_ONLY
-
             $scope.log = function (o) {
-                console.log(o);
+                console.log($scope.name + ": " + o.toString());
             };
 
+            ///////////////////////////////////////////////////////////////////////////////////////////
+
+            // DEBUG_ONLY
+
             $scope.$dumpTravel = function () {
-                console.log("Travel: \n");
+                console.log("Route: \n");
                 console.log($scope.travel);
             };
 

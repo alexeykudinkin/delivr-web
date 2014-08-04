@@ -2,12 +2,6 @@ require 'extensions'
 
 module ApplicationHelper
 
-  module Extensions
-
-    # Nothing to see here (till)
-
-  end
-
   module ViewHelper
 
     def push_fields_for(form, association, ngmodel_prefix = nil)
@@ -102,7 +96,6 @@ module ApplicationHelper
   end
 
   include ViewHelper
-  include Extensions
 
   include Angular
 
