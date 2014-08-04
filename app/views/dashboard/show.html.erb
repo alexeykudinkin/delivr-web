@@ -1,73 +1,87 @@
-<div class="container-fluid">
+<% content_for :dashboard do %>
 
-  <div class="row">
+  <div class="container-fluid">
 
-    <div class="sidebar col-sm-3 col-md-2">
+    <div class="row">
 
-      <ul class="nav nav-sidebar">
+      <div class="sidebar col-sm-3 col-md-2">
 
-        <li class="active">
-          <a href="#">Overview</a>
-        </li>
+        <ul class="nav nav-sidebar">
 
-      </ul>
+          <li class="active">
+            <a href="#">Overview</a>
+          </li>
 
-    </div>
+        </ul>
 
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+      </div>
 
-      <h1 class="page-header">Travels</h1>
+      <div class="main col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
 
-        <div class="table-responsive">
+        <h1 class="page-header">Travels</h1>
 
-          <table class="table table-striped">
+          <div class="table-responsive">
 
-            <thead>
-              <tr>
-                <th>
-                  Origin
-                </th>
-                <th>
-                  Destination
-                </th>
-                <th>
-                  Item
-                </th>
-                <th>
-                  Status
-                </th>
-              </tr>
-            </thead>
+            <table class="table table-striped table-hover table-responsive">
 
-            <tbody>
-
-              <% @travels.each do |travel| %>
-
+              <thead>
                 <tr>
-                  <td>
-                    <%= travel.origin.address %>
-                  </td>
-                  <td>
-                    <%= travel.destination.address %>
-                  </td>
-                  <td>
-                    <%= travel.items.all.map { |i| i.name } %>
-                  </td>
-                  <td>
-                    <%= travel.state %>
-                  </td>
+                  <th class="col-md-4 col-sm-4">
+                    Origin
+                  </th>
+                  <th class="col-md-5 col-sm-5">
+                    Destination
+                  </th>
+                  <th class="col-md-2 col-sm-2">
+                    Item
+                  </th>
+                  <th class="col-md-1 col-sm-1">
+                    Status
+                  </th>
                 </tr>
+              </thead>
 
-              <% end %>
+              <tbody>
 
-            </tbody>
+                <% @travels.each do |travel| %>
 
-          </table>
+                  <tr>
+                    <td>
+                      <%= travel.origin.address %>
+                    </td>
+                    <td>
+                      <ul>
+                        <% travel.destinations.each do |d| %>
+                          <li><%= d.address %></li>
+                        <% end %>
+                      </ul>
+                    </td>
+                    <td>
+                      <% travel.destinations.each do |d| %>
+                        <li>
+                          <% d.items.each do |i| %>
+                            <%= "#{ i.name }, " %>
+                          <% end %>
+                        </li>
+                      <% end %>
+                    </td>
+                    <td>
+                      <%= travel.state %>
+                    </td>
+                  </tr>
 
-        </div>
+                <% end %>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+      </div>
 
     </div>
 
   </div>
 
-</div>
+<% end %>
