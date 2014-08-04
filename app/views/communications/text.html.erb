@@ -1,0 +1,21 @@
+<div class="col-sm-4 col-md-4 col-sm-offset-4 col-md-offset-4">
+
+  <%= form_for :recipient, url: send_path  do |form| %>
+
+    <div class="form-group">
+      <%= form.phone_field :phone,  class: "form-control",
+                                    placeholder: "Phone" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.text_area :text,     class: "form-control",
+                                    placeholder: "Text" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.submit "Send", class: "btn btn-primary" %>
+    </div>
+
+  <% end %>
+
+</div>

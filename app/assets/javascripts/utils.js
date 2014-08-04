@@ -34,6 +34,25 @@ var delivr = {
                 vals.push(o[key]);
             });
             return vals;
+        },
+
+
+        //
+        // Unit systems
+        //
+
+        us: {
+
+            toKilo: function (meters, prec) {
+                "use strict";
+                return (meters / 1000).toFixed(prec);
+            },
+
+            toMinutes: function (seconds, prec) {
+                "use strict";
+                return (seconds / 60).toFixed(prec);
+            }
+
         }
 
     }

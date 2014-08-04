@@ -1,0 +1,19 @@
+<%
+    subform = local_assigns[:subform]
+    props   = local_assigns[:props]
+
+    props   = [ props ] unless props.is_a? Array
+
+    message = local_assigns[:message]
+
+    condition = "#{subform}.$invalid" + props.reduce("") { |s, prop| "#{s} && #{subform}.#{prop.to_s}.$touched" } %>
+
+<div class="form-group"   ng-class="{ 'has-error': <%= condition %> }"
+                          tooltip-trigger="mouseenter"
+                          tooltip-placement="left"
+                          tooltip-append-to-body="true"
+                          tooltip="{{ <%= condition %> ? '<%= message %>' : '' }}" >
+
+  <%= yield %>
+
+</div>

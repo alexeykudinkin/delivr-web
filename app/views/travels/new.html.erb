@@ -17,19 +17,19 @@
 
         <div class="new-travel-form panel-body" ng-controller="TravelFormController">
 
-          <%= form_for(@travel, html: { class: "form-horizontal", role: "form" }) do |form| %>
+          <%= form_for(@travel, html: { class: "form-horizontal", role: "form", name: "travelForm" }) do |form| %>
 
-            <div class="col-sm-12" ng-switch on="accounted">
+            <div class="col-md-12 col-sm-12" ng-switch on="accounted">
 
               <div class="form-body" ng-switch-default>
 
                 <% ngmodel_prefix = "travel.model" %>
 
-                <div class="origin form-group">
+                <div class="origin">
                   <%= push_fields_for(form, :origin, ngmodel_prefix) %>
                 </div>
 
-                <div class="destinations form-group">
+                <div class="destinations" ng-init="pushNextDestinationIfNone()">
                   <%= link_to_add_fields_angular(form, :destinations, ngmodel_prefix) do |gen| %>
 
                     <%= output = <<-RUBY_EVAL
@@ -42,14 +42,24 @@
 
                   <% end %>
 
-                  <%= push_onclick_button_to('Add destination', { ng_click: "pushNextDestination()", class: "btn btn-primary" }) %>
+                </div>
+
+                <div class="form-group">
+                  <%= push_onclick_button_to('Add destination', { ng_click: "pushNextDestination()", class: "btn" }) %>
                 </div>
 
               </div>
 
               <div id="travel-summary" ng-switch-when="true">
 
-                $$$$
+                <div class="list-group form-group">
+
+                  <div class="list-group-item" ng-class="{ active: selected == route }" ng-click="selectRoute(route)" ng-repeat="route in <%= "#{ngmodel_prefix}" %>.routes">
+                    <h4 class="list-group-item-heading"> {{ route.cost }} rub </h4>
+                    <p class="list-group-item-text"> {{ route.inKilo() }} km / {{ route.inMinutes() }} min </p>
+                  </div>
+
+                </div>
 
                 <div class="form-group">
                   <button type="button" class="btn btn-primary" ng-click="submitTravel()">Submit</button>
@@ -59,7 +69,11 @@
               <div class="form-group">
 
                 <button type="button" class="btn" ng-click="back()">Back</button>
-                <button type="button" class="btn" ng-click="forth()">Forth</button>
+
+                <button type="button" class="btn btn-primary" ng-click="forth()" ng-disabled="travelForm.$invalid">Proceed</button>
+                <!--<button type="button" class="btn btn-primary" ng-click="forth()">Proceed</button>-->
+
+                <!--<button type="button" class="btn" ng-click="log(travelForm)">DUMP</button>-->
 
               </div>
 

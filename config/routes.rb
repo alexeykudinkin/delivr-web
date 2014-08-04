@@ -35,7 +35,7 @@ Shipper::Application.routes.draw do
     end
   end
 
-  resources :travels, only: [ :show, :index, :new, :create ] do
+  resources :travels, only: [ :index, :new, :create ] do
     member do
 
       # Allows to grab particular travel
@@ -43,6 +43,8 @@ Shipper::Application.routes.draw do
 
       # Allows to query status of a particular travel
       get   :status
+
+      get   :show, to: "travels#status"
 
     end
 
@@ -58,6 +60,16 @@ Shipper::Application.routes.draw do
 
   get :dashboard, to: "dashboard#show"
 
+
+  # Communications API
+
+  post  :send,  to: "communications#send0"
+  get   :text,  to: "communications#text"
+
+
+  # Accounting API
+
+  get :account, to: "accounting#account"
 
   # Administrative dashboard
 

@@ -1,25 +1,57 @@
-<%  ngmodel_name        = "#{ngmodel_prefix}.name"
-    ngmodel_description = "#{ngmodel_prefix}.description"
-    ngmodel_weight      = "#{ngmodel_prefix}.weight" %>
+<%  ng_model_prefix = local_assigns[:ngmodel_prefix]
 
-<div class="form-group">
-  <div class="col-sm-9">
-    <%= form.text_field :name, placeholder: "Name", class: "form-control", ng_model: ngmodel_name %>
+    ng_model_name         = "#{ng_model_prefix}.name"
+    ng_model_description  = "#{ng_model_prefix}.description"
+    ng_model_weight       = "#{ng_model_prefix}.weight"
+    ng_model_time         = "#{ng_model_prefix}.time"
+
+    ng_form = "itemSubForm" %>
+
+<div class="container-fluid">
+
+  <div class="item row">
+
+    <div class="item-details col-md-8 col-sm-8" ng-form="<%= ng_form %>">
+
+      <%= render layout: "layouts/error_labels_layout", locals: { subform: ng_form, props: :name, message: "Missing name" } do %>
+
+        <%= form.text_field :name,  name:         "name",
+                                    placeholder:  "Name",
+                                    class:        "form-control",
+                                    ng_model:     ng_model_name,
+                                    ng_required:  true %>
+
+      <% end %>
+
+      <%= render layout: "layouts/error_labels_layout", locals: { subform: ng_form, props: :weight, message: "Missing weight" } do %>
+
+        <%= form.text_field :weight,  name:         "weight",
+                                      placeholder:  "Weight",
+                                      class:        "form-control",
+                                      ng_model:     ng_model_weight,
+                                      ng_required:  true %>
+
+      <% end %>
+
+      <div class="form-group">
+          <%= form.text_area :description,  name:         "description",
+                                            placeholder:  "Description",
+                                            class:        "form-control",
+                                            ng_model:     ng_model_description %>
+      </div>
+
+    </div>
+
+    <div class="timepicker col-md-4 col-sm-4" ng-controller="TimepickerController">
+
+      <timepicker ng-model      = "<%= ng_model_time %>"
+                  hour-step     = "settings.timepicker.hourStep"
+                  minute-step   = "settings.timepicker.minuteStep"
+                  show-meridian = "settings.timepicker.isMeridian"
+                  mousewheel    = "settings.timepicker.mouseWheel" ></timepicker>
+
+    </div>
+
   </div>
-</div>
 
-<!--<%# form.label      :description, class: "col-sm-3" %>-->
-
-<div class="form-group">
-  <div class="col-sm-9">
-    <%= form.text_area  :description, placeholder: "Description", class: "form-control", ng_model: ngmodel_description %>
-  </div>
-</div>
-
-<!--<%# form.label      :weight, class: "col-sm-3" %>-->
-
-<div class="form-group">
-  <div class="col-sm-9">
-    <%= form.text_field :weight, placeholder: "Weight", class: "form-control", ng_model: ngmodel_weight %>
-  </div>
 </div>
