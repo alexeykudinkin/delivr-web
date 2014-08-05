@@ -29,11 +29,11 @@
                   <th class="col-md-4 col-sm-4">
                     Origin
                   </th>
-                  <th class="col-md-5 col-sm-5">
-                    Destination
+                  <th class="col-md-6 col-sm-6">
+                    Destinations & Items
                   </th>
-                  <th class="col-md-2 col-sm-2">
-                    Item
+                  <th class="col-md-1 col-sm-1">
+                    Cost
                   </th>
                   <th class="col-md-1 col-sm-1">
                     Status
@@ -50,20 +50,30 @@
                       <%= travel.origin.address %>
                     </td>
                     <td>
-                      <ul>
-                        <% travel.destinations.each do |d| %>
-                          <li><%= d.address %></li>
-                        <% end %>
-                      </ul>
+                        <table class="table table-condensed">
+                          <tbody>
+
+                            <% travel.destinations.each do |d| %>
+
+                              <tr>
+                                <td class="col-md-9 col-sm-9">
+                                  <%= d.address %>
+                                </td>
+                                <td class="col-md-3 col-sm-3">
+                                  <%= d.items.reduce("") do |s, i|
+                                        s.concat ", " unless s.blank?
+                                        s.concat "#{ i.name }"
+                                      end %>
+                                </td>
+                              </tr>
+
+                            <% end %>
+
+                          </tbody>
+                        </table>
                     </td>
                     <td>
-                      <% travel.destinations.each do |d| %>
-                        <li>
-                          <% d.items.each do |i| %>
-                            <%= "#{ i.name }, " %>
-                          <% end %>
-                        </li>
-                      <% end %>
+                      <%= (r = travel.route) ? r.cost : "Unknown" %>
                     </td>
                     <td>
                       <%= travel.state %>
