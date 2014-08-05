@@ -26,23 +26,33 @@
 
   <% end %>
 
-  <div class="timepicker col-md-6 col-sm-6" ng-controller="TimepickerController">
+  <div class="form-group">
 
-    <timepicker ng-model      = "<%= ng_model_due_date_starts %>"
-                hour-step     = "settings.timepicker.hourStep"
-                minute-step   = "settings.timepicker.minuteStep"
-                show-meridian = "settings.timepicker.isMeridian"
-                mousewheel    = "settings.timepicker.mouseWheel" ></timepicker>
+    <div class="timepicker-panel col-md-6 col-sm-6" ng-controller="TimepickerController">
 
-  </div>
+      <span class="timepicker-label">After</span>
 
-  <div class="timepicker col-md-6 col-sm-6" ng-controller="TimepickerController">
+      <timepicker ng-model      = "<%= ng_model_due_date_starts %>"
+                  hour-step     = "settings.timepicker.hourStep"
+                  minute-step   = "settings.timepicker.minuteStep"
+                  show-meridian = "settings.timepicker.isMeridian"
+                  mousewheel    = "settings.timepicker.mouseWheel"
+                  class         = "timepicker" />
 
-    <timepicker ng-model      = "<%= ng_model_due_date_ends %>"
-                hour-step     = "settings.timepicker.hourStep"
-                minute-step   = "settings.timepicker.minuteStep"
-                show-meridian = "settings.timepicker.isMeridian"
-                mousewheel    = "settings.timepicker.mouseWheel" ></timepicker>
+    </div>
+
+    <div class="timepicker-panel col-md-6 col-sm-6" ng-controller="TimepickerController">
+
+      <span class="timepicker-label">Before</span>
+
+      <timepicker ng-model      = "<%= ng_model_due_date_ends %>"
+                  hour-step     = "settings.timepicker.hourStep"
+                  minute-step   = "settings.timepicker.minuteStep"
+                  show-meridian = "settings.timepicker.isMeridian"
+                  mousewheel    = "settings.timepicker.mouseWheel"
+                  class         = "timepicker" />
+
+    </div>
 
   </div>
 
