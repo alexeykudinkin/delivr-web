@@ -70,9 +70,7 @@
               <div class="form-group">
 
                 <button type="button" class="btn" ng-click="back()">Back</button>
-
-                <button type="button" class="btn btn-primary" ng-click="forth()" ng-disabled="travelForm.$invalid">Proceed</button>
-                <!--<button type="button" class="btn btn-primary" ng-click="forth()">Proceed</button>-->
+                <button type="button" class="btn btn-primary" ng-click="forth()" ng-if="!accounted" ng-disabled="travelForm.$invalid">Proceed</button>
 
               </div>
 

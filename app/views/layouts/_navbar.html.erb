@@ -11,7 +11,7 @@
         <span class="icon-tab"></span>
       </button>
 
-      <a class="navbar-brand" href="#">Shipper</a>
+      <a class="navbar-brand" href="#">Delivr</a>
 
     </div>
 
@@ -20,16 +20,29 @@
       <% if logged_in? %>
 
         <ul class="nav navbar-nav">
+
           <li>
             <%= link_to user_travels_path(current_user) do %>
               Travels <span class="badge"> <%= Travels::Travel.of(current_user).select { |t| t.notifications.any? } .length %> </span>
             <%  end %>
           </li>
+
+          <li>
+            <%= link_to dashboard_path do %>
+              Dashboard
+            <%  end %>
+          </li>
+
         </ul>
 
-        <p class="navbar-text navbar-right">
-          <%= current_user.name %>
-        </p>
+        <ul class="nav navbar-nav navbar-right">
+
+          <li >
+            <%= link_to current_user.name, user_path(current_user) %>
+          </li>
+
+        </ul>
+
       <% end %>
 
     </div>

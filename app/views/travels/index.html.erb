@@ -40,51 +40,79 @@
           <!--<h3 class="panel-title">Travels</h3>-->
         <!--</div>-->
 
-        <div class="panel-body tab-content" ng-controller="TravelsListingController">
+        <% if @travels.length > 0 -%>
 
-          <% @travels.each_slice(3).each_with_index do |threefold, i| %>
+          <div class="panel-body tab-content" ng-controller="TravelsListingController">
 
-            <div id="<%= "travels_page_#{i}" %>" class="tab-pane <%= (i == 0 ? "active" : "") %>">
+            <% @travels.each_slice(3).each_with_index do |threefold, i| %>
 
-              <div class="list-group">
+              <div id="<%= "travels_page_#{i}" %>" class="tab-pane <%= (i == 0 ? "active" : "") %>">
 
-                <% threefold.each do |travel| %>
+                <div class="list-group">
 
-                  <div class="travel list-group-item" ng-mouseenter="showTravel($event); slideTravelDashboard($event)" ng-mouseleave="hideTravel($event); slideTravelDashboard($event)">
+                  <% threefold.each do |travel| %>
 
-                    <% if travel.taken? %>
+                    <div class="travel list-group-item" ng-mouseenter="showTravel($event); slideTravelDashboard($event)" ng-mouseleave="hideTravel($event); slideTravelDashboard($event)">
 
-                      <div class="performer-thumb">
-                        <%= render 'users/small' %>
+                      <% if travel.taken? %>
+
+                        <div class="performer-thumb">
+                          <%= render 'users/small' %>
+                        </div>
+
+                      <% end -%>
+
+                      <%= render 'small', travel: travel %>
+
+                      <div class="travel-dashboard ng-hide">
+
+                        <div class="take-btn">
+                          <%= form_for :travel, url: take_travel_path(travel) do |form| %>
+                            <%= form.submit value: "Take", class: "btn btn-primary" %>
+                          <%  end %>
+                        </div>
+
+                        <a href="#" class="btn btn-primary">Cancel</a>
+
                       </div>
-
-                    <% end -%>
-
-                    <%= render 'small', travel: travel %>
-
-                    <div class="travel-dashboard ng-hide">
-
-                      <div class="take-btn">
-                        <%= form_for :travel, url: take_travel_path(travel) do |form| %>
-                          <%= form.submit value: "Take", class: "btn btn-primary" %>
-                        <%  end %>
-                      </div>
-
-                      <a href="#" class="btn btn-primary">Cancel</a>
 
                     </div>
 
-                  </div>
+                <% end %>
 
-              <% end %>
+                </div>
 
               </div>
 
+            <% end %>
+
+          </div>
+
+        <% else -%>
+
+          <div class="panel-body tab-content">
+            <div class="tab-pane active">
+              <div class="list-group">
+                <div class="list-group-item">
+
+                  <h4 class="centered">
+                    You have no travels
+                  </h4>
+
+                  <br>
+
+                  <div class="centered">
+                  <%= link_to new_travel_path, style: "display: inline-block" do %>
+                    <button class="btn btn-primary">Create</button>
+                  <% end %>
+                  </div>
+
+                </div>
+              </div>
             </div>
+          </div>
 
-          <% end %>
-
-        </div>
+      <% end -%>
 
       </div>
 

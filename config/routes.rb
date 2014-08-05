@@ -52,7 +52,7 @@ Shipper::Application.routes.draw do
       # Allows to query status of a particular travel
       get   :status
 
-      # get   :show, to: "travels#status"
+      get   :show, to: "travels#status"
 
     end
 
@@ -64,22 +64,34 @@ Shipper::Application.routes.draw do
     end
   end
 
-  resources :dashboard, only: [ :show ]
+
+  #
+  # Dashboard
+  #
+
+  # resources :dashboard, only: [ :show ]
 
   get :dashboard, to: "dashboard#show"
 
 
+  #
   # Communications API
+  #
 
   post  :send,  to: "communications#send0"
   get   :text,  to: "communications#text"
 
 
+  #
   # Accounting API
+  #
 
   get :account, to: "accounting#account"
 
+
+  #
   # Administrative dashboard
+  #
 
   namespace :admin do
     resources :users, only: [ :create, :new ] do
