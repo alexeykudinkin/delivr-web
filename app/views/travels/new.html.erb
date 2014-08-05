@@ -24,7 +24,7 @@
               <div class="form-body" ng-switch-default>
 
                 <%  ng_model_prefix = "travel.model"
-%>
+                    ng_model_routes = "#{ng_model_prefix}.$routes" %>
 
                 <div class="origin">
                   <%= push_fields_for(form, :origin, ng_model_prefix) %>
@@ -55,7 +55,7 @@
 
                 <div class="list-group form-group">
 
-                  <div class="list-group-item" ng-class="{ active: selected == route }" ng-click="selectRoute(route)" ng-repeat="route in <%= "#{ng_model_prefix}" %>.routes">
+                  <div class="list-group-item" ng-class="{ active: selected(route) }" ng-click="selectRoute(route)" ng-repeat="route in <%= "#{ng_model_routes}" %>">
                     <h4 class="list-group-item-heading"> {{ route.cost }} rub </h4>
                     <p class="list-group-item-text"> {{ route.inKilo() }} km / {{ route.inMinutes() }} min </p>
                   </div>

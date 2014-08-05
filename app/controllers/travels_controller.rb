@@ -168,8 +168,9 @@ class TravelsController < ApplicationController
                       [ :address, :coordinates, {
                         items_attributes: [ :name, :description, :weight ]
                       } ]
+                  },
+                  { route_attributes:         [ :cost, :length, :duration, :order, :polyline ]
                   }
-                  # { items_attributes:         [ :name, :description, :weight ] }
                 )
 
         when :take then {
