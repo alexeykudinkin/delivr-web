@@ -95,6 +95,8 @@ class TravelsController < ApplicationController
       end if iattrs
     end
 
+    # @travel.customer = current_user.becomes(Users::Customer)
+
     respond_to do |format|
       if @travel.save
         format.html { redirect_to status_travel_path(@travel), notice: "Gracefully created the travel!" }
