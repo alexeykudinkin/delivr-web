@@ -32,12 +32,12 @@ class SessionsController < ApplicationController
       end
     else
       respond_to do |format|
-        format.html { redirect_to login_path, status: 401, :alert => if user.blank?
+        format.html { redirect_to login_path, :alert => if user.blank?
                                                                        "No user found!"
                                                                      else
                                                                        "Invalid phone or password!"
                                                                      end }
-        format.json { redirect_to login_path, status: 401 }
+        format.json { redirect_to login_path }
       end
     end
   end
