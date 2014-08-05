@@ -24,3 +24,12 @@
     padding-left: 6pt;
     padding-right: 6pt;
 }
+
+.destinations .timepicker {
+    margin: auto;
+}
+
+.destinations .timepicker-panel .timepicker-label {
+    display: block;
+    text-align: center;
+}
