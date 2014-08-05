@@ -68,38 +68,43 @@
 
   <div class="content">
 
-    <div class="container" ng-controller="DelivrEnvironmentController">
+    <% if content_for? :dashboard %>
 
-      <%  #
-          # Display alerts if any
-          #
+      <!-- FIXME: Layout -->
+      <%= yield :dashboard %>
 
-          unless alert.blank? %>
+    <% else -%>
 
-        <div class="map-overlay alert alert-danger">
-          <%= alert %>
-          <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times</span></button>
-        </div>
+      <div class="container" ng-controller="DelivrEnvironmentController">
 
-      <% end %>
+        <% if content_for? :map_overlay -%>
 
-      <% if content_for? :map_overlay %>
+          <%  #
+              # Display alerts if any
+              #
 
-        <%= yield :map_overlay %>
-        <div id="map-canvas" google-map></div>
+              unless alert.blank? -%>
 
-      <% elsif content_for? :dashboard -%>
+            <div class="map-overlay alert alert-danger">
+              <%= alert %>
+              <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times</span></button>
+            </div>
 
-        <!-- FIXME: Layout -->
-        <%= yield :dashboard %>
+          <% end -%>
 
-      <% else -%>
+          <%= yield :map_overlay %>
 
-        <%= yield %>
+          <div id="map-canvas" google-map></div>
 
-      <%  end -%>
+        <% else -%>
 
-    </div>
+          <%= yield %>
+
+        <%  end -%>
+
+      </div>
+
+    <%  end -%>
 
   </div>
 

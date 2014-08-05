@@ -23,17 +23,18 @@
 
               <div class="form-body" ng-switch-default>
 
-                <% ngmodel_prefix = "travel.model" %>
+                <%  ng_model_prefix = "travel.model"
+                    ng_model_routes = "#{ng_model_prefix}.$routes" %>
 
                 <div class="origin">
-                  <%= push_fields_for(form, :origin, ngmodel_prefix) %>
+                  <%= push_fields_for(form, :origin, ng_model_prefix) %>
                 </div>
 
                 <div class="destinations" ng-init="pushNextDestinationIfNone()">
-                  <%= link_to_add_fields_angular(form, :destinations, ngmodel_prefix) do |gen| %>
+                  <%= link_to_add_fields_angular(form, :destinations, ng_model_prefix) do |gen| %>
 
                     <%= output = <<-RUBY_EVAL
-                          <div class="" ng-repeat="destination in #{ngmodel_prefix}.destinations_attributes" ng-init="destinationIndex = $index">
+                          <div class="" ng-repeat="destination in #{ng_model_prefix}.destinations_attributes" ng-init="destinationIndex = $index">
                             #{ gen.call({ index: "destinationIndex" }) }
                           </div>
                         RUBY_EVAL
@@ -54,7 +55,7 @@
 
                 <div class="list-group form-group">
 
-                  <div class="list-group-item" ng-class="{ active: selected == route }" ng-click="selectRoute(route)" ng-repeat="route in <%= "#{ngmodel_prefix}" %>.routes">
+                  <div class="list-group-item" ng-class="{ active: selected(route) }" ng-click="selectRoute(route)" ng-repeat="route in <%= "#{ng_model_routes}" %>">
                     <h4 class="list-group-item-heading"> {{ route.cost }} rub </h4>
                     <p class="list-group-item-text"> {{ route.inKilo() }} km / {{ route.inMinutes() }} min </p>
                   </div>
@@ -69,13 +70,14 @@
               <div class="form-group">
 
                 <button type="button" class="btn" ng-click="back()">Back</button>
-
-                <button type="button" class="btn btn-primary" ng-click="forth()" ng-disabled="travelForm.$invalid">Proceed</button>
-                <!--<button type="button" class="btn btn-primary" ng-click="forth()">Proceed</button>-->
-
-                <!--<button type="button" class="btn" ng-click="log(travelForm)">DUMP</button>-->
+                <button type="button" class="btn btn-primary" ng-click="forth()" ng-if="!accounted" ng-disabled="travelForm.$invalid">Proceed</button>
 
               </div>
+
+              <!--<div class="form-group">-->
+                <!--<button type="button" class="btn" ng-click="$debugLog(travelForm)">DUMP FORM</button>-->
+                <!--<button type="button" class="btn" ng-click="$debugLog(travel.model)">DUMP MODEL</button>-->
+              <!--</div>-->
 
             </div>
 

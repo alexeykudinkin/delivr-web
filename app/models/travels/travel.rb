@@ -67,6 +67,21 @@ module Travels
     include Travels::State::ExportMethods
 
 
+    #
+    # Routes
+    #
+
+    has_one     :route,
+                :class_name => Route,
+                :inverse_of => :travel
+
+    accepts_nested_attributes_for :route, :reject_if => lambda { |route|  route[:cost]      .blank?   ||
+                                                                          route[:duration]  .blank?   ||
+                                                                          route[:length]    .blank?   ||
+                                                                          route[:order]     .blank?   ||
+                                                                          route[:polyline]  .blank? }
+
+
     # Customer
 
     belongs_to  :customer,

@@ -16,6 +16,10 @@
     display: none;
 }
 
+.centered {
+    text-align: center;
+}
+
 .destinations .item .timepicker input {
     padding-left: 6pt;
     padding-right: 6pt;

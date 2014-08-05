@@ -166,9 +166,6 @@
                 })
             }
 
-            function Place() {
-                this.items_attributes = {}
-            }
 
             var storageService = {
 
@@ -412,11 +409,24 @@
 
             // FIXME: Move out constructors
 
-            function Place() {
-                this.items_attributes = {}
-            }
+            // Items
 
             function Item() {}
+
+
+            // Places
+
+            function Destination() {
+                this.items_attributes = {}
+                this.due_date = {}
+            }
+
+            // Destination.prototype = new Place();
+
+            Destination.create = function () {
+                return new Destination();
+            };
+
 
             $scope.pushNextItemFor = function (destination) {
                 var next = Object.keys(destination.items_attributes).length;
@@ -435,7 +445,7 @@
                 var destinations_attributes = $scope.travel.model.destinations_attributes;
                 var next = Object.keys(destinations_attributes).length;
 
-                destinations_attributes[next] = new Place();
+                destinations_attributes[next] = Destination.create();
 
                 $scope.pushNextItemFor(destinations_attributes[next]);
             };
@@ -810,20 +820,22 @@
                 });
             };
 
-            $scope.composeTravelRoutes1 = function () {
+            $scope.composeTravelRoutes1 = function (callback) {
 
                 doReqBy($scope.travel.model, function (result, status) {
-                    if (status == google.maps.DirectionsStatus.OK) {
-                        delivrEnvironmentService.directionsRenderingService.setDirections(result);
-                    }
+                    callback(result);
                 });
-            }
+            };
+
+            $scope.selected = function (route) {
+                return $scope.travel.model.route_attributes === route;
+            };
 
             $scope.selectRoute = function (route) {
-                $scope.selected = route;
+                $scope.travel.model.route_attributes = route;
 
                 // FIXME: Move out non-idempotent service out of services
-                delivrEnvironmentService.directionsRenderingService.setRouteIndex(route.index);
+                delivrEnvironmentService.directionsRenderingService.setRouteIndex(route.$index);
             };
 
             ///////////////////////////////////////////////////////////////////////////////////////////
@@ -844,14 +856,26 @@
                 }, 0);
             }
 
+            function polylineOf(route) {
+                return route.overview_polyline;
+            }
+
+            function serializeOrder(route) {
+                return route.waypoint_order.reduce(function (s, index, i) {
+                    if (i != 0)
+                        s += ",";
+                    return s + index.toString();
+                }, "");
+            }
+
             function costOf(route) {
-                if (!route.length || !route.items)
+                if (!route.length || !route.$items)
                     return NaN;
 
                 var req = {
                     route: {
                         length: route.length,
-                        items:  route.items
+                        items:  route.$items
                     }
                 };
 
@@ -874,15 +898,20 @@
                 return cost;
             }
 
-            function Route(items, route, index) {
-                this.route      = route;
-                this.index      = index;
 
-                this.items      = items;
+            function Route(items, route, index) {
+                this.$route     = route;
+                this.$index     = index;
+
+                this.$items     = items;
 
                 this.length     = lengthOf(route);
                 this.duration   = durationOf(route);
                 this.cost       = costOf(this);
+
+                this.order      = serializeOrder(route);
+
+                this.polyline   = polylineOf(route);
             }
 
             Route.prototype.inKilo = function () {
@@ -914,7 +943,7 @@
                         // This is b/c callback would be run out of Angular's scope,
                         // therefore making him oblivious to any such a change
                         $scope.$apply(function () {
-                            $scope.travel.model.routes = result.routes.map(function (route, index) {
+                            $scope.travel.model.$routes = result.routes.map(function (route, index) {
                                 return new Route(items, route, index);
                             });
                         });
@@ -939,6 +968,10 @@
             ///////////////////////////////////////////////////////////////////////////////////////////
 
             // DEBUG_ONLY
+
+            $scope.$debugLog = function (o) {
+                console.log(o);
+            };
 
             $scope.$dumpTravel = function () {
                 console.log("Route: \n");
