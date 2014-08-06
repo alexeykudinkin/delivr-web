@@ -89,7 +89,7 @@ environmentServices.factory('Distance', [function () {
 
 environmentServices.factory('Geolocation', [function () {
     return {
-        atCurrentLocation: function (success, failure) {
+        atCurrentPosition: function (success, failure) {
             if (navigator.geolocation)
                 navigator.geolocation.getCurrentPosition(success, failure);
             else

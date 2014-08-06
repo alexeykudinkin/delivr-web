@@ -50,14 +50,14 @@
     // Modules
     //
 
-    var delivr = angular.module('delivr', [
+    var delivrApp = angular.module('delivr', [
         'ngAnimate',
         'ngMessages',
         'ui.bootstrap',
         'environmentServices'
     ]);
 
-    delivr.config(['$locationProvider', function ($locationProvider) {
+    delivrApp.config(['$locationProvider', function ($locationProvider) {
         // Configure HTML5 to get links working on JSFiddle
         $locationProvider.html5Mode(true);
     }]);
@@ -66,7 +66,7 @@
     // Services
     //
 
-    delivr.factory('RenderingService', [function () {
+    delivrApp.factory('RenderingService', [function () {
         function RenderingService() {
             this.renderingService = new google.maps.DirectionsRenderer();
         }
@@ -102,10 +102,18 @@
            this.renderingService.setMap(map);
         }
 
+	RenderingService.prototype.setDirections = function (directions) {
+            this.renderingService.setDirections(directions);
+        }
+
+        RenderingService.prototype.setRouteIndex = function (index) {
+            this.renderingService.setRouteIndex(index);
+        }
+
         return new RenderingService();
     }]);
 
-    delivr.factory('TravelFormStorageService', [function () {
+    delivrApp.factory('TravelFormStorageService', [function () {
         function strip(source) {
             if (!angular.isObject(source))
                 return source;
@@ -126,7 +134,7 @@
             });
         }
 
-        return {
+	var storageService = {
             model: {
                 origin_attributes: {},
                 destinations_attributes: {},
@@ -149,6 +157,8 @@
                     update(angular.fromJson(localStorage.travelForm), this.model);
             }
         };
+
+        return storageService;
     }]);
 
 
@@ -156,7 +166,7 @@
     // Directives
     //
 
-    delivr.directive('googleMap', ['$window', '$rootScope', 'RenderingService',
+    delivrApp.directive('googleMap', ['$window', '$rootScope', 'RenderingService',
         function ($window, $rootScope, RenderingService) {
             return {
                 restrict: 'A',
@@ -235,7 +245,7 @@
         }]
      );
 
-    delivr.directive('verifyAddress', ['$window', '$rootScope',
+    delivrApp.directive('verifyAddress', ['$window', '$rootScope',
         function ($window, $rootScope) {
             return {
                 restrict:   'A',
@@ -250,11 +260,11 @@
     // Controllers
     //
 
-    delivr.controller('DelivrEnvironmentController', [ '$scope', '$rootScope',
+    delivrApp.controller('DelivrEnvironmentController', [ '$scope', '$rootScope',
         function ($scope, $rootScope) { }
     ]);
 
-    delivr.controller('TravelFormController', ['$window', '$document', '$rootScope', '$scope', 'Geolocation', 'Geocoder', 'Direction', 'RenderingService', 'TravelFormStorageService', 
+    delivrApp.controller('TravelFormController', ['$window', '$document', '$rootScope', '$scope', 'Geolocation', 'Geocoder', 'Direction', 'RenderingService', 'TravelFormStorageService', 
         function ($window, $document, $rootScope, $scope, Geolocation, Geocoder, Direction, RenderingService, TravelFormStorageService) {
             $scope.accounted    = false;
             $scope.travel       = TravelFormStorageService;
@@ -752,7 +762,7 @@
 
                     if (result.status == google.maps.DirectionsStatus.OK) {
 
-                        delivrEnvironmentService.directionsRenderingService.setDirections(result);
+                        RenderingService.setDirections(result);
 
                         var items =
                             delivr.util.values($scope.travel.model.destinations_attributes)
