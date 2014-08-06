@@ -41,9 +41,16 @@ Shipper::Application.routes.draw do
   # take precedence of the other actions upon `travel` resource
   #
 
-  resources :travels, only: [ :index, :new, :create ]
+  resources :travels, only: [ :index, :new, :create ] do
+    collection do
+      get   :taken
+      get   :created
 
-  resources :travels do
+      get   :active
+    end
+  end
+
+  resources :travels, only: [] do
     member do
 
       # Allows to grab particular travel
@@ -54,13 +61,6 @@ Shipper::Application.routes.draw do
 
       get   :show, to: "travels#status"
 
-    end
-
-    collection do
-      get   :taken
-      get   :created
-
-      get   :active
     end
   end
 
