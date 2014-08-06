@@ -18,6 +18,7 @@
 //= require angular/angular-animate
 
 //= require bootstrap/bootstrap.js
+//= require bootstrap/ui-bootstrap-tpls.js
 
 //= require_tree .
 
@@ -49,184 +50,141 @@
     // Modules
     //
 
-    angular.module('delivr', [ 'ngAnimate', 'ngMessages', 'ui.bootstrap' ])
+    var delivrApp = angular.module('delivr', [
+        'ngAnimate',
+        'ngMessages',
+        'ui.bootstrap',
+        'environmentServices'
+    ]);
 
-        .config([ '$locationProvider', function ($locationProvider) {
+    delivrApp.config(['$locationProvider', function ($locationProvider) {
+        // Configure HTML5 to get links working on JSFiddle
+        $locationProvider.html5Mode(true);
+    }]);
 
-            // Configure HTML5 to get links working on JSFiddle
-            $locationProvider.html5Mode(true);
-        } ])
+    //
+    // Services
+    //
 
-        //
-        // Services
-        //
+    delivrApp.factory('RenderingService', [function () {
+        function RenderingService() {
+            this.renderingService = new google.maps.DirectionsRenderer();
+        }
 
-        .factory('delivrEnvironmentService', [ function () {
+        RenderingService.prototype.bind = function (scope, canvas, options) {
+            if (!canvas)
+                throw "Canvas supplied may not be 'undefined'";
 
-            function Services() {
+            var mapOptions = $.extend({}, {
+                // FIXME
+                center: new google.maps.LatLng(59.96512, 30.15732),
+                zoom: 10,
 
-                function imbue(self, map) {
-                    self.directionsRenderingService.setMap(map);
-                }
-
-                this.geoCodingService = new google.maps.Geocoder();
-                this.directionsService = new google.maps.DirectionsService();
-                this.directionsRenderingService = new google.maps.DirectionsRenderer();
-
-                this.navigatorService = {
-                    atCurrentPosition: function (handler) {
-                        if (navigator.geolocation) {
-                            navigator.geolocation.getCurrentPosition(function (position) {
-                                handler(position);
-                            })
-                        }
-                    }
-                };
-
-                this.resolveByCoordinates = function (coordinates, callback) {
-                    this.geoCodingService.geocode({ latLng: coordinates }, function (results, status) {
-                        var resolved;
-
-                        if (status == google.maps.GeocoderStatus.OK)
-                            resolved = results[0].formatted_address;
-
-                        callback({ coordinates: coordinates, address: resolved });
-                    });
-                };
-
-                this.resolveByAddress = function (address, callback) {
-                    this.geoCodingService.geocode({ address: address }, function (results, status) {
-                        var found;
-
-                        if (status == google.maps.GeocoderStatus.OK)
-                            found = results[0].geometry.location;
-
-                        callback({ coordinates: found, address: address });
-                    });
-                };
-
-                this.init = function (scope, canvas, options) {
-
-                    if (!canvas)
-                        throw "Canvas supplied may not be 'undefined'";
-
-                    var mapOptions = $.extend({}, {
-
-                        // FIXME
-                        center: new google.maps.LatLng(59.96512, 30.15732),
-                        zoom: 10,
-
-                        mapTypeControl: true,
-                        mapTypeControlOptions: {
-                            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-                            position: google.maps.ControlPosition.TOP_RIGHT
-                        },
-
-                        panControl: true,
-                        panControlOptions: {
-                            position: google.maps.ControlPosition.RIGHT_TOP
-                        },
-
-                        zoomControl: true,
-                        zoomControlOptions: {
-                            style: google.maps.ZoomControlStyle.LARGE,
-                            position: google.maps.ControlPosition.RIGHT_TOP
-                        }
-                    }, options);
-
-                    var map = scope.map = new google.maps.Map(canvas, mapOptions);
-
-                    imbue(this, map);
-                };
-            }
-
-            return new Services();
-        }])
-
-        .factory('travelFormStorageService', [ function () {
-
-            function strip(source) {
-                if (!angular.isObject(source))
-                    return source;
-
-                var stripped = {};
-                Object.keys(source).forEach(function (key, index, array) {
-                        if (String(key)[0] !== "$") {
-                            stripped[key] = strip(source[key]);
-                        }
-                    }
-                );
-
-                return stripped;
-            }
-
-            function update(source, target) {
-                Object.keys(source).forEach(function (key, index, array) {
-                    target[key] = source[key];
-                })
-            }
-
-
-            var storageService = {
-
-                model: {
-                    origin_attributes: {},
-                    destinations_attributes: {},
-
-                    $bare: function () {
-                        return strip(this);
-                    },
-
-                    $serialize: function () {
-                        return {
-                            travel: this.$bare()
-                        }
-                    }
+                mapTypeControl: true,
+                mapTypeControlOptions: {
+                    style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                    position: google.maps.ControlPosition.TOP_RIGHT
                 },
 
-                save: function () {
-                    localStorage.travelForm = angular.toJson(storageService.model.$bare());
+                panControl: true,
+                panControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_TOP
                 },
 
-                restore: function () {
-                    if (localStorage.travelForm) {
-                        update(angular.fromJson(localStorage.travelForm), this.model);
-                    }
+                zoomControl: true,
+                zoomControlOptions: {
+                    style: google.maps.ZoomControlStyle.LARGE,
+                    position: google.maps.ControlPosition.RIGHT_TOP
                 }
-            };
+           }, options);
 
-            return storageService;
-        } ])
+           var map = scope.map = new google.maps.Map(canvas, mapOptions);
+           this.renderingService.setMap(map);
+        }
+
+	RenderingService.prototype.setDirections = function (directions) {
+            this.renderingService.setDirections(directions);
+        }
+
+        RenderingService.prototype.setRouteIndex = function (index) {
+            this.renderingService.setRouteIndex(index);
+        }
+
+        return new RenderingService();
+    }]);
+
+    delivrApp.factory('TravelFormStorageService', [function () {
+        function strip(source) {
+            if (!angular.isObject(source))
+                return source;
+
+            var stripped = {};
+            Object.keys(source).forEach(function (key, index, array) {
+                if (String(key)[0] !== "$") {
+                    stripped[key] = strip(source[key]);
+                }
+            });
+
+            return stripped;
+        }
+
+        function update(source, target) {
+            Object.keys(source).forEach(function (key, index, array) {
+                target[key] = source[key];
+            });
+        }
+
+	var storageService = {
+            model: {
+                origin_attributes: {},
+                destinations_attributes: {},
+
+                $bare: function () {
+                    return strip(this);
+                },
+
+                $serialize: function () {
+                    return { travel: this.$bare() };
+                }
+            },
+
+            save: function () {
+                localStorage.travelForm = angular.toJson(storageService.model.$bare());
+            },
+
+            restore: function () {
+                if (localStorage.travelForm)
+                    update(angular.fromJson(localStorage.travelForm), this.model);
+            }
+        };
+
+        return storageService;
+    }]);
 
 
-        //
-        // Directives
-        //
+    //
+    // Directives
+    //
 
-        .directive('googleMap', [ '$window', '$rootScope', 'delivrEnvironmentService', function ($window, $rootScope, delivrEnvironmentService) {
+    delivrApp.directive('googleMap', ['$window', '$rootScope', 'RenderingService',
+        function ($window, $rootScope, RenderingService) {
             return {
                 restrict: 'A',
-                scope: {
-                    googleMapOptions: '='
-                },
+                scope: { googleMapOptions: '=' },
                 link: function (scope, element, attrs) {
 
                     function loadGoogleMapsAsync() {
-
                         var loadGoogleMaps =
                             (function ($, window) {
                                 "use strict";
-
                                 var now = $.now();
                                 var promise;
 
                                 return function (version, apiKey, language, sensor) {
-                                    if (promise) {
+                                    if (promise)
                                         return promise;
-                                    }
 
                                     var deferred = $.Deferred();
-
                                     var resolveDeferred = function () {
                                         deferred.resolve(window.google && window.google.maps ? window.google.maps : false);
                                     };
@@ -234,16 +192,9 @@
                                     var callbackName = "loadGoogleMaps_" + (now++);
 
                                     // Default params
-                                    var params =
-                                        $.extend({
-                                                "sensor": sensor || "false"
-                                            },
-                                            apiKey ? {
-                                                "key": apiKey
-                                            } : {},
-                                            language ? {
-                                                "language": language
-                                            } : {});
+                                    var params = $.extend({"sensor": sensor || "false"},
+                                                          apiKey ? { "key": apiKey } : {},
+                                                          language ? { "language": language} : {});
 
                                     if (window.google && window.google.maps) {
                                         resolveDeferred();
@@ -253,19 +204,13 @@
                                             "callback": resolveDeferred
                                         });
                                     } else {
-                                        params = $.extend(params, {
-                                            'callback': callbackName
-                                        });
+                                        params = $.extend(params, { 'callback': callbackName });
 
                                         window[callbackName] = function () {
                                             resolveDeferred();
-
                                             //Delete callback
                                             setTimeout(function () {
-                                                try {
-                                                    delete window[callbackName];
-                                                } catch (e) {
-                                                }
+                                                try { delete window[callbackName]; } catch (e) { }
                                             }, 20);
                                         };
 
@@ -275,202 +220,112 @@
                                             data: params,
                                             url: config.GOOGLE_MAPS_API
                                         });
-
                                     }
 
                                     promise = deferred.promise();
 
                                     return promise;
                                 };
-
                             })(jQuery, window);
 
                         $.when(loadGoogleMaps())
-                            .then(function () {
-                                /* NOP */
-                            })
-                            .done(function () {
-                                initGoogleMaps();
-                            });
+                            .then(function () { }).done(function () { initGoogleMaps(); });
                     }
 
                     function initGoogleMaps() {
-                        delivrEnvironmentService.init($rootScope, element[0], scope.googleMapOptions || {});
+                        RenderingService.bind($rootScope, element[0], scope.googleMapOptions || {});
                     }
 
-                    if ($window.google && $window.google.maps) {
+                    if ($window.google && $window.google.maps)
                         initGoogleMaps();
-                    } else {
+                    else
                         loadGoogleMapsAsync();
-                    }
                 }
             };
-        }])
+        }]
+     );
 
-        .directive('verifyAddress', [ '$window', '$rootScope', 'delivrEnvironmentService', function ($window, $rootScope, delivrEnvironmentService) {
+    delivrApp.directive('verifyAddress', ['$window', '$rootScope',
+        function ($window, $rootScope) {
             return {
                 restrict:   'A',
-                require:    [ 'form' /* WTF? Why 'ngForm' breaks? */ ],
-                link: function (scope, element, attrs, controller) {
+                require:    [ 'form' /* WTF? Why 'ngForm' breaks? hmm... maybe ng-form? */ ],
+                link: function (scope, element, attrs, controller) { }
+            }
+        }]
+    );
 
-                       // TODO: Revisit if we still need this
 
-//                    var form = controller[0];
-//
-//                    $(element).find(".address").bind('blur', function () {
-//                        scope.$apply(
-//                            function () {
-//                                if (form.address.$touched) {
-//                                    if (form.address.$invalid) {
-//                                        form.address.$setValidity("required", false);
-//                                    } else if (form.coordinates.$invalid) {
-//                                        form.coordinates.$setValidity("required", false);
-//                                    }
-//
-//                                    // TODO:
-//                                    //      This is a hack to imitate coordinates sub-form
-//                                    //      being touched
-//
-//                                    form.coordinates.$setTouched();
-//                                }
-//                            }
-//                        )
-//                    });
+    //
+    // Controllers
+    //
+
+    delivrApp.controller('DelivrEnvironmentController', [ '$scope', '$rootScope',
+        function ($scope, $rootScope) { }
+    ]);
+
+    delivrApp.controller('TravelFormController', ['$window', '$document', '$rootScope', '$scope', 'Geolocation', 'Geocoder', 'Direction', 'RenderingService', 'TravelFormStorageService', 
+        function ($window, $document, $rootScope, $scope, Geolocation, Geocoder, Direction, RenderingService, TravelFormStorageService) {
+            $scope.accounted    = false;
+            $scope.travel       = TravelFormStorageService;
+            $scope.settings     = {
+                timepicker: {
+                    hourStep:   1,
+                    minuteStep: 5,
+                    isMeridian: false,
+                    mouseWheel: false
                 }
-            }
-        }])
+            };
 
-
-        //
-        // Controllers
-        //
-
-        .controller('DelivrEnvironmentController', [ '$scope', '$rootScope', 'delivrEnvironmentService', function ($scope, $rootScope, delivrEnvironmentService) {
-            // NOP
-        } ])
-
-        .controller('TravelFormController', [ '$window', '$document', '$rootScope', '$scope', 'delivrEnvironmentService', 'travelFormStorageService', function ($window, $document, $rootScope, $scope, delivrEnvironmentService, travelFormStorageService) {
-
-            //
-            // Travels
-            //
-
-            // FIXME: Move out constructors
-
-            function Travel() {
-            }
-
-            function Address() {
-            }
-
+            function Travel() {}
+            function Address() {}
             Address.prototype.format = function () {
                 return this["route"] + ", " + this["street_number"] + ", " + this["locality"];
             };
 
-            // Initialize current scope
-
-            (function init() {
-                // FIXME
-                $scope.accounted    = false;
-
-                $scope.travel       = travelFormStorageService;
-
-                $scope.settings     = {
-                    timepicker: {
-                        hourStep:   1,
-                        minuteStep: 5,
-
-                        isMeridian: false,
-
-                        mouseWheel: false
-                    }
-                }
-            }());
-
-
-            //
-            // Local declarations
-            //
-
-            // Sanity checking harness
-
-            function validateTravel(travel) { /* NOP */
-            }
-
+            function validateTravel(travel) {}
             function initOnDOMReady() {
                 google.maps.event.addListener($rootScope.map, 'click', function (click) {
                     $scope.$activeTracker && $scope.$activeTracker(click.latLng);
                 });
             }
 
-            //
-            // Scope declarations
-            //
-
-            // FIXME: Move out constructors
-
-            // Items
-
             function Item() {}
-
-
-            // Places
-
             function Destination() {
                 this.items_attributes = {}
                 this.due_date = {}
             }
 
-            // Destination.prototype = new Place();
-
-            Destination.create = function () {
-                return new Destination();
-            };
-
-
             $scope.pushNextItemFor = function (destination) {
                 var next = Object.keys(destination.items_attributes).length;
-
                 destination.items_attributes[next] = new Item();
             };
 
             $scope.pushNextDestinationIfNone = function () {
-                if (Object.keys($scope.travel.model.destinations_attributes).length == 0) {
+                if (Object.keys($scope.travel.model.destinations_attributes).length == 0)
                     $scope.pushNextDestination()
-                }
             };
 
             $scope.pushNextDestination = function () {
-
                 var destinations_attributes = $scope.travel.model.destinations_attributes;
                 var next = Object.keys(destinations_attributes).length;
-
-                destinations_attributes[next] = Destination.create();
-
+                destinations_attributes[next] = new Destination();
                 $scope.pushNextItemFor(destinations_attributes[next]);
             };
 
             $scope.submitTravel = function () {
-
                 validateTravel($scope.travel.model);
-
                 $.ajax({
                     type: 'POST',
                     url: '/travels',
                     data: $scope.travel.model.$serialize(),
                     dataType: 'json'
                 }).success(function (jqXHR, status, data) {
-
                     $scope.log("[AJAX][S]: Successfully created!");
-
                     var location = data.getResponseHeader("location");
-
                     window.location.replace(location);
-
                 }).error(function (jqXHR, status, error) {
-
                     $scope.log("[AJAX][E]: " + status + "/" + error);
-
                 });
 
             };
@@ -478,14 +333,12 @@
             $scope.registerClickerAndAutoComplete = function (target, $event) {
                 $scope.tryBindTracker(target);
                 $scope.tryBindAutoComplete(target, $event.target);
-
                 $scope.$activeTracker = target.$trackingService;
             };
 
             $scope.tryBindTracker = function (target) {
                 if (target.$trackingService)
                     return;
-
                 target.$trackingService = function (position) {
                     $scope.tryResolveAndMarkPosition({ coordinates: position }, target);
                 };
@@ -497,24 +350,13 @@
 
                 target.$autoCompleteService = new google.maps.places.Autocomplete(input, { types: [ 'geocode' ] });
 
-                delivrEnvironmentService.navigatorService.atCurrentPosition(function (position) {
+                Geolocation.atCurrentPosition(function (position) {
                     var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                     target.$autoCompleteService.setBounds(new google.maps.LatLngBounds(location, location));
                 });
 
-    //            google.maps.event.addDomListener(input, 'keydown', function (event) {
-    //                    switch (event.keyCode) {
-    //                        case 13: /* Stop bubbling up the form! */
-    //                            event.preventDefault();
-    //                            break;
-    //                    }
-    //                }
-    //            );
-
                 google.maps.event.addListener(target.$autoCompleteService, 'place_changed', function () {
-
                     var map = $rootScope.map;
-
                     var place = target.$autoCompleteService.getPlace();
 
                     //
@@ -523,7 +365,6 @@
                     //
 
                     if (place.geometry) {
-
                         if (place.geometry.viewport) {
                             map.fitBounds(place.geometry.viewport);
                         } else {
@@ -532,7 +373,6 @@
                         }
 
                         var filtered = new Address();
-
                         var format = {
                             street_number: 'short_name',
                             route: 'long_name',
@@ -546,18 +386,13 @@
                                 filtered[type] = place.address_components[i][format[type]]
                             }
                         }
-
                         var position = {
                             coordinates: place.geometry.location,
                             address: filtered.format()
                         };
-
                         $scope.tryResolveAndMarkPosition(position, target);
-
                     } else {
-
                         $scope.tryResolveAndMarkPosition({ address: place.name }, target);
-
                     }
                 })
             };
@@ -583,7 +418,7 @@
                     //
 
                     if (position.address) {
-                        delivrEnvironmentService.resolveByAddress(position.address, function (opts) {
+                        Geocoder.resolveByAddress(position.address, function (opts) {
                             position.coordinates = opts.coordinates;
                         })
                     }
@@ -634,13 +469,13 @@
                 if (position.address) {
                     setResolved(position);
                 } else {
-                    delivrEnvironmentService.resolveByCoordinates(marker.getPosition(), setResolved);
+                    Geocoder.resolveByCoordinates(marker.getPosition(), setResolved);
                 }
 
                 // Push listener to re-resolve address after marker being drag-and-drop'ed
 
                 google.maps.event.addListener(marker, 'dragend', function (_) {
-                    delivrEnvironmentService.resolveByCoordinates(marker.getPosition(), setResolved);
+                    Geocoder.resolveByCoordinates(marker.getPosition(), setResolved);
                 });
             };
 
@@ -681,7 +516,7 @@
                             waypoints: waypoints
                         };
 
-                        delivrEnvironmentService.directionsService.route(request, callback);
+                        Direction.route(request, callback);
                     }
                 });
             }
@@ -769,7 +604,7 @@
                 var elem = angular.element($("div #travel-summary"));
 
                 // Create the tsp object
-                tsp = new BpTspSolver(map, elem, delivrEnvironmentService.geoCodingService, delivrEnvironmentService.directionsService);
+                tsp = new BpTspSolver(map, elem, Geocoder.geocoder, Direction.direction);
 
                 tsp.setTravelMode(google.maps.DirectionsTravelMode.DRIVING);
 
@@ -812,12 +647,8 @@
             };
 
             $scope.composeTravelRoutes0 = function (callback) {
-
                 var request = makeReqBy($scope.travel.model);
-
-                delivrEnvironmentService.directionsService.route(request, function (result, status) {
-                    callback(result);
-                });
+                Direction.route(request, callback);
             };
 
             $scope.composeTravelRoutes1 = function (callback) {
@@ -835,7 +666,7 @@
                 $scope.travel.model.route_attributes = route;
 
                 // FIXME: Move out non-idempotent service out of services
-                delivrEnvironmentService.directionsRenderingService.setRouteIndex(route.$index);
+                RenderingService.setRouteIndex(route.$index);
             };
 
             ///////////////////////////////////////////////////////////////////////////////////////////
@@ -923,7 +754,7 @@
             };
 
             $scope.forth = function () {
-                travelFormStorageService.save();
+                TravelFormStorageService.save();
 
                 $scope.accounted = true;
 
@@ -931,7 +762,7 @@
 
                     if (result.status == google.maps.DirectionsStatus.OK) {
 
-                        delivrEnvironmentService.directionsRenderingService.setDirections(result);
+                        RenderingService.setDirections(result);
 
                         var items =
                             delivr.util.values($scope.travel.model.destinations_attributes)
@@ -952,11 +783,11 @@
             };
 
             $scope.back = function () {
-                travelFormStorageService.restore();
+                TravelFormStorageService.restore();
 
                 $scope.accounted = false;
 
-                $scope.travel = travelFormStorageService;
+                $scope.travel = TravelFormStorageService;
             };
 
             ///////////////////////////////////////////////////////////////////////////////////////////
