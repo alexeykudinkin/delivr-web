@@ -12,20 +12,20 @@
 
     <div class="item-details col-md-8 col-sm-8" ng-form="<%= ng_form %>">
 
-      <%= render layout: "layouts/error_labels_layout", locals: { subform: ng_form, props: :name, message: "Missing name" } do %>
+      <%= render layout: "layouts/error_labels_layout", locals: { subform: ng_form, props: :name, message: (t :travels_missing_item_name_error_message) } do %>
 
         <%= form.text_field :name,  name:         "name",
-                                    placeholder:  "Name",
+                                    placeholder:  (t :travels_item_name),
                                     class:        "form-control",
                                     ng_model:     ng_model_name,
                                     ng_required:  true %>
 
       <% end %>
 
-      <%= render layout: "layouts/error_labels_layout", locals: { subform: ng_form, props: :weight, message: "Missing weight" } do %>
+      <%= render layout: "layouts/error_labels_layout", locals: { subform: ng_form, props: :weight, message: (t :travels_missing_item_weight_error_message) } do %>
 
         <%= form.text_field :weight,  name:         "weight",
-                                      placeholder:  "Weight",
+                                      placeholder:  (t :travels_item_weight),
                                       class:        "form-control",
                                       ng_model:     ng_model_weight,
                                       ng_required:  true %>
@@ -34,7 +34,7 @@
 
       <div class="form-group">
           <%= form.text_area :description,  name:         "description",
-                                            placeholder:  "Description",
+                                            placeholder:  (t :travels_item_description),
                                             class:        "form-control",
                                             ng_model:     ng_model_description %>
       </div>

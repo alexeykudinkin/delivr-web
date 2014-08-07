@@ -1,0 +1,9 @@
+
+ru:
+  travels: "Заказы"
+  dashboard: "Управление"
+  create_travel: "Создать"
+  travels_item:
+    one: "Груз"
+    few: "Грузы"
+    other: "Грузов"
