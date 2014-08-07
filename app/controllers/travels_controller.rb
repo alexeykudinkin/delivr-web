@@ -201,9 +201,9 @@ class TravelsController < ApplicationController
                   origin:       { only: [ :id, :address, :coordinates ],  except: [ :updated_at, :created_at ] },
                   destinations: { only: [ :id, :address, :coordinates ],  except: [ :updated_at, :created_at ] },
                   customer:     { only: [ :id, :name ],                   except: [ :phone, :password_digest ] },
-                  performer:    { only: [ :id, :name ],                   except: [ :phone, :password_digest ] }
+                  performer:    { only: [ :id, :name ],                   except: [ :phone, :password_digest ] },
                 },
-                only:   [ :id ],
+                only:   [ :id, :cost, :length, :duration ],
                 except: [ :created_at, :updated_at ]
       end
 
