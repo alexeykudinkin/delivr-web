@@ -33,7 +33,7 @@ class ApplicationController < ActionController::Base
 
     def demand_login(controller)
       unless controller.send(:logged_in?)
-          redirect_to login_path, status: :forbidden, alert: "You must be logged in!"
+          redirect_to login_path, alert: "You must be logged in!"
       end
     end
 
@@ -42,7 +42,31 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  module LocaleHelpers
+    module ClassMethods
+      def localize
+        before_action :set_request_locale
+      end
+    end
+
+    def set_request_locale
+      I18n.locale = params[:locale] || I18n.default_locale
+    end
+
+    def self.included(base)
+      base.extend ClassMethods
+    end
+  end
+
   include SessionHelpers
+  include LocaleHelpers
+
+
+  #
+  # Localization
+  #
+
+  localize
 
 
   #
@@ -68,25 +92,23 @@ class ApplicationController < ActionController::Base
 
   module MapHelpers
     module ClassMethods
-
       #
       # Marks controller instance as the one requiring map
       #
       def requires_map
         self.class_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
-      def requires_map?
-        true
-      end
+          def requires_map?
+            true
+          end
         RUBY_EVAL
       end
-
     end
 
     def requires_map?
       false # by default
     end
 
-    def included(base)
+    def self.included(base)
       base.extend ClassMethods
     end
   end

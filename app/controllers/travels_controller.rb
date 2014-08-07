@@ -6,7 +6,7 @@ class TravelsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [ :take ]
 
 
-  require_login :show, :index, :new, :create, :take
+  require_login :show, :index, :new, :create, :take, :status
 
 
   # GET /travels/:id
