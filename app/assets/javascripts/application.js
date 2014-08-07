@@ -450,7 +450,7 @@
                 var setResolved =
                     function (opts) {
 
-                        var coordinates = opts.coordinates;
+                        var coordinates = opts.latLng;
                         var address     = opts.address;
 
                         // This is for all models bound to the `address` and `coordinates`
