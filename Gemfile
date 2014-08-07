@@ -41,6 +41,9 @@ end
 # Use ActiveModel has_secure_password
 gem 'bcrypt-ruby', '~> 3.0.0'
 
+# Use I18n for proper app localization
+gem 'i18n'
+
 # Use unicorn as the app server
 # gem 'unicorn'
 
@@ -56,5 +59,4 @@ gem 'bcrypt-ruby', '~> 3.0.0'
 #
 
 # Twilio
-
 gem 'twilio-ruby'

@@ -23,19 +23,19 @@
 
           <li>
             <%= link_to user_travels_path(current_user) do %>
-              Travels <span class="badge"> <%= Travels::Travel.of(current_user).select { |t| t.notifications.any? } .length %> </span>
+              <%= t :travels %> <span class="badge"> <%= Travels::Travel.of(current_user).select { |t| t.notifications.any? } .length %> </span>
             <%  end %>
           </li>
 
           <li>
             <%= link_to dashboard_path do %>
-              Dashboard
+              <%= t :dashboard %>
             <%  end %>
           </li>
 
           <li>
             <%= link_to new_travel_path do %>
-              Create Travel
+              <%= t :create_travel %>
             <%  end %>
           </li>
 

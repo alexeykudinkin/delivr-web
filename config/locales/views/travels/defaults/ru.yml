@@ -1,0 +1,25 @@
+
+ru:
+
+  travels_origin:
+    one: "Пункт отправления"
+    few: "Пункты отправления"
+    other: "Пунктов отправления"
+
+
+  travels_new_form_missing_address_error_message: "Укажите адрес"
+
+  travels_destination:
+    one: "Пункт назначения"
+    few: "Пункты назначения"
+    other: "Пунктов назначения"
+
+  travels_new_form_after_timepicker_caption: "После"
+  travels_new_form_before_timepicker_caption: "До"
+  travels_item_name: "Название"
+  travels_missing_item_name_error_message: "Укажите название"
+  travels_missing_item_weight_error_message: "Укажите вес"
+  travels_item_weight: "Вес"
+  travels_item_description: "Описание"
+  travels_route_cost: "Стоимость"
+  travels_status: "Статус"

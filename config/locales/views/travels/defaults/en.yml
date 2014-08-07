@@ -1,0 +1,22 @@
+
+en:
+  travels_origin:
+    one: "Origin"
+    few: &few_origs "Origins"
+    other: *few_origs
+
+  travels_new_form_missing_address_error_message: "Missing address"
+
+  travels_destination:
+    one: "Destination"
+    few: &few_origs "Destinations"
+    other: *few_origs
+
+  travels_new_form_after_timepicker_caption: "After"
+  travels_new_form_before_timepicker_caption: "Before"
+  travels_item_name: "Name"
+  travels_missing_item_name_error_message: "Missing name"
+  travels_missing_item_weight_error_message: "Missing weight"
+  travels_item_weight: "Weight"
+  travels_item_description: "Description"
+  travels_route_cost: "Cost"

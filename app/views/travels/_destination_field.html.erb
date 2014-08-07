@@ -11,10 +11,10 @@
 
 <div class="<%= local_assigns[:class] %>" ng-click="<%= "registerClickerAndAutoComplete(#{ng_model_prefix}, $event)"%>" ng-form="<%= ng_form %>" verify-address>
 
-  <%= render layout: "layouts/error_labels_layout", locals: { subform: ng_form, props: :address, message: "Missing address" } do %>
+  <%= render layout: "layouts/error_labels_layout", locals: { subform: ng_form, props: :address, message: (t :travels_new_form_missing_address_error_message) } do %>
 
     <%= form.text_field :address,     name:         "address",
-                                      placeholder:  "Destination",
+                                      placeholder:  (t :travels_destination, count: 1),
                                       class:        "address form-control",
                                       ng_model:     ng_model_addr,
                                       ng_required:  true %>
@@ -30,7 +30,7 @@
 
     <div class="timepicker-panel col-md-6 col-sm-6" ng-controller="TimepickerController">
 
-      <span class="timepicker-label">After</span>
+      <span class="timepicker-label"><%= t :travels_new_form_after_timepicker_caption %></span>
 
       <timepicker ng-model      = "<%= ng_model_due_date_starts %>"
                   hour-step     = "settings.timepicker.hourStep"
@@ -43,7 +43,7 @@
 
     <div class="timepicker-panel col-md-6 col-sm-6" ng-controller="TimepickerController">
 
-      <span class="timepicker-label">Before</span>
+      <span class="timepicker-label"><%= t :travels_new_form_before_timepicker_caption %></span>
 
       <timepicker ng-model      = "<%= ng_model_due_date_ends %>"
                   hour-step     = "settings.timepicker.hourStep"
@@ -69,5 +69,5 @@
 <% end %>
 
 <div class="form-group">
-  <%= push_onclick_button_to('Add item', { ng_click: "pushNextItemFor(#{ng_model_prefix})", class: "btn" }) %>
+  <%= push_onclick_button_to((t :travels_new_form_add_item), { ng_click: "pushNextItemFor(#{ng_model_prefix})", class: "btn" }) %>
 </div>

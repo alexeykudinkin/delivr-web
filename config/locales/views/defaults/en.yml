@@ -1,0 +1,9 @@
+
+en:
+  travels: "Travels"
+  dashboard: "Dashboard"
+  create_travel: "Create"
+  travels_item:
+    one: "Item"
+    few: &few "Items"
+    other: *few
