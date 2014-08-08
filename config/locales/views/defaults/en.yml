@@ -7,3 +7,4 @@ en:
     one: "Item"
     few: &few "Items"
     other: *few
+  help: "Help"
