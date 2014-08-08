@@ -54,7 +54,8 @@
         'ngAnimate',
         'ngMessages',
         'ui.bootstrap',
-        'environmentServices'
+        'environmentServices',
+        'tspSolver'
     ]);
 
     delivrApp.config(['$locationProvider', function ($locationProvider) {
@@ -260,12 +261,8 @@
     // Controllers
     //
 
-    delivrApp.controller('DelivrEnvironmentController', [ '$scope', '$rootScope',
-        function ($scope, $rootScope) { }
-    ]);
-
-    delivrApp.controller('TravelFormController', ['$window', '$document', '$rootScope', '$scope', 'Geolocation', 'Geocoder', 'Direction', 'RenderingService', 'TravelFormStorageService', 
-        function ($window, $document, $rootScope, $scope, Geolocation, Geocoder, Direction, RenderingService, TravelFormStorageService) {
+    delivrApp.controller('TravelFormController', ['$window', '$document', '$rootScope', '$scope', 'Geolocation', 'Geocoder', 'Direction', 'RenderingService', 'TravelFormStorageService', 'TspSolver', 
+        function ($window, $document, $rootScope, $scope, Geolocation, Geocoder, Direction, RenderingService, TravelFormStorageService, TspSolver) {
             $scope.accounted    = false;
             $scope.travel       = TravelFormStorageService;
             $scope.settings     = {
@@ -364,160 +361,105 @@
                     // and drop previously resolved coordinates otherwise
                     //
 
-                    if (place.geometry) {
-                        if (place.geometry.viewport) {
-                            map.fitBounds(place.geometry.viewport);
-                        } else {
-                            map.setCenter(place.geometry.location);
-                            map.setZoom(10);
-                        }
-
-                        var filtered = new Address();
-                        var format = {
-                            street_number: 'short_name',
-                            route: 'long_name',
-                            locality: 'long_name'
-                        };
-
-                        for (var i = 0; i < place.address_components.length; ++i) {
-                            var type = place.address_components[i].types[0];
-
-                            if (format[type]) {
-                                filtered[type] = place.address_components[i][format[type]]
-                            }
-                        }
-                        var position = {
-                            latLng: place.geometry.location,
-                            address: filtered.format()
-                        };
-                        $scope.tryResolveAndMarkPosition(position, target);
+                    if (place.geometry.viewport) {
+                        map.fitBounds(place.geometry.viewport);
                     } else {
-                        $scope.tryResolveAndMarkPosition({ address: place.name }, target);
+                        map.setCenter(place.geometry.location);
+                        map.setZoom(10);
                     }
-                })
+
+                    var filtered = new Address();
+                    var format = {
+                        street_number: 'short_name',
+                        route: 'long_name',
+                        locality: 'long_name'
+                    };
+
+                    for (var i = 0; i < place.address_components.length; ++i) {
+                        var type = place.address_components[i].types[0];
+                        if (format[type])
+                            filtered[type] = place.address_components[i][format[type]]
+                    }
+
+                    var position = {
+                        latLng: place.geometry.location,
+                        address: filtered.format()
+                    };
+                    $scope.tryResolveAndMarkPosition(position, target);
+                });
             };
 
             $scope.tryResolveAndMarkPosition = function (position, target) {
-
-                //
-                // TODO: For the sake of god: GET RID OF THIS BULLSHIT!
-                //
-
                 var map = $rootScope.map;
-
                 if (target.$mapInfo) {
                     target.$mapInfo.marker.setMap(null);
-
                     target.$mapInfo = null;
                 }
 
-                if (!position.latLng) {
-
-                    //
-                    // Last chance: try find address supplied
-                    //
-
-                    if (position.address) {
-                        Geocoder.resolveByAddress(position.address, function (opts) {
-                            position.latLng = opts.latLng;
-                        });
-                    }
-
-                    // SOL
-                    //if (!position.latLng) {
-                    //    $scope.$apply(
-                    //        function () {
-                    //            target.address      = position.address;
-                    //            target.coordinates  = null;
-                    //        });
-
-                    //    return;
-                    //}
-                }
-
-
-                var infoW = new google.maps.InfoWindow();
                 var marker = new google.maps.Marker({
                     map: map,
                     position: position.latLng,
                     draggable: true
                 });
 
-                target.$mapInfo = {
-                    marker: marker
-                };
+                target.$mapInfo = { marker: marker };
+                var popup = new google.maps.InfoWindow();
 
-                var setResolved =
-                    function (opts) {
-
-                        var coordinates = opts.latLng;
-                        var address     = opts.address;
-
-                        // This is for all models bound to the `address` and `coordinates`
-                        // to be notified of change, due to `setResolved` being fired as a
-                        // callback of the geocoding service
-                        $scope.$apply(
-                            function () {
-                                target.address      = address;
-                                target.coordinates  = coordinates.toString(); // FIXME: Replace with LatLng
-                            });
-
-                        infoW.setContent(address);
-                        infoW.open(map, marker);
-                    };
-
-                if (position.address) {
-                    setResolved(position);
-                } else {
-                    Geocoder.resolveByCoordinates(marker.getPosition(), setResolved);
+                function updateMarker(position) {
+                    $scope.$apply(function () {
+                        target.address = position.address;
+                        target.coordinates = position.latLng.toString();
+                    });
+                    popup.setContent(position.address);
+                    popup.open(map, marker);
                 }
 
-                // Push listener to re-resolve address after marker being drag-and-drop'ed
-
-                google.maps.event.addListener(marker, 'dragend', function (_) {
-                    Geocoder.resolveByCoordinates(marker.getPosition(), setResolved);
+                google.maps.event.addListener(marker, 'dragend', function () {
+                    Geocoder.resolveByCoordinates(marker.getPosition(), updateMarker);
                 });
+
+                if (position.address)
+                    updateMarker(position);
+                else
+                    Geocoder.resolveByCoordinates(marker.getPosition(), updateMarker);
             };
 
 
             function doReqBy(model, callback) {
 
                 var waypoints = [{
-                    location: new Coordinates(model.origin_attributes.coordinates).toLatLng(),
+                    latLng: new Coordinates(model.origin_attributes.coordinates).toLatLng(),
                     from: 0,
                     to: 60*24
                 }];
 
                 delivr.util.values(model.destinations_attributes).forEach(function (value, index, array) {
                     waypoints.push({
-                        location: new Coordinates(value.coordinates).toLatLng(),
-                        from: 0,
-                        to: 60 * 24
+                        latLng: new Coordinates(value.coordinates).toLatLng(),
+                        from: value.due_date.starts.getHours() * 60 + value.due_date.starts.getMinutes(),
+                        to: value.due_date.ends.getHours() * 60 + value.due_date.ends.getMinutes()
                     });
                 });
 
-                solveTsp(waypoints, 10, function (path, status) {
-                    if (status == "OK") {
-                        var waypoints = [];
-                        for (var i = 1; i < path.length - 1; ++i) {
-                            waypoints.push({
-                                location: path[i].waypoint.location,
-                                stopover: true
-                            });
-                        }
-
-                        var request = {
-                            origin: path.first().waypoint.location,
-                            destination: path.last().waypoint.location,
-                            optimizeWaypoints: false,
-                            provideRouteAlternatives: false,
-                            travelMode: google.maps.TravelMode.DRIVING,
-                            unitSystem: google.maps.UnitSystem.METRIC,
-                            waypoints: waypoints
+                TspSolver.solve(waypoints, function (route) {
+                    var waypoints = route.slice(1, route.length - 1).map(function (value, index, array) {
+                        return {
+                            location: value.point.latLng,
+                            stopover: true
                         };
+                    });
 
-                        Direction.route(request, callback);
-                    }
+                    var request = {
+                        origin: route[0].point.latLng,
+                        destination: route[route.length - 1].point.latLng,
+                        waypoints: waypoints,
+                        optimizeWaypoints: false,
+                        provideRouteAlternatives: false,
+                        travelMode: google.maps.TravelMode.DRIVING,
+                        unitSystem: google.maps.UnitSystem.METRIC,
+                    };
+
+                    Direction.route(request, callback);
                 });
             }
 
@@ -652,10 +594,7 @@
             };
 
             $scope.composeTravelRoutes1 = function (callback) {
-
-                doReqBy($scope.travel.model, function (result, status) {
-                    callback(result);
-                });
+                doReqBy($scope.travel.model, callback);
             };
 
             $scope.selected = function (route) {
@@ -758,7 +697,7 @@
 
                 $scope.accounted = true;
 
-                $scope.composeTravelRoutes0(function (result) {
+                $scope.composeTravelRoutes1(function (result) {
 
                     if (result.status == google.maps.DirectionsStatus.OK) {
 
