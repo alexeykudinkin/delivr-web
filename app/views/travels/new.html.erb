@@ -1,3 +1,7 @@
+<!-- Help Modal -->
+
+
+
 <% content_for :map_overlay do %>
 
   <style type="text/css">
@@ -46,7 +50,7 @@
                 </div>
 
                 <div class="form-group">
-                  <%= push_onclick_button_to('Add destination', { ng_click: "pushNextDestination()", class: "btn" }) %>
+                  <%= push_onclick_button_to((t :travels_new_form_add_destination), { ng_click: "pushNextDestination()", class: "btn" }) %>
                 </div>
 
               </div>
@@ -56,21 +60,21 @@
                 <div class="list-group form-group">
 
                   <div class="list-group-item" ng-class="{ active: selected(route) }" ng-click="selectRoute(route)" ng-repeat="route in <%= "#{ng_model_routes}" %>">
-                    <h4 class="list-group-item-heading"> {{ route.cost }} rub </h4>
+                    <h4 class="list-group-item-heading"> {{ route.cost }} &#8381; </h4>
                     <p class="list-group-item-text"> {{ route.inKilo() }} km / {{ route.inMinutes() }} min </p>
                   </div>
 
                 </div>
 
                 <div class="form-group">
-                  <button type="button" class="btn btn-primary" ng-click="submitTravel()">Submit</button>
+                  <button type="button" class="btn btn-primary" ng-click="submitTravel()"><%= t :travels_new_form_submit_button %></button>
                 </div>
               </div>
 
               <div class="form-group">
 
-                <button type="button" class="btn" ng-click="back()">Back</button>
-                <button type="button" class="btn btn-primary" ng-click="forth()" ng-if="!accounted" ng-disabled="travelForm.$invalid">Proceed</button>
+                <button type="button" class="btn" ng-click="back()"><%= t :travels_new_form_back_button %></button>
+                <button type="button" class="btn btn-primary" ng-click="forth()" ng-if="!accounted" ng-disabled="travelForm.$invalid"><%= t :travles_new_form_proceed_button %></button>
 
               </div>
 
@@ -87,8 +91,31 @@
 
       </div>
 
+    </div>
+
   </div>
 
+  <!-- Help Modal -->
+
+  <div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+
+        <!--<div class="modal-header">-->
+          <!--<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>-->
+          <!--<h3 class="modal-title" id="helpModalLabel"><%= t :help_new_travel %></h3>-->
+        <!--</div>-->
+
+        <div class="modal-body">
+          <%= render "help/#{I18n.locale.to_s}/tutorial" %>
+        </div>
+
+        <!--<div class="modal-footer">-->
+          <!--...-->
+        <!--</div>-->
+
+      </div>
+    </div>
   </div>
 
 <% end %>
