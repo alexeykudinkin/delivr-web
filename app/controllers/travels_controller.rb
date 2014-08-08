@@ -6,7 +6,7 @@ class TravelsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [ :take ]
 
 
-  require_login :show, :index, :new, :create, :take
+  require_login :show, :index, :new, :create, :take, :status
 
 
   # GET /travels/:id
@@ -201,9 +201,9 @@ class TravelsController < ApplicationController
                   origin:       { only: [ :id, :address, :coordinates ],  except: [ :updated_at, :created_at ] },
                   destinations: { only: [ :id, :address, :coordinates ],  except: [ :updated_at, :created_at ] },
                   customer:     { only: [ :id, :name ],                   except: [ :phone, :password_digest ] },
-                  performer:    { only: [ :id, :name ],                   except: [ :phone, :password_digest ] }
+                  performer:    { only: [ :id, :name ],                   except: [ :phone, :password_digest ] },
                 },
-                only:   [ :id ],
+                only:   [ :id, :cost, :length, :duration ],
                 except: [ :created_at, :updated_at ]
       end
 

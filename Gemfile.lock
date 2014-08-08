@@ -120,6 +120,7 @@ PLATFORMS
 DEPENDENCIES
   bcrypt-ruby (~> 3.0.0)
   coffee-rails (~> 4.0.0)
+  i18n
   jbuilder (~> 1.2)
   jquery-rails
   pg

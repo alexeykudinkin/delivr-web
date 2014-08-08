@@ -10,7 +10,11 @@
 #   inflect.uncountable %w( fish sheep )
 # end
 
+require 'i18n/backend/pluralization'
+
+I18n::Backend::Simple.send(:include, I18n::Backend::Pluralization)
+
 # These inflection rules are supported but not enabled by default:
-# ActiveSupport::Inflector.inflections(:en) do |inflect|
-#   inflect.acronym 'RESTful'
-# end
+ActiveSupport::Inflector.inflections(:ru) do |inflect|
+
+end

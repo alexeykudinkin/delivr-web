@@ -9,7 +9,7 @@
         <ul class="nav nav-sidebar">
 
           <li class="active">
-            <a href="#">Overview</a>
+            <a href="#"><%= t :dashboard_overview_caption %></a>
           </li>
 
         </ul>
@@ -18,7 +18,7 @@
 
       <div class="main col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
 
-        <h1 class="page-header">Travels</h1>
+        <h1 class="page-header"><%= t :travels %></h1>
 
           <div class="table-responsive">
 
@@ -27,16 +27,16 @@
               <thead>
                 <tr>
                   <th class="col-md-4 col-sm-4">
-                    Origin
+                    <%= t :travels_origin, count: 2 %>
                   </th>
                   <th class="col-md-6 col-sm-6">
-                    Destinations & Items
+                    <%= t :travels_destination, count: 2 %> & <%= t :travels_item, count: 2 %>
                   </th>
                   <th class="col-md-1 col-sm-1">
-                    Cost
+                    <%= t :travels_route_cost %>
                   </th>
                   <th class="col-md-1 col-sm-1">
-                    Status
+                    <%= t :travels_status %>
                   </th>
                 </tr>
               </thead>
