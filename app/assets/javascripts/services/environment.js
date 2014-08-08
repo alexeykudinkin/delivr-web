@@ -67,12 +67,13 @@ environmentServices.factory('Distance', [function () {
                function makeDistanceMatrix(response) {
                    var matrix = [];
                    response.rows.forEach(function (row, index, array) {
-                       var row = [];
+                       var line = [];
                        row.elements.forEach(function (element, index, array) {
-                           row.push(Math.floor(0.5 + element.duration.value / 60));
+                           line.push(Math.floor(0.5 + element.duration.value / 60));
                        });
-                       matrix.push(row);
+                       matrix.push(line);
                    });
+                   return matrix;
                }
 
                if (status == google.maps.DistanceMatrixStatus.OK)
