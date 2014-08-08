@@ -340,7 +340,7 @@
                 if (target.$trackingService)
                     return;
                 target.$trackingService = function (position) {
-                    $scope.tryResolveAndMarkPosition({ coordinates: position }, target);
+                    $scope.tryResolveAndMarkPosition({ latLng: position }, target);
                 };
             };
 
@@ -387,7 +387,7 @@
                             }
                         }
                         var position = {
-                            coordinates: place.geometry.location,
+                            latLng: place.geometry.location,
                             address: filtered.format()
                         };
                         $scope.tryResolveAndMarkPosition(position, target);
@@ -411,7 +411,7 @@
                     target.$mapInfo = null;
                 }
 
-                if (!position.coordinates) {
+                if (!position.latLng) {
 
                     //
                     // Last chance: try find address supplied
@@ -419,27 +419,27 @@
 
                     if (position.address) {
                         Geocoder.resolveByAddress(position.address, function (opts) {
-                            position.coordinates = opts.coordinates;
-                        })
+                            position.latLng = opts.latLng;
+                        });
                     }
 
                     // SOL
-                    if (!position.coordinates) {
-                        $scope.$apply(
-                            function () {
-                                target.address      = position.address;
-                                target.coordinates  = null;
-                            });
+                    //if (!position.latLng) {
+                    //    $scope.$apply(
+                    //        function () {
+                    //            target.address      = position.address;
+                    //            target.coordinates  = null;
+                    //        });
 
-                        return;
-                    }
+                    //    return;
+                    //}
                 }
 
 
                 var infoW = new google.maps.InfoWindow();
                 var marker = new google.maps.Marker({
                     map: map,
-                    position: position.coordinates,
+                    position: position.latLng,
                     draggable: true
                 });
 
