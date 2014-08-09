@@ -293,6 +293,13 @@
                 this.due_date = {}
             }
 
+            // Timestamp current time to properly detect
+            // 00:00 AM crossing
+
+            (function () {
+                $scope.$now = $scope.$now || new Date();
+            }());
+
             $scope.pushNextItemFor = function (destination) {
                 var next = Object.keys(destination.items_attributes).length;
                 destination.items_attributes[next] = new Item();
@@ -434,10 +441,23 @@
                 }];
 
                 delivr.util.values(model.destinations_attributes).forEach(function (value, index, array) {
+
+                    // "Event Horizon" is extended max up to 24h up to _now_ therefore if we checked up
+                    // that some order crosses the 00:00 AM line, we just shift it by another 24 hours
+
+                    var fromHours = value.due_date.starts.getHours();
+                    var toHours   = value.due_date.ends.getHours();
+
+                    if ($scope.$now.getHours() > fromHours)
+                        fromHours += 24;
+
+                    if ($scope.$now.getHours() > toHours)
+                        toHours += 24;
+
                     waypoints.push({
                         latLng: new Coordinates(value.coordinates).toLatLng(),
-                        from: value.due_date.starts.getHours() * 60 + value.due_date.starts.getMinutes(),
-                        to: value.due_date.ends.getHours() * 60 + value.due_date.ends.getMinutes()
+                        from:   fromHours * 60 + value.due_date.starts.getMinutes(),
+                        to:     toHours * 60 + value.due_date.ends.getMinutes()
                     });
                 });
 
@@ -456,7 +476,7 @@
                         optimizeWaypoints: false,
                         provideRouteAlternatives: false,
                         travelMode: google.maps.TravelMode.DRIVING,
-                        unitSystem: google.maps.UnitSystem.METRIC,
+                        unitSystem: google.maps.UnitSystem.METRIC
                     };
 
                     Direction.route(request, callback);
