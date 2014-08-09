@@ -66,9 +66,9 @@ environmentServices.factory('Distance', [function () {
 
                function makeDistanceMatrix(response) {
                    var matrix = [];
-                   response.rows.forEach(function (row, index, array) {
+                   response.rows.forEach(function (row) {
                        var line = [];
-                       row.elements.forEach(function (element, index, array) {
+                       row.elements.forEach(function (element) {
                            line.push(Math.floor(0.5 + element.duration.value / 60));
                        });
                        matrix.push(line);
@@ -76,12 +76,14 @@ environmentServices.factory('Distance', [function () {
                    return matrix;
                }
 
-               if (status == google.maps.DistanceMatrixStatus.OK)
+               if (status == google.maps.DistanceMatrixStatus.OK) {
+                   // TODO: We could actually cache those
                    success(makeDistanceMatrix(response));
-               else
+               } else {
                    failure(status);
+               }
         });
-    }
+    };
 
     return new GoogleDistanceService();
 }]);
