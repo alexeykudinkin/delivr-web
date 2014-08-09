@@ -15,7 +15,7 @@ tspSolver.factory('TspSolver', ['Distance', 'DataStructures', function (Distance
 
         function makeEdge(origin, destination, duration) {
             var times = (graph[origin.index] || {});
-            var neigh = (times[destination.time] || []);
+            var neigh = (times[origin.time] || []);
             neigh.push({ destination: destination, duration: duration });
             times[origin.time] = neigh;
             graph[origin.index] = times;
@@ -36,7 +36,8 @@ tspSolver.factory('TspSolver', ['Distance', 'DataStructures', function (Distance
                        currentTime <= points[origin].to; currentTime += timeStep) {
 
                 makeEdge({ index: origin, time: currentTime },
-                         { index: origin, time: currentTime + timeStep }, 0);
+                         { index: origin, time: currentTime + timeStep },
+                         (origin == 0 ? 0 : timeStep));
                 
                 for (var destination = 0; destination < points.length; ++destination) {
                     if (origin == destination)
@@ -50,7 +51,7 @@ tspSolver.factory('TspSolver', ['Distance', 'DataStructures', function (Distance
 
                     makeEdge({ index: origin, time: currentTime },
                              { index: destination, time: destinationTime },
-                             duration);
+                             destinationTime - currentTime);
                 }
             }
         });
@@ -115,10 +116,9 @@ tspSolver.factory('TspSolver', ['Distance', 'DataStructures', function (Distance
         }
 
         function compare(origin, destination) {
-            return (origin.time - destination.time) ||
-                   (durationTo(origin) - durationTo(destination)) ||
-                   compareMasks(origin.mask, destination.mask) ||
-                   (origin.index - destination.index);
+            return durationTo(origin) - durationTo(destination) ||
+                   origin.time - destination.time ||
+                   origin.index - destination.index;
         }
 
         var origin = {
@@ -133,6 +133,7 @@ tspSolver.factory('TspSolver', ['Distance', 'DataStructures', function (Distance
         var graph = buildGraph(distance, points, timeStep);
         var queue = new DataStructures.PriorityQueue(compare);
         queue.push(origin);
+        console.log("Pushed: " + JSON.stringify(origin));
 
         while (!queue.empty()) {
             var origin = queue.pop();
@@ -140,6 +141,8 @@ tspSolver.factory('TspSolver', ['Distance', 'DataStructures', function (Distance
                 bestPathEnd = origin;
             if (bestPathEnd.mask == 0)
                 break;
+            console.log("Neighbours: " + (graph[origin.index][origin.time] || []).length);
+            console.log(JSON.stringify(graph[origin.index][origin.time]));
             (graph[origin.index][origin.time] || []).forEach(function (edge, index, array) {
                 var destination = {
                     index: edge.destination.index,
@@ -154,6 +157,7 @@ tspSolver.factory('TspSolver', ['Distance', 'DataStructures', function (Distance
 
                     updateDistance(destination, newDuration, origin);
                     queue.push(destination);
+                    console.log("Pushed: " + JSON.stringify(destination));
                 }
             });
         }
