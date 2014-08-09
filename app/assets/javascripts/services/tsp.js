@@ -36,8 +36,8 @@ tspSolver.factory('TspSolver', ['Distance', 'DataStructures', function (Distance
                        currentTime <= points[origin].to; currentTime += timeStep) {
 
                 makeEdge({ index: origin, time: currentTime },
-                         { index: origin, time: currentTime + timeStep }, 0);
-                
+                         { index: origin, time: currentTime + timeStep }, 0 /* timeStep? */);
+
                 for (var destination = 0; destination < points.length; ++destination) {
                     if (origin == destination)
                         continue;
@@ -58,14 +58,14 @@ tspSolver.factory('TspSolver', ['Distance', 'DataStructures', function (Distance
         return graph;
     }
 
-    function findRoute(distance, points, timeStep) {
+    function findRouteDijkstra(distance, points, timeStep) {
         var distances = {};
 
         function updateDistance(waypoint, duration, previous) {
             var masks = distances[waypoint.index] || {};
             var times = masks[waypoint.mask] || {};
             times[waypoint.time] = { duration: duration, previous: previous };
-            masks[waypoint.mask] = times; 
+            masks[waypoint.mask] = times;
             distances[waypoint.index] = masks;
         }
 
@@ -85,8 +85,18 @@ tspSolver.factory('TspSolver', ['Distance', 'DataStructures', function (Distance
         }
 
         function restorePath(waypoint) {
-            var path = []
+            var _visited = {};
+
+            var path = [];
             while (waypoint) {
+
+                if (!_visited[waypoint.index]) {
+                    _visited[waypoint.index] = waypoint;
+                } else {
+                    console.log("God, damn it!");
+                    console.log(_visited);
+                }
+
                 path.push({
                     point: points[waypoint.index],
                     time: waypoint.time
@@ -135,24 +145,24 @@ tspSolver.factory('TspSolver', ['Distance', 'DataStructures', function (Distance
         queue.push(origin);
 
         while (!queue.empty()) {
-            var origin = queue.pop();
-            if (compareMasks(bestPathEnd.mask, origin.mask) > 0)
-                bestPathEnd = origin;
+            var next = queue.pop();
+            if (compareMasks(bestPathEnd.mask, next.mask) > 0)
+                bestPathEnd = next;
             if (bestPathEnd.mask == 0)
                 break;
-            (graph[origin.index][origin.time] || []).forEach(function (edge, index, array) {
+            (graph[next.index][next.time] || []).forEach(function (edge, index, array) {
                 var destination = {
                     index: edge.destination.index,
                     time: edge.destination.time,
-                    mask: origin.mask & (~(1 << edge.destination.index))
+                    mask: next.mask & (~(1 << edge.destination.index))
                 };
-                var newDuration = edge.duration + durationTo(origin);
+                var newDuration = edge.duration + durationTo(next);
                 var oldDuration = durationTo(destination);
                 if (!oldDuration || oldDuration > newDuration) {
                     if (oldDuration)
                         queue.erase(destination);
 
-                    updateDistance(destination, newDuration, origin);
+                    updateDistance(destination, newDuration, next);
                     queue.push(destination);
                 }
             });
@@ -162,13 +172,250 @@ tspSolver.factory('TspSolver', ['Distance', 'DataStructures', function (Distance
     }
 
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    function WayPoint(d, a) {
+        this.duration = d;
+        this.arrival = a;
+    }
+
+    WayPoint.prototype.toString = function() {
+        return "[" + this.duration + ", " + this.arrival + "]";
+    };
+
+    function findRouteDynamicP(waypoints, d) {
+        "use strict";
+
+        function nextSetWithAtLeast(n) {
+            var count = 0;
+            var ret = 0;
+
+            var i;
+            for (i = 0; i < waypointsN; ++i) {
+                count += curSetBitMask[i];
+            }
+
+            if (count < n) {
+                for (i = 0; i < n; ++i) {
+                    curSetBitMask[i] = 1;
+                }
+
+                for (i = n; i < waypointsN; ++i) {
+                    curSetBitMask[i] = 0;
+                }
+            } else {
+                // Find first `1`
+                var firstOne = -1;
+                for (i = 0; i < waypointsN; ++i) {
+                    if (curSetBitMask[i]) {
+                        firstOne = i;
+                        break;
+                    }
+                }
+
+                // Find first 0 greater than firstOne
+                var firstZero = -1;
+                for (i = firstOne + 1; i < waypointsN; ++i) {
+                    if (!curSetBitMask[i]) {
+                        firstZero = i;
+                        break;
+                    }
+                }
+
+                if (firstZero < 0) {
+                    return -1;
+                }
+
+                // Increment the first zero with ones behind it
+                curSetBitMask[firstZero] = 1;
+
+                // Set the part behind that one to its lowest possible value
+                for (i = 0; i < firstZero - firstOne - 1; ++i) {
+                    curSetBitMask[i] = 1;
+                }
+
+                for (i = firstZero - firstOne - 1; i < firstZero; ++i) {
+                    curSetBitMask[i] = 0;
+                }
+            }
+
+            // Return the curSet for this set
+            for (i = 0; i < waypointsN; ++i) {
+                ret += (curSetBitMask[i]<<i);
+            }
+
+            return ret;
+        }
+
+        var waypointsN = waypoints.length;
+
+        var sentry      = 2000000000; // Approx. 63 years., this long a route should not be reached...
+        var bestTrip    = sentry;
+
+        var bestPath = [];
+        var curSetBitMask = [];
+
+        var permutationsN = 1 << waypointsN;
+
+        var C = [];
+        var P = [];
+
+        var i, k, curSet;
+
+        for (i = 0; i < permutationsN; ++i) {
+            C[i] = [];
+            P[i] = [];
+
+            for (var j = 0; j < waypointsN; ++j) {
+                C[i][j] = new WayPoint(0.0, 0);
+                P[i][j] = -1;
+            }
+        }
+
+        for (k = 1; k < waypointsN; ++k) {
+            curSet = 1 + (1 << k);
+            C[curSet][k] = new WayPoint(d[0][k], waypoints[k].from);
+            P[curSet][k] = 0;
+        }
+
+        for (var s = 3; s <= waypointsN; ++s) {
+            for (i = 0; i < waypointsN; ++i) {
+                curSetBitMask[i] = 0;
+            }
+
+            curSet = nextSetWithAtLeast(s);
+
+            while (curSet >= 0) {
+
+                for (k = 1; k < waypointsN; ++k) {
+                    if (curSetBitMask[k]) {
+                        var prevSet = curSet - (1 << k);
+
+                        C[curSet][k] = new WayPoint(sentry, -1);
+
+                        for (var m = 1; m < waypointsN; ++m) {
+                            if (curSetBitMask[m] && m != k) {
+
+                                var arrivalEstimated = C[prevSet][m].arrival + d[m][k] /* + someTime */;
+                                var arrivalActual    = arrivalEstimated;
+
+                                // Check whether we've estimated early arrivalActual, therefore TS need to wait
+                                if (arrivalEstimated < waypoints[k].from)
+                                    arrivalActual = waypoints[k].from;
+
+                                var durationEstimated = C[prevSet][m].duration + (arrivalActual - arrivalEstimated) + d[m][k] /* + someTime */;
+
+                                if (/* arrivalEstimated >= waypoints[k].from && */ arrivalActual <= waypoints[k].to && durationEstimated < C[curSet][k].duration) {
+                                    C[curSet][k] = new WayPoint(durationEstimated, arrivalEstimated);
+                                    P[curSet][k] = m;
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+                curSet = nextSetWithAtLeast(s);
+            }
+        }
+
+        // Best-path setup
+
+        bestPath[0] = {
+            point:  waypoints[0],
+            time:   0
+        };
+
+        curSet = (1 << waypointsN) - 1;
+
+        var curNode = -1, prevNode = -1;
+
+        for (i = 1; i < waypointsN; ++i) {
+            var duration = C[curSet][i].duration;
+
+            if (duration < bestTrip) {
+                bestTrip    = duration;
+                curNode     = i;
+            }
+        }
+
+        if (window.$DEBUG) {
+            console.log(bestTrip);
+        }
+
+
+        for (i = waypointsN; i > 0; --i) {
+
+            if (curNode == -1 && i != 1) {
+                _dumpFailure(C, P, d); throw "Delivr.Route.Composition.Exception";
+            }
+
+            var durationUpTo    = C[curSet][curNode].duration;
+            var arrivalTo       = C[curSet][curNode].arrival;
+
+            bestPath[i - 1] = {
+                point:  waypoints[curNode],
+                time:   arrivalTo
+            };
+
+            if (window.$DEBUG) {
+                console.log("To: " + i + "/" + durationUpTo + "/" + arrivalTo);
+            }
+
+            prevNode = curNode;
+            curNode = P[curSet][curNode];
+
+            curSet -= (1 << prevNode);
+        }
+
+        return bestPath;
+    }
+
+    function _dumpMatrix(m) {
+        printMatrix(m);
+
+        // TODO: Make an AJAX to dump it
+        //var serialized = JSON.stringify(m);
+    }
+
+    function _dumpFailure(c, p, d) {
+        _dumpMatrix(c);
+        _dumpMatrix(p);
+        _dumpMatrix(d);
+    }
+
+    function printMatrix(m) {
+        for (var i = 0; i < m.length; ++i) {
+            var row = "";
+            for (var j = 0; j < m[i].length; ++j) {
+                row += m[i][j] + ", ";
+            }
+            console.log("#" + i + ": " + row);
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
 
     function solveTsp(locations, distances, success) {
          function distance(origin, destination) {
              return distances[origin][destination];
          }
 
-         success(findRoute(distance, locations, 10));
+         console.log("Locations:");
+         console.log(locations);
+
+         var _ = findRouteDynamicP(locations, distances);
+
+         console.log("DynP:") ;
+         console.log(_);
+
+         var __ = findRouteDijkstra(distance, locations, 10);
+
+        console.log("Dj:") ;
+        console.log(__);
+
+         success(_);
     }
 
     return {

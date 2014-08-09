@@ -399,7 +399,7 @@
         }
     }
 
-    /* Finds the next integer that has num bits set to 1.
+    /* Finds the next integer that has `num` bits set to 1.
      */
     function nextSetOf(num) {
         var count = 0;
