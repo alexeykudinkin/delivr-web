@@ -286,7 +286,7 @@
                 // 00:00 AM crossing
                 $scope.$now = $scope.$now || new Date();
 
-                $scope.$alertElement = "#submitTravelFailureAlert"
+                $scope.$alertElement = "#alert-box"
             }());
 
             ///////////////////////////////////////////////////////////////////////////////////////
@@ -349,11 +349,14 @@
             };
 
             $scope.reportError = function(error) {
-              $($scope.$alertElement)
-                  .html(error)
-                  .addClass("in")
-                  .delay(1000)
-                  .removeClass("in");
+
+                $(".alert-message", $($scope.$alertElement)).html(error);
+
+                $($scope.$alertElement).addClass("in");
+
+                setTimeout(function () {
+                    $($scope.$alertElement).removeClass("in");
+                }, 2500);
             };
 
             $scope.registerClickerAndAutoComplete = function (target, $event) {

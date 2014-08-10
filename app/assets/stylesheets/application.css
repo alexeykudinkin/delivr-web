@@ -35,7 +35,7 @@
     text-align: center;
 }
 
-.alert-box {
+.alert-box-inner {
     position: absolute;
     top:    5%;
     left:   10%;
