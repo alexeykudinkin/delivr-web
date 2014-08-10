@@ -48,7 +48,6 @@
       z-index: 1;
     }
 
-    /*#map-overlay {*/
     .map-overlay {
       position: relative;
       z-index: 100;
@@ -79,18 +78,22 @@
 
         <% if content_for? :map_overlay -%>
 
-          <%  #
-              # Display alerts if any
-              #
+          <div id="alert-box" class="slow-fade <%= "in" unless alert.blank? %>">
+            <div class="alert-box-inner">
+              <div class="row">
+                <div class="alert alert-danger alert-dismissible col-md-offset-2 col-md-8 col-xs-offset-1 col-xs-offset-10" role="alert">
 
-              unless alert.blank? -%>
+                  <span class="alert-message">
+                    <% unless alert.blank? -%>
+                      <strong>Warning!</strong> <%= alert %>
+                    <% end -%>
+                  </span>
 
-            <div class="map-overlay alert alert-danger">
-              <%= alert %>
-              <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times</span></button>
+                  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                </div>
+              </div>
             </div>
-
-          <% end -%>
+          </div>
 
           <%= yield :map_overlay %>
 

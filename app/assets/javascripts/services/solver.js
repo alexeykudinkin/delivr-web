@@ -325,7 +325,7 @@ tspSolver.factory('DPTspSolver', ['Distance', function (Distance) {
                                 var durationEstimated = C[prevSet][m].duration + (arrivalActual - arrivalEstimated) + d[m][k] /* + someTime */;
 
                                 if (/* arrivalEstimated >= waypoints[k].from && */ arrivalActual <= waypoints[k].to && durationEstimated < C[curSet][k].duration) {
-                                    C[curSet][k] = new WayPoint(durationEstimated, arrivalEstimated);
+                                    C[curSet][k] = new WayPoint(durationEstimated, arrivalActual);
                                     P[curSet][k] = m;
                                 }
 
@@ -413,8 +413,6 @@ tspSolver.factory('DPTspSolver', ['Distance', function (Distance) {
             console.log("#" + i + ": " + row);
         }
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
     function solveTsp(locations, distances, success) {
