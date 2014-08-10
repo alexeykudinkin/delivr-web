@@ -168,7 +168,7 @@ class TravelsController < ApplicationController
                   { origin_attributes:        [ :address, :coordinates ] },
                   { destinations_attributes:
                       [ :address, :coordinates, {
-                        due_date_attribute:  [ :starts, :ends ],
+                        due_date_attributes:  [ :starts, :ends ],
                         items_attributes:     [ :name, :description, :weight ]
                       } ]
                   },
