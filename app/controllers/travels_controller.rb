@@ -168,7 +168,8 @@ class TravelsController < ApplicationController
                   { origin_attributes:        [ :address, :coordinates ] },
                   { destinations_attributes:
                       [ :address, :coordinates, {
-                        items_attributes: [ :name, :description, :weight ]
+                        due_date_attribute:  [ :starts, :ends ],
+                        items_attributes:     [ :name, :description, :weight ]
                       } ]
                   },
                   { route_attributes:         [ :cost, :length, :duration, :order, :polyline ]
@@ -198,10 +199,36 @@ class TravelsController < ApplicationController
         render  json: travels,
                 status: 200,
                 include: {
-                  origin:       { only: [ :id, :address, :coordinates ],  except: [ :updated_at, :created_at ] },
-                  destinations: { only: [ :id, :address, :coordinates ],  except: [ :updated_at, :created_at ] },
-                  customer:     { only: [ :id, :name ],                   except: [ :phone, :password_digest ] },
-                  performer:    { only: [ :id, :name ],                   except: [ :phone, :password_digest ] },
+                  origin: {
+                    only:   [ :id, :address, :coordinates ],
+                    except: [ :updated_at, :created_at ]
+                  },
+
+                  destinations: {
+
+                    include: {
+                      due_date: {
+                        only:   [ :starts, :ends ]
+                      },
+                      items: {
+                        only:   [ :name, :weight, :description ],
+                        except: [ :updated_at, :created_at ]
+                      }
+                    },
+
+                    only:   [ :id, :address, :coordinates ],
+                    except: [ :updated_at, :created_at ]
+                  },
+
+                  customer: {
+                    only:   [ :id, :name ],
+                    except: [ :phone, :password_digest ]
+                  },
+
+                  performer: {
+                    only:   [ :id, :name ],
+                    except: [ :phone, :password_digest ]
+                  },
                 },
                 only:   [ :id, :cost, :length, :duration ],
                 except: [ :created_at, :updated_at ]
