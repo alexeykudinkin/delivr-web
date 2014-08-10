@@ -414,8 +414,6 @@ tspSolver.factory('DPTspSolver', ['Distance', function (Distance) {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
 
     function solveTsp(locations, distances, success) {
         console.log("Locations:");

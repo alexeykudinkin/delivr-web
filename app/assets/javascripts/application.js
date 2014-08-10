@@ -116,8 +116,9 @@
 
     delivrApp.factory('TravelFormStorageService', [function () {
         function strip(source) {
-            if (!angular.isObject(source))
+            if (!angular.isObject(source) || source instanceof Date) {
                 return source;
+            }
 
             var stripped = {};
             Object.keys(source).forEach(function (key, index, array) {
@@ -274,13 +275,32 @@
                 }
             };
 
+            ///////////////////////////////////////////////////////////////////////////////////////
+
+            //
+            // Configuration
+            //
+
+            (function () {
+                // Timestamp current time to properly detect
+                // 00:00 AM crossing
+                $scope.$now = $scope.$now || new Date();
+
+                $scope.$alertElement = "#submitTravelFailureAlert"
+            }());
+
+            ///////////////////////////////////////////////////////////////////////////////////////
+
             function Travel() {}
             function Address() {}
             Address.prototype.format = function () {
                 return this["route"] + ", " + this["street_number"] + ", " + this["locality"];
             };
 
-            function validateTravel(travel) {}
+            function validateTravel(travel) {
+                console.log(travel.$bare());
+            }
+
             function initOnDOMReady() {
                 google.maps.event.addListener($rootScope.map, 'click', function (click) {
                     $scope.$activeTracker && $scope.$activeTracker(click.latLng);
@@ -290,15 +310,8 @@
             function Item() {}
             function Destination() {
                 this.items_attributes = {}
-                this.due_date = {}
+                this.due_date_attributes = {}
             }
-
-            // Timestamp current time to properly detect
-            // 00:00 AM crossing
-
-            (function () {
-                $scope.$now = $scope.$now || new Date();
-            }());
 
             $scope.pushNextItemFor = function (destination) {
                 var next = Object.keys(destination.items_attributes).length;
@@ -329,9 +342,18 @@
                     var location = data.getResponseHeader("location");
                     window.location.replace(location);
                 }).error(function (jqXHR, status, error) {
-                    $scope.log("[AJAX][E]: " + status + "/" + error);
+                    $scope.log("[AJAX][E]: " + error);
+                    $scope.reportError(error);
                 });
 
+            };
+
+            $scope.reportError = function(error) {
+              $($scope.$alertElement)
+                  .html(error)
+                  .addClass("in")
+                  .delay(1000)
+                  .removeClass("in");
             };
 
             $scope.registerClickerAndAutoComplete = function (target, $event) {
@@ -445,8 +467,8 @@
                     // "Event Horizon" is extended max up to 24h up to _now_ therefore if we checked up
                     // that some order crosses the 00:00 AM line, we just shift it by another 24 hours
 
-                    var fromHours = value.due_date.starts.getHours();
-                    var toHours   = value.due_date.ends.getHours();
+                    var fromHours = value.due_date_attributes.starts.getHours();
+                    var toHours   = value.due_date_attributes.ends.getHours();
 
                     if ($scope.$now.getHours() > fromHours)
                         fromHours += 24;
@@ -456,8 +478,8 @@
 
                     waypoints.push({
                         latLng: new Coordinates(value.coordinates).toLatLng(),
-                        from:   fromHours * 60 + value.due_date.starts.getMinutes(),
-                        to:     toHours * 60 + value.due_date.ends.getMinutes()
+                        from:   fromHours * 60 + value.due_date_attributes.starts.getMinutes(),
+                        to:     toHours * 60 + value.due_date_attributes.ends.getMinutes()
                     });
                 });
 
