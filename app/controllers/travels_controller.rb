@@ -226,7 +226,7 @@ class TravelsController < ApplicationController
                   },
 
                   route: {
-                    only:   [ :cost, :length, :duration, :order ] # :polyline?
+                    only:   [ :cost, :length, :duration, :order, :polyline ]
                   },
 
                   customer: {
