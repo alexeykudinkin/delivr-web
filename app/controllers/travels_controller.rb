@@ -208,7 +208,8 @@ class TravelsController < ApplicationController
 
                     include: {
                       due_date: {
-                        only:   [ :starts, :ends ]
+                        methods:  [ :starts_m, :ends_m ],
+                        only:     []
                       },
                       items: {
                         only:   [ :name, :weight, :description ],
