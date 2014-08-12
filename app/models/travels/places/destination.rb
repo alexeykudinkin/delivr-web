@@ -26,10 +26,15 @@ module Travels
               :class_name => DueDate,
               :inverse_of => :destination
 
+      accepts_nested_attributes_for :due_date,
+                                    :reject_if => lambda { |dd| dd[:starts].blank? || dd[:ends].blank? }
+
       # Validations
 
+      validates :due_date, :presence => true
+
       #
-      # NOTE: Those validations related with items are disabled to prevent
+      # NOTE: This validations related with items are disabled to prevent
       #       circular validation-chain-dependencies preventing instances of this (and related) model
       #       to be persisted
       #
