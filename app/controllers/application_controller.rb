@@ -83,6 +83,10 @@ class ApplicationController < ActionController::Base
       !current_user.blank?
     end
 
+    def admin?
+      logged_in? && (current_user.role == Users::Roles::Role.as("Admin"))
+    end
+
   end
 
   include UserHelpers
@@ -116,5 +120,21 @@ class ApplicationController < ActionController::Base
   include MapHelpers
 
   helper_method :requires_map?
+
+
+  module CoordinatesHelpers
+    def update_location(location)
+      Coordinates.find_or_create_by(user_id: current_user.id) do |loc|
+        loc.latitude = location.latitude
+        loc.longitude = location.longitude
+      end
+    end
+
+    def drop_location
+      Coordinates.find(user_id: current_user.id).destroy
+    end
+  end
+
+  include CoordinatesHelpers
 
 end
