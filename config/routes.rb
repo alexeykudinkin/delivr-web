@@ -13,6 +13,8 @@ Shipper::Application.routes.draw do
 
   resources :sessions, only: [ :new, :create, :destroy ]
 
+  resources :coordinates, param: :user_id, only: [ :index, :update, :destroy ]
+
   # resources :users do
   #   resources :travels, except: [ :show, :new, :create ] # only: [ :index ]
   # end
