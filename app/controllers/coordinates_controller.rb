@@ -1,4 +1,6 @@
 class CoordinatesController < ApplicationController
+  skip_before_action :verify_authenticity_token
+
   require_login :index, :update, :destroy
 
   def index
@@ -23,8 +25,8 @@ class CoordinatesController < ApplicationController
 
     def whitelist(params)
       {
-        latitude: params.require(:latitude),
-        longitude: params.require(:longitude)
+        latitude: params.require(:latitude).to_f,
+        longitude: params.require(:longitude).to_f
       }
     end
 end
