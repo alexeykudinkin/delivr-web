@@ -125,8 +125,8 @@ class ApplicationController < ActionController::Base
   module CoordinatesHelpers
     def update_location(location)
       Coordinates.find_or_create_by(user_id: current_user.id) do |loc|
-        loc.latitude = location.latitude
-        loc.longitude = location.longitude
+        loc.latitude = location[:latitude]
+        loc.longitude = location[:longitude]
       end
     end
 
