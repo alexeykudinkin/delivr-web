@@ -12,6 +12,7 @@ module Users
                :class_name => Users::Roles::Role,
                :inverse_of => :accounts
 
+    has_one :coordinates
 
     # Validations
 
