@@ -199,6 +199,7 @@ class TravelsController < ApplicationController
         render  json: travels,
                 status: 200,
                 include: {
+
                   origin: {
                     only:   [ :id, :address, :coordinates ],
                     except: [ :updated_at, :created_at ]
@@ -207,18 +208,25 @@ class TravelsController < ApplicationController
                   destinations: {
 
                     include: {
+
                       due_date: {
                         methods:  [ :starts_m, :ends_m ],
                         only:     []
                       },
+
                       items: {
                         only:   [ :name, :weight, :description ],
                         except: [ :updated_at, :created_at ]
                       }
+
                     },
 
                     only:   [ :id, :address, :coordinates ],
                     except: [ :updated_at, :created_at ]
+                  },
+
+                  route: {
+                    only:   [ :cost, :length, :duration, :order, :polyline ]
                   },
 
                   customer: {
@@ -230,8 +238,10 @@ class TravelsController < ApplicationController
                     only:   [ :id, :name ],
                     except: [ :phone, :password_digest ]
                   },
+
                 },
-                only:   [ :id, :cost, :length, :duration ],
+
+                only:   [ :id ],
                 except: [ :created_at, :updated_at ]
       end
 
