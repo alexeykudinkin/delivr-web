@@ -92,6 +92,14 @@ Shipper::Application.routes.draw do
 
 
   #
+  # Subscriptions API
+  #
+
+  namespace :app do
+    post :subscribe, to: "subscriber#subscribe"
+  end
+
+  #
   # Administrative dashboard
   #
 
