@@ -120,7 +120,7 @@ Shipper::Application.routes.draw do
   #
 
   namespace :app do
-    post :subscribe, to: "subscriber#subscribe"
+    post :subscribe, to: "subscribing#subscribe"
   end
 
   #
