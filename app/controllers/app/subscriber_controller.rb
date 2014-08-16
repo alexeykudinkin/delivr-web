@@ -12,7 +12,17 @@ module App
 
     def subscribe
       rid = whitelist(params, :subscribe)
-      current_user.becomes(Users::Performer).subscription = Communication::Push::GCM.new(rid: rid)
+      s = current_user.becomes(Users::Performer).subscription = Communication::Push::GCM.new(rid: rid)
+
+      respond_to do |format|
+        format.html {
+          if s.persisted?
+            render json: { message: "Successfully subscribed!" }, status: :ok
+          else
+            render json: { message: "Failed to subscribe!", errors: s.errors.as_json }, status: :unprocessable_entity
+          end
+        }
+      end
     end
 
     private
