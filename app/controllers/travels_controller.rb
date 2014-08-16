@@ -6,7 +6,7 @@ class TravelsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [ :take ]
 
 
-  require_login :show, :index, :new, :create, :take, :status
+  restrict_access :show, :index, :new, :create, :take, :status, :active, :taken
 
 
   # GET /travels/:id
@@ -126,7 +126,8 @@ class TravelsController < ApplicationController
 
       respond_to do |format|
         if travel.save
-          format.html { redirect_to travel_path(travel), notice: "You've successfully taken the travel!"  }
+          # format.html { redirect_to travel_path(travel), notice: "You've successfully taken the travel!"  }
+          format.html {  }
           format.json { render json: @travel, status: :ok, location: @travel }
         else
           raise

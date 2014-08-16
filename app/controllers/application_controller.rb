@@ -5,44 +5,37 @@ class ApplicationController < ActionController::Base
   # protect_from_forgery with: :exception
   protect_from_forgery with: :null_session
 
+
   module SessionHelpers
+    extend ActiveSupport::Concern
+
     module ClassMethods
-      #
-      # Fence actions that require user to be logged in prior
-      # to executing them
-      #
-
-      def _fenced_actions
-        @_fenced_actions ||= []
-      end
-
-      #
       # Registers filter to query session state
       # whether user is logged in or not
-      #
-
-      def require_login(*actions)
+      def restrict_access(*actions)
         # FIXME
-        _fenced_actions.concat [ *actions ]
+        (@_fenced_actions ||= []).concat [ *actions ]
 
-        prepend_before_action only: _fenced_actions do |controller|
-          demand_login(controller)
+        send :prepend_before_action, only: @_fenced_actions do |controller|
+          force_authenticate(controller)
         end
       end
     end
 
-    def demand_login(controller)
-      unless controller.send(:logged_in?)
-          redirect_to login_path, alert: "You must be logged in!"
+    def force_authenticate(controller)
+      unless controller.send(:authenticated?)
+        respond_to do |format|
+          format.html { redirect_to login_path, alert: "You must be logged in!" }
+          format.json { render json: { message: "You should be authenticated to have access to the API!" }, status: 401 }
+        end
       end
-    end
-
-    def self.included(base)
-      base.extend ClassMethods
     end
   end
 
+
   module LocaleHelpers
+    extend ActiveSupport::Concern
+
     module ClassMethods
       def localize
         before_action :set_request_locale
@@ -51,10 +44,6 @@ class ApplicationController < ActionController::Base
 
     def set_request_locale
       I18n.locale = params[:locale] || I18n.default_locale
-    end
-
-    def self.included(base)
-      base.extend ClassMethods
     end
   end
 
@@ -76,10 +65,17 @@ class ApplicationController < ActionController::Base
   module UserHelpers
 
     def current_user
-      @_current_user ||= Users::User.find_by(id: session[:user]) if session[:user]
+      @_current_user ||= begin
+        (Users::User.find_by(id: session[:user]) if session[:user]) || authenticate_with_http_token do |token, _|
+          token = Api::Token.find_by(value: token)
+          unless token.blank?
+            token.owner
+          end
+        end
+      end
     end
 
-    def logged_in?
+    def authenticated?
       !current_user.blank?
     end
 
@@ -91,7 +87,7 @@ class ApplicationController < ActionController::Base
 
   include UserHelpers
 
-  helper_method :current_user, :logged_in?
+  helper_method :current_user, :authenticated?
 
 
   module MapHelpers

@@ -8,8 +8,7 @@ module Communication
 
       belongs_to  :performer,
                   :class_name   => "Users::Performer", # break circular dependencies
-                  :inverse_of   => :subscription,
-                  :polymorphic  => true
+                  :inverse_of   => :subscription
 
     end
 

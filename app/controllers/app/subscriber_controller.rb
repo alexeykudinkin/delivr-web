@@ -2,7 +2,7 @@ module App
 
   class SubscriberController < ApplicationController
 
-    require_login :subscribe
+    restrict_access :subscribe
 
     #
     # TODO: CHOKE UP THIS BREACH ASAP

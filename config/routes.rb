@@ -75,6 +75,30 @@ Shipper::Application.routes.draw do
 
   get :dashboard, to: "dashboard#show"
 
+  #
+  # API
+  #
+
+  # FIXME: Employ proper namespacing
+
+  # namespace :api do
+  scope :api do
+
+    # FIXME: Impose proper versioning for the whole API interface
+
+    # namespace :v1 do
+    scope :v1 do
+
+      # namespace :access do
+      scope :access do
+
+        post :grant,  to: "sessions#grant"
+        post :revoke, to: "sessions#revoke"
+      end
+
+    end
+  end
+
 
   #
   # Communications API
