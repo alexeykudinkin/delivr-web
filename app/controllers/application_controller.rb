@@ -80,7 +80,7 @@ class ApplicationController < ActionController::Base
     end
 
     def admin?
-      logged_in? && (current_user.role == Users::Roles::Role.as("Admin"))
+      authenticated? && (current_user.role == Users::Roles::Role.as("Admin"))
     end
 
   end

@@ -1,7 +1,7 @@
 class CoordinatesController < ApplicationController
   skip_before_action :verify_authenticity_token
 
-  require_login :index, :update, :destroy
+  restrict_access :index, :update, :destroy
 
   def index
     if admin?
