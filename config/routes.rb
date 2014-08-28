@@ -97,6 +97,21 @@ Shipper::Application.routes.draw do
       end
 
     end
+
+  end
+
+  namespace :api do
+
+    namespace :v1 do
+
+      scope :state do
+
+        post :activate,   to: "states#activate"
+        post :deactivate, to: "states#deactivate"
+
+      end
+
+    end
   end
 
 
