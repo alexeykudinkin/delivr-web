@@ -1,6 +1,6 @@
 module App
 
-  class SubscriberController < ApplicationController
+  class SubscribingController < ApplicationController
 
     restrict_access :subscribe
 

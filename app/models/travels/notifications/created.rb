@@ -13,8 +13,12 @@ module Travels
         # FIXME
 
         def push
-          receivers = Users::Performer.all.map { |p| p.subscription }.compact.map { |s| s.rid }
-          PushHelper::push({ message: message }, *receivers)
+          # Forward PUSHes only to those having deliberately confirmed
+          # to get those
+          receivers = Users::Performer.active
+          rids = receivers.map { |p| p.subscription }.compact.map { |s| s.rid }
+
+          PushHelper::push({ message: message }, *rids)
         end
 
       # extend Events::Manager::ClassMethods

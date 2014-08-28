@@ -8,34 +8,19 @@ require 'net/http'
     GCM_HEADER  = { "Authorization" => "key=AIzaSyCH-W-G8oHPVT647mSRseuSvRhLUWMQPps", "Content-Type" => "application/json" }
 
     def self.push(data, *targets)
-      http = Net::HTTP.new(GCM_URI.host, GCM_URI.port)
-      http.use_ssl = true
+      unless targets.blank? || targets.length == 0
+        http = Net::HTTP.new(GCM_URI.host, GCM_URI.port)
+        http.use_ssl = true
 
-      post = Net::HTTP::Post.new(GCM_URI.request_uri, GCM_HEADER)
+        post = Net::HTTP::Post.new(GCM_URI.request_uri, GCM_HEADER)
 
-      post.body = "#{{ "registration_ids" => targets, "data" => data }.to_json}"
+        post.body = "#{{ "registration_ids" => targets, "data" => data }.to_json}"
 
-      res = http.request(post)
+        res = http.request(post)
 
-      puts "Request #{post.body}"
-      puts "Response #{res.code} #{res.message}: #{res.body}"
-
-      # logger.debug "GGGG: #{res}"
-      #
-      # case res
-      #   when 200
-      #     logger.info "Successfully sent: #{post.form_data}"
-      #   when 400
-      #     logger.debug "Couldn't parse JSON supplied: #{post.form_data}"
-      #   when 401
-      #     logger.debug "Authentication error"
-      #   else
-      #     # if res > 500 and res < 599
-      #     #   logger.debug "Internal GCM error: #{res}"
-      #     # else
-      #     #   logger.info "Unknown response: #{res}"
-      #     # end
-      #   end
+        Rails.logger.info "[GCM] Push: request #{post.body}"
+        Rails.logger.info "[GCM] Push: response #{res.code} #{res.message}: #{res.body}"
+      end
     end
 
   end

@@ -15,6 +15,7 @@ module Users
 
     has_one   :subscription,
               :class_name => "Communication::Push::Subscription",
+              :dependent  => :destroy,
               :as         => :subscriber,
 
               # NOTE:
