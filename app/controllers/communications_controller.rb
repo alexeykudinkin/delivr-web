@@ -1,6 +1,6 @@
 class CommunicationsController < ApplicationController
 
-  require_login :send0, :text
+  restrict_access :send0, :text
 
   module Twilio
 

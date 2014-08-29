@@ -104,20 +104,31 @@ module Travels
     # Notification system
 
     has_many    :notifications,
-                :class_name => TravelNotification,
+                :class_name => Travels::Notifications::TravelNotification,
                 :inverse_of => :travel
 
-    def notify(status)
+    def notify(status, *args)
       case status
+        when :created
+          self.notifications << Notifications::created(self, *args)
         when :taken
-          self.notifications << TravelNotification.taken_by(performer)
-
-        else raise "Unknown status!"
+          self.notifications << Notifications::taken(performer)
+        else
+          raise "Unknown status!"
       end
     end
 
+    #
+    # FIXME: Replace with proper event-management
+    #
 
-    # Initialization
+    after_commit lambda { |record| record.notify(:created) }, on: :create
+
+
+    #
+    # ActiveRecord::Base
+    #
+
 
     def self.new(attributes = nil)
       super (attributes || {}).merge({ state: State.new })

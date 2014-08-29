@@ -13,6 +13,8 @@ Shipper::Application.routes.draw do
 
   resources :sessions, only: [ :new, :create, :destroy ]
 
+  resources :coordinates, param: :user_id, only: [ :index, :update, :destroy ]
+
   # resources :users do
   #   resources :travels, except: [ :show, :new, :create ] # only: [ :index ]
   # end
@@ -73,6 +75,45 @@ Shipper::Application.routes.draw do
 
   get :dashboard, to: "dashboard#show"
 
+  #
+  # API
+  #
+
+  # FIXME: Employ proper namespacing
+
+  # namespace :api do
+  scope :api do
+
+    # FIXME: Impose proper versioning for the whole API interface
+
+    # namespace :v1 do
+    scope :v1 do
+
+      # namespace :access do
+      scope :access do
+
+        post :grant,  to: "sessions#grant"
+        post :revoke, to: "sessions#revoke"
+      end
+
+    end
+
+  end
+
+  namespace :api do
+
+    namespace :v1 do
+
+      scope :state do
+
+        post :activate,   to: "states#activate"
+        post :deactivate, to: "states#deactivate"
+
+      end
+
+    end
+  end
+
 
   #
   # Communications API
@@ -88,6 +129,14 @@ Shipper::Application.routes.draw do
 
   get :account, to: "accounting#account"
 
+
+  #
+  # Subscriptions API
+  #
+
+  namespace :app do
+    post :subscribe, to: "subscribing#subscribe"
+  end
 
   #
   # Administrative dashboard
