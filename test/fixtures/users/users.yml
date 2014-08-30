@@ -1,0 +1,14 @@
+
+mkrinkin:
+  name:   'Mike Krinkin'
+  phone:  '79052168692'
+  email:  'mike@delivr.ru'
+
+  role:   admin (Users::Roles::Role)
+
+akudinkin:
+  name:   'Alexey Kudinkin'
+  phone:  '79117483835'
+  email:  'alexey@delivr.ru'
+
+  role:   admin (Users::Roles::Role)

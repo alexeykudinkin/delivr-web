@@ -51,7 +51,9 @@ gem 'i18n'
 # gem 'capistrano', group: :development
 
 # Use debugger
-# gem 'debugger', group: [:development, :test]
+# gem 'debugger2',      group: [ :development, :test ], git: "git://github.com/ko1/debugger2.git"
+gem 'debase',         group: [ :development, :test ]
+gem 'ruby-debug-ide', group: [ :development, :test ]
 
 
 #
