@@ -1,11 +1,12 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
-one:
-  name: MyString
-  description: MyText
-  weight: 1
+roses:
+  name: "Bouquet 101"
+  description: "Beautiful Roses"
+  destination: ZML5K2 (Place)
+  travel: _1 (Travel)
+  weight: 5
 
-two:
-  name: MyString
-  description: MyText
-  weight: 1
+tulips:
+  name: "Bouquet 51"
+  description: "Beautiful Tulips"
+  weight: 2.5

@@ -1,0 +1,9 @@
+#
+#admin:
+#  type: "Admin"
+#
+#customer:
+#  type: "Customer"
+#
+#performer:
+#  type: "Performer"
