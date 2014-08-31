@@ -1,5 +1,7 @@
 class DashboardController < ApplicationController
 
+  restrict_access :show
+
   # GET /dashboard
   def show
     @travels = Travels::Travel.where(customer: current_user)
