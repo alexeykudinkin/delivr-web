@@ -55,7 +55,7 @@
 
                             <% travel.destinations.each do |d| %>
 
-                              <tr>
+                            <tr onclick="$(this).next('#due-date').toggleClass('hidden')">
                                 <td class="col-md-9 col-sm-9">
                                   <%= d.address %>
                                 </td>
@@ -64,6 +64,16 @@
                                         s.concat ", " unless s.blank?
                                         s.concat "#{ i.name }"
                                       end %>
+                                </td>
+                              </tr>
+                              <tr id="due-date" class="hidden">
+                                <td>
+                                  <div>
+                                    <%= "#{t :after}: #{d.due_date.starts}" %>
+                                  </div>
+                                  <div>
+                                    <%= "#{t :before}: #{d.due_date.ends}" %>
+                                  </div>
                                 </td>
                               </tr>
 
