@@ -6,6 +6,19 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :null_session
 
 
+  module ControllerHelpers
+
+    def fail(format, status, message)
+      respond_to do |_format|
+        _format.send(format) { render status: status, text: message }
+      end
+    end
+
+  end
+
+  include ControllerHelpers
+
+
   module SessionHelpers
     extend ActiveSupport::Concern
 
