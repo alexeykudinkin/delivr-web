@@ -42,7 +42,7 @@ module Travels
     has_many :destinations,
              :through     => :items,
              :class_name  => Travels::Places::Destination,
-             :autosave => true
+             :autosave    => true
 
     #
     # NOTE: This is a HACK to allow complex forms involving nested attributes
@@ -164,7 +164,7 @@ module Travels
 
     # validates :destinations,  :presence => true
 
-    validates :items,         :presence => true
+    # validates :items,         :presence => true
 
     validates :customer,      :presence => true
 
