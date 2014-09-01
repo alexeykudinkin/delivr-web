@@ -8,7 +8,8 @@ class TravelsController < ApplicationController
 
   restrict_access :show, :index, :new, :create, :take, :status, :active, :taken
 
-
+  # Shows details travel
+  #
   # GET /travels/:id
   def show
     @travel = Travels::Travel.find(whitelist(params, :show))
@@ -19,6 +20,8 @@ class TravelsController < ApplicationController
     end
   end
 
+  # Lists all supplied travels
+  #
   # GET /travels
   def index
     sanitized = whitelist(params, :index)
@@ -37,6 +40,8 @@ class TravelsController < ApplicationController
     end
   end
 
+  # Lists taken travels by this user
+  #
   # GET /travels/taken
   def taken
     @travels = Travels::Travel.taken.where(performer: current_user)
@@ -47,7 +52,8 @@ class TravelsController < ApplicationController
     end
   end
 
-
+  # Lists active (non-completed) travels
+  #
   # GET /travels/active
   def active
     @travels = Travels::Travel.actual
@@ -58,6 +64,8 @@ class TravelsController < ApplicationController
     end
   end
 
+  # Lists travels created by this user
+  #
   # GET /travels/created
   def created
     @travels = Travels::Travel.of(current_user)
@@ -68,6 +76,8 @@ class TravelsController < ApplicationController
     end
   end
 
+  # Gets travel creation form
+  #
   # GET /travels/new
   def new
     @travel = Travels::Travel.new
@@ -77,6 +87,8 @@ class TravelsController < ApplicationController
     end
   end
 
+  # Creates new travel
+  #
   # POST /travels
   def create
     attrs   = whitelist(params, :create).merge customer: current_user.becomes(Users::Customer)
@@ -108,6 +120,8 @@ class TravelsController < ApplicationController
     end
   end
 
+  # Takes this travel
+  #
   # POST /travels/:id/take
   def take
     sanitized = whitelist(params, :take)
@@ -136,6 +150,13 @@ class TravelsController < ApplicationController
     end
   end
 
+
+  # Cancels travel
+  #
+  # POST /travels/:id/cancel
+  def cancel
+    raise "Implement me!"
+  end
 
   # Queries status for the given travel
   #
@@ -173,8 +194,7 @@ class TravelsController < ApplicationController
                         items_attributes:     [ :name, :description, :weight ]
                       } ]
                   },
-                  { route_attributes:         [ :cost, :length, :duration, :order, :polyline ]
-                  }
+                  { route_attributes:         [ :cost, :length, :duration, :order, :polyline ] }
                 )
 
         when :take then {
