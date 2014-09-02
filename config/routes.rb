@@ -77,6 +77,9 @@ Shipper::Application.routes.draw do
       # Cancels travel
       post :cancel
 
+      # Completes travel
+      post :complete
+
       # Allows to query status of a particular travel
       get :status
 

@@ -37,7 +37,6 @@ class PlacesControllerTest < ControllerTestBase
          }
 
     assert_response :success
-
   end
 
   test "should not allow unauthorized courier arriving at a place" do

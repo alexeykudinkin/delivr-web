@@ -50,10 +50,111 @@ class TravelsControllerTest < ControllerTestBase
     end
   end
 
+  test "should take travel" do
+    request_json
+    authorize_api_access :akudinkin
+
+    post :take,
+         {
+           id: @travel.id
+         }
+
+    assert_response :success
+  end
+
+  test "should NOT cancel travel" do
+    request_json
+    authorize_api_access :akudinkin
+
+    prev = @travel.state
+
+    post :cancel,
+         {
+           id: @travel.id
+         }
+
+    assert_response :bad_request
+
+    @travel = @travel.reload
+
+    assert_not @travel.cancelled?
+
+    assert_equal @travel.state, prev
+  end
+
+  test "should cancel travel" do
+    request_json
+    authorize_api_access :akudinkin
+
+    @travel.customer = @akudinkin.becomes(Users::Customer)
+    @travel.save!
+
+    post :cancel,
+         {
+           id: @travel.id
+         }
+
+    assert_response :success
+
+    @travel = @travel.reload
+
+    # FIXME:  This is deferred bug of test failing during `rake test`
+    #         but passing `rake test test/travels_controller_test`
+    #
+    #         ¯\_(ツ)_/¯
+
+    # puts @travel.state_id
+    # raise 'F*CK'
+
+    assert @travel.cancelled?
+  end
+
+  test "should NOT complete travel" do
+
+    request_json
+    authorize_api_access :akudinkin
+
+    prev = @travel.state
+
+    post :complete,
+         {
+           id: @travel.id
+         }
+
+    assert_response :bad_request
+
+    @travel = @travel.reload
+
+    assert_not @travel.completed?
+
+    assert_equal @travel.state, prev
+  end
+
+  test "should complete travel" do
+    request_json
+    authorize_api_access :akudinkin
+
+    p = @akudinkin.becomes(Users::Performer)
+
+    @travel.take(p)
+    @travel.save!
+
+    post :complete,
+         {
+           id: @travel.id
+         }
+
+    assert_response :success
+
+    @travel = @travel.reload
+
+    assert @travel.completed?
+  end
+
   test "should show travel status" do
     get :status,
         {
-          id: @_1.id
+          id: @travel.id
         },
         session(:akudinkin)
 
@@ -70,7 +171,9 @@ class TravelsControllerTest < ControllerTestBase
 
     def setup
       super
-      @_1 = travels_travels(:_1)
+
+      @travel     = travels_travels(:_1)
+      @akudinkin  = users_users(:akudinkin)
     end
 
 end

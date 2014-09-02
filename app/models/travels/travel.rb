@@ -5,6 +5,32 @@ module Travels
   class Travel < ActiveRecord::Base
 
     #
+    # Callbacks
+    #
+
+    # FIXME: Could we implement this as a callback?
+
+    # We should establish state for the given travel
+    # right before validation
+    # before_validation :impose_default_state
+    #
+    # def impose_default_state
+    #   self.state = Travels::State.get(:submitted)
+    # end
+
+
+  def self.new(attributes = nil)
+      super (attributes || {}).merge({ state: State.get(:submitted) })
+    end
+
+    def self.create(attributes = nil, &block)
+      super (attributes || {}).merge({ state: State.get(:submitted) }) do
+        block
+      end
+    end
+
+
+    #
     # Items
     #
 
@@ -57,14 +83,14 @@ module Travels
     # State
     #
 
-    has_one     :state,
+    belongs_to  :state,
                 :class_name => State,
-                :inverse_of => :travel,
+                :inverse_of => :travels,
                 :autosave   => true
 
     # Include a handful of utility methods
     # short-circuiting state observation
-    include Travels::State::ExportMethods
+    include State::ExportMethods
 
 
     #
@@ -95,10 +121,10 @@ module Travels
                 :class_name => Users::Performer,
                 :inverse_of => :orders
 
-    def performer=(performer)
-      super
-      self.state = State::Instances.get(:taken)
-    end
+    # def performer=(performer)
+    #   super
+    #   self.state = State.get(:taken)
+    # end
 
 
     # Notification system
@@ -126,22 +152,44 @@ module Travels
 
 
     #
-    # ActiveRecord::Base
+    # Travel operations
     #
 
+    module TravelOperations
+      extend ActiveSupport::Concern
 
-    def self.new(attributes = nil)
-      super (attributes || {}).merge({ state: State.new })
-    end
+      def take(_performer)
+        self.performer = _performer
+        self.state = State.get(:taken)
 
-    def self.create(attributes = nil, &block)
-      super (attributes || {}).merge({ state: State.new }) do
-        block
+        saved = self.save
+        # FIXME: Replace with proper EM system
+        self.notify(:taken)
+        saved
       end
+
+      def complete
+        self.state = State.get(:completed)
+        saved = self.save
+        # self.notify(:completed)
+        saved
+      end
+
+      def cancel
+        self.state = State.get(:cancelled)
+        saved = self.save
+        # self.notify(:cancelled)
+        saved
+      end
+
     end
 
+    include TravelOperations
 
+
+    #
     # Scopes
+    #
 
     scope :of,        -> (owner) { where(customer: owner) }
 
@@ -158,7 +206,9 @@ module Travels
     scope :actual,    -> { joins(:state).where(states: { completed: false, taken: false }) }
 
 
+    #
     # Validations
+    #
 
     validates :origin,        :presence => true
 
@@ -167,6 +217,8 @@ module Travels
     # validates :items,         :presence => true
 
     validates :customer,      :presence => true
+
+    validates :state,         :presence => true
 
     validates_associated :items
 

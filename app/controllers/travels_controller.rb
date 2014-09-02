@@ -127,7 +127,7 @@ class TravelsController < ApplicationController
     sanitized = whitelist(params, :take)
     travel = Travels::Travel.find(sanitized[:id])
 
-    if travel.state.taken?
+    if travel.taken?
       respond_to do |format|
         format.html { redirect_to travel_path(travel), status: :bad_request, notice: "Unfortunately, travel's been already taken!" }
         format.json { redirect_to travel_path(travel), status: :bad_request }
@@ -135,8 +135,9 @@ class TravelsController < ApplicationController
     else
       performer = Users::Performer.find(sanitized[:performer])
 
-      travel.performer = performer
-      travel.notify(:taken)
+      # travel.performer = performer
+      # travel.notify(:taken)
+      travel.take(performer)
 
       respond_to do |format|
         if travel.save
@@ -150,12 +151,51 @@ class TravelsController < ApplicationController
     end
   end
 
+  # Completes travel
+  #
+  # POST /travels/:id/complete
+  def complete
+    sanitized = whitelist(params, :complete)
+    travel = Travels::Travel.find(sanitized[:id])
+
+    unless travel.taken? && travel.performer == current_user.becomes(Users::Performer)
+      fail(:any, :bad_request, "Sorry! You're not eligible to complete un-taken travels!")
+      return
+    end
+
+    respond_to do |format|
+      if travel.complete
+        format.html { redirect_to status_travel_path(travel) }
+        format.json { render json: travel.as_json, status: :ok}
+      else
+        format.html { redirect_to status_travel_path(travel), alert: "Failed to complete! Errors: #{travel.errors.full_messages}" }
+        format.json { render json: travel.as_json, status: :unprocessable_entity }
+      end
+    end
+  end
+
 
   # Cancels travel
   #
   # POST /travels/:id/cancel
   def cancel
-    raise "Implement me!"
+    sanitized = whitelist(params, :complete)
+    travel = Travels::Travel.find(sanitized[:id])
+
+    unless travel.submitted? && travel.customer == current_user.becomes(Users::Customer)
+      fail(:any, :bad_request, "Sorry! You're not eligible to cancel travels other than just submitted!")
+      return
+    end
+
+    respond_to do |format|
+      if travel.cancel
+        format.html { redirect_to status_travel_path(travel) }
+        format.json { render json: travel.as_json, status: :ok }
+      else
+        format.html { redirect_to status_travel_path(travel), alert: "Failed to complete! Errors: #{travel.errors.full_messages}" }
+        format.json { render json: travel.as_json, status: :unprocessable_entity }
+      end
+    end
   end
 
   # Queries status for the given travel
@@ -201,6 +241,14 @@ class TravelsController < ApplicationController
             id:         params.require(:id),
             performer:  current_user.id
           }
+
+        when :cancel then {
+          id: params.require(:id)
+        }
+
+        when :complete then {
+          id: params.require(:id)
+        }
 
         when :status then {
             id: params.require(:id)

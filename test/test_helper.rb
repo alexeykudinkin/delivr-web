@@ -10,6 +10,7 @@ class ActiveSupport::TestCase
 
   set_fixture_class(
     travels:  "Travels::Travel",
+    states:   "Travels::State",
     places:   "Travels::Places::Place",
 
     items:    "Item",

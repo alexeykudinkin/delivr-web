@@ -8,9 +8,18 @@ class ApplicationController < ActionController::Base
 
   module ControllerHelpers
 
-    def fail(format, status, message)
+    def fail(format, status, template = nil, message = nil)
       respond_to do |_format|
-        _format.send(format) { render status: status, text: message }
+        case format
+          when :json, :any, :all
+            _format.send(format) { render status: status, text: message }
+
+          when :html
+            _format.html { render status: status, template: template, notice: message }
+
+          else
+            raise "Unknown format!"
+        end
       end
     end
 
