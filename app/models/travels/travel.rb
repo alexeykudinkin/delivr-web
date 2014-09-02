@@ -88,6 +88,16 @@ module Travels
                 :inverse_of => :travels,
                 :autosave   => true
 
+    #
+    # COMPAT: This is compatibility due to replacing previous travel's `state` model
+    #         with the new one (as of v0.1.1)
+    #         To be dropped in the next release (so far v0.2)
+    #
+
+    def state
+      super || State.get(:submitted)
+    end
+
     # Include a handful of utility methods
     # short-circuiting state observation
     include State::ExportMethods
