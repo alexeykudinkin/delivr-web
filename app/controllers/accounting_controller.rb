@@ -1,6 +1,6 @@
 class AccountingController < ApplicationController
 
-  require_login :account
+  restrict_access :account
 
   module Rates
 

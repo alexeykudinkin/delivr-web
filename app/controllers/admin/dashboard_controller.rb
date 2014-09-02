@@ -1,6 +1,6 @@
 class Admin::DashboardController < ApplicationController
 
-  require_login :show
+  restrict_access :show
 
   #
   # Access checking harness

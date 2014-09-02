@@ -7,3 +7,5 @@ en:
   travels_new_form_add_item: "Add item"
   travels_status: "Status"
   help_new_travel: "What next?"
+  after: "After"
+  before: "Before"

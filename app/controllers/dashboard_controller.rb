@@ -1,5 +1,7 @@
 class DashboardController < ApplicationController
 
+  restrict_access :show
+
   # GET /dashboard
   def show
     if current_user.role.is_a?(Users::Roles::Admin)

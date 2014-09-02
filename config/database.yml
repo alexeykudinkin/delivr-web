@@ -1,15 +1,23 @@
-  # PostgreSQL. Versions 8.2 and up are supported.
+# Development, Test:  SQLite version 3.x
+# Production:         PostgreSQL 8.*
 #
-#   Ensure the SQLite 3 gem is defined in your Gemfile
-#   gem 'sqlite3'
 development: &default
   adapter: sqlite3
   database: db/development.sqlite3
   pool: 5
+  timeout: 5000
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test: *default
 
-production: *default
+production:
+  adapter: pgsql
+  encoding: unicode
+  host: ec2-54-217-239-20.eu-west-1.compute.amazonaws.com
+  database: dap7mj826ghu76
+  pool: 5
+  port: 5432
+  user: oaqhfxvbvjqixo
+  password: qROs3-yoR9p08NjKr7Aztyu1mF

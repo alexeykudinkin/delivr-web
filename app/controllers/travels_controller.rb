@@ -6,7 +6,7 @@ class TravelsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [ :take ]
 
 
-  require_login :show, :index, :new, :create, :take, :status
+  restrict_access :show, :index, :new, :create, :take, :status, :active, :taken
 
 
   # GET /travels/:id
@@ -126,7 +126,8 @@ class TravelsController < ApplicationController
 
       respond_to do |format|
         if travel.save
-          format.html { redirect_to travel_path(travel), notice: "You've successfully taken the travel!"  }
+          # format.html { redirect_to travel_path(travel), notice: "You've successfully taken the travel!"  }
+          format.html {  }
           format.json { render json: @travel, status: :ok, location: @travel }
         else
           raise
@@ -168,7 +169,8 @@ class TravelsController < ApplicationController
                   { origin_attributes:        [ :address, :coordinates ] },
                   { destinations_attributes:
                       [ :address, :coordinates, {
-                        items_attributes: [ :name, :description, :weight ]
+                        due_date_attributes:  [ :starts, :ends ],
+                        items_attributes:     [ :name, :description, :weight ]
                       } ]
                   },
                   { route_attributes:         [ :cost, :length, :duration, :order, :polyline ]
@@ -198,11 +200,48 @@ class TravelsController < ApplicationController
         render  json: travels,
                 status: 200,
                 include: {
-                  origin:       { only: [ :id, :address, :coordinates ],  except: [ :updated_at, :created_at ] },
-                  destinations: { only: [ :id, :address, :coordinates ],  except: [ :updated_at, :created_at ] },
-                  customer:     { only: [ :id, :name ],                   except: [ :phone, :password_digest ] },
-                  performer:    { only: [ :id, :name ],                   except: [ :phone, :password_digest ] }
+
+                  origin: {
+                    only:   [ :id, :address, :coordinates ],
+                    except: [ :updated_at, :created_at ]
+                  },
+
+                  destinations: {
+
+                    include: {
+
+                      due_date: {
+                        methods:  [ :starts_m, :ends_m ],
+                        only:     []
+                      },
+
+                      items: {
+                        only:   [ :name, :weight, :description ],
+                        except: [ :updated_at, :created_at ]
+                      }
+
+                    },
+
+                    only:   [ :id, :address, :coordinates ],
+                    except: [ :updated_at, :created_at ]
+                  },
+
+                  route: {
+                    only:   [ :cost, :length, :duration, :order, :polyline ]
+                  },
+
+                  customer: {
+                    only:   [ :id, :name ],
+                    except: [ :phone, :password_digest ]
+                  },
+
+                  performer: {
+                    only:   [ :id, :name ],
+                    except: [ :phone, :password_digest ]
+                  },
+
                 },
+
                 only:   [ :id ],
                 except: [ :created_at, :updated_at ]
       end

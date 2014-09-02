@@ -3,6 +3,7 @@ Shipper::Application.routes.draw do
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
+  # root "welcome#index"
   root controller: :sessions, action: :new
 
   # Example of regular route:
@@ -41,9 +42,16 @@ Shipper::Application.routes.draw do
   # take precedence of the other actions upon `travel` resource
   #
 
-  resources :travels, only: [ :index, :new, :create ]
+  resources :travels, only: [ :index, :new, :create ] do
+    collection do
+      get   :taken
+      get   :created
 
-  resources :travels do
+      get   :active
+    end
+  end
+
+  resources :travels, only: [] do
     member do
 
       # Allows to grab particular travel
@@ -55,13 +63,6 @@ Shipper::Application.routes.draw do
       get   :show, to: "travels#status"
 
     end
-
-    collection do
-      get   :taken
-      get   :created
-
-      get   :active
-    end
   end
 
 
@@ -72,6 +73,45 @@ Shipper::Application.routes.draw do
   # resources :dashboard, only: [ :show ]
 
   get :dashboard, to: "dashboard#show"
+
+  #
+  # API
+  #
+
+  # FIXME: Employ proper namespacing
+
+  # namespace :api do
+  scope :api do
+
+    # FIXME: Impose proper versioning for the whole API interface
+
+    # namespace :v1 do
+    scope :v1 do
+
+      # namespace :access do
+      scope :access do
+
+        post :grant,  to: "sessions#grant"
+        post :revoke, to: "sessions#revoke"
+      end
+
+    end
+
+  end
+
+  namespace :api do
+
+    namespace :v1 do
+
+      scope :state do
+
+        post :activate,   to: "states#activate"
+        post :deactivate, to: "states#deactivate"
+
+      end
+
+    end
+  end
 
 
   #
@@ -88,6 +128,14 @@ Shipper::Application.routes.draw do
 
   get :account, to: "accounting#account"
 
+
+  #
+  # Subscriptions API
+  #
+
+  namespace :app do
+    post :subscribe, to: "subscribing#subscribe"
+  end
 
   #
   # Administrative dashboard

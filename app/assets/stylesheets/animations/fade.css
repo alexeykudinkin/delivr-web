@@ -1,0 +1,27 @@
+
+.slow-fade {
+    position: relative;
+    z-index: -1;
+    opacity: 0;
+    -webkit-transition-property:        z-index,    opacity;
+    -webkit-transition-duration:        .00s,         .85s;
+    -webkit-transition-delay:           .00s,         .10s;
+    -webkit-transition-timing-function: linear,     linear;
+    -moz-transition-property:        z-index,    opacity;
+    -moz-transition-duration:        .00s,         .85s;
+    -moz-transition-delay:           .00s,         .10s;
+    -moz-transition-timing-function: linear,     linear;
+    -o-transition-property:        z-index,    opacity;
+    -o-transition-duration:        .00s,         .85s;
+    -o-transition-delay:           .00s,         .10s;
+    -o-transition-timing-function: linear,     linear;
+    transition-property:        z-index,    opacity;
+    transition-duration:        .00s,         .85s;
+    transition-delay:           .00s,         .10s;
+    transition-timing-function: linear,     linear;
+}
+
+.slow-fade.in {
+    opacity: 1;
+    z-index: 101 !important;
+}

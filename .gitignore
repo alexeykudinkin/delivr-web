@@ -20,7 +20,7 @@
 /tmp
 
 # ignore temporaries
-*.~
+*~
 *.swp
 
 # do not store secret token
