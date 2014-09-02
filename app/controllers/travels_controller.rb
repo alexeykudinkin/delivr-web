@@ -47,7 +47,7 @@ class TravelsController < ApplicationController
     @travels = Travels::Travel.taken.where(performer: current_user)
 
     respond_to do |format|
-      format.html { render 'travels/index' }
+      format.html { render "travels/index" }
       format.json { as_json @travels }
     end
   end
@@ -59,7 +59,7 @@ class TravelsController < ApplicationController
     @travels = Travels::Travel.actual
 
     respond_to do |format|
-      format.html { render 'travels/index' }
+      format.html { render "travels/index" }
       format.json { as_json @travels }
     end
   end
@@ -71,7 +71,7 @@ class TravelsController < ApplicationController
     @travels = Travels::Travel.of(current_user)
 
     respond_to do |format|
-      format.html
+      format.html { render "travels/index" }
       format.json { as_json @travels }
     end
   end

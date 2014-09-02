@@ -95,7 +95,8 @@ module Travels
     #
 
     def state
-      super || State.get(:submitted)
+      # super || State.get(:submitted)
+      super
     end
 
     # Include a handful of utility methods

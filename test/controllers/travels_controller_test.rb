@@ -3,6 +3,47 @@ require 'controllers/controller_test_base'
 
 class TravelsControllerTest < ControllerTestBase
 
+  # Checks all GETs are reachable
+
+  test "should GETs actions [JSON/HTML]" do
+
+    assert_no_difference("Travels::Travel.count") do
+      get :new, {}, session(:akudinkin)
+    end
+
+    assert_response :success
+    assert_template :new
+
+    assert_not_nil  assigns(:travel)
+
+
+    [ :status ].each do |action|
+      assert_no_difference("Travels::Travel.count") do
+        get action, { id: @travel }, session(:akudinkin)
+      end
+    end
+
+    assert_response :success
+    assert_template :status
+
+    assert_not_nil  assigns(:travel)
+
+
+    [ :taken, :active, :created ].each do |action|
+      assert_no_difference("Travels::Travel.count") do
+        get action, {}, session(:akudinkin)
+      end
+
+      assert_response :success
+      assert_template :index
+
+      assert_not_nil  assigns(:travels)
+    end
+
+  end
+
+  # POSTs/PATCHs/DELETEs/...
+
   test "should create travel [JSON]" do
     assert_difference "Travels::Travel.all.count", 1 do
       request_json
