@@ -4,41 +4,57 @@ module Travels
 
   class State < ActiveRecord::Base
 
+    STATES = [
+      :submitted,   # DEFAULT
+
+      :taken,       # Taken by performer
+      :completed,   # Completed in full by performer
+      :cancelled,   # Cancelled by the customer
+      :withdrawn    # Withdrawn by the performer (prior taken by)
+    ]
+
+    self.table_name = "travel_states"
+
     module Instances
+      extend ActiveSupport::Concern
 
-      # def self.taken
-      #   State.new({ taken: true,  completed: false, withdrawn: false })
-      # end
-      #
-      # def self.completed
-      #   State.new({ taken: true,  completed: true,  withdrawn: false })
-      # end
-      #
-      # def self.withdrawn
-      #   State.new({ taken: false, completed: false, withdrawn: true })
-      # end
+      Travels::State::STATES.each do |state|
+        self.class_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
+          def #{state.to_s}?
+            send(:status).to_sym == :#{state}
+          end
+        RUBY_EVAL
+      end
 
-      def self.get(state)
-        case state
-          when :taken
-            @taken      ||= State.new({ taken: true,  completed: false, withdrawn: false })
-          when :completed
-            @completed  ||= State.new({ taken: true,  completed: true,  withdrawn: false })
-          when :withdrawn
-            @withdrawn  ||= State.new({ taken: false, completed: false, withdrawn: true })
-          else
-            nil
-        end
+      included do |klass|
+
+        klass.class_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
+          def self.get(state)
+            values = STATES
+            case state
+              #{STATES.reduce("") do |_case, state|
+                  _case +=
+                    "when :#{state}
+                              unless @#{state} ||= State.find_by(status: :#{state})
+                                @#{state} = State.create(status: :#{state})
+                              end
+                              @#{state}\n"
+                end
+              }
+              else
+                nil
+            end
+          end
+        RUBY_EVAL
+
       end
 
     end
 
-
     # Plunges helpers of use inside class possessing state
     module ExportMethods
 
-      [ :taken, :completed, :withdrawn ].each do |state|
-        # @_state_m = include?.method(:state)
+      Travels::State::STATES.each do |state|
         self.class_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
           def #{state.to_s}?
             state.send(:#{state}?)
@@ -48,37 +64,15 @@ module Travels
 
     end
 
-
-    # TODO: THIS IS AN ISOLATION LAYER
-    #       PENDING TILL REMASTERING
-
-    def taken?
-      send(:taken)
-    end
-
-    def completed?
-      send(:completed)
-    end
-
-    def withdrawn?
-      send(:withdrawn)
-    end
+    include Instances
 
 
-    belongs_to  :travel,
+    has_many    :travels,
                 :class_name => Travel,
                 :inverse_of => :state
 
     def to_s
-      if completed?
-        "completed"
-      elsif taken?
-        "taken"
-      elsif withdrawn?
-        "withdrawn"
-      else
-        "submitted"
-      end
+      self.status.to_s
     end
 
   end

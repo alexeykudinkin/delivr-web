@@ -46,23 +46,44 @@ Shipper::Application.routes.draw do
 
   resources :travels, only: [ :index, :new, :create ] do
     collection do
-      get   :taken
-      get   :created
 
-      get   :active
+      # Lists travels taken by user
+      get :taken
+
+      # Lists travels created by user
+      get :created
+
+      # Lists active travels
+      get :active
+
+    end
+
+    resources :places, only: [] do
+      member do
+
+        # Notifies about courier arriving at particular place
+        post :arrive
+
+      end
     end
   end
 
   resources :travels, only: [] do
     member do
 
-      # Allows to grab particular travel
-      post  :take
+      # Grabs travel
+      post :take
+
+      # Cancels travel
+      post :cancel
+
+      # Completes travel
+      post :complete
 
       # Allows to query status of a particular travel
-      get   :status
+      get :status
 
-      get   :show, to: "travels#status"
+      get :show, to: "travels#status"
 
     end
   end
@@ -95,6 +116,7 @@ Shipper::Application.routes.draw do
 
         post :grant,  to: "sessions#grant"
         post :revoke, to: "sessions#revoke"
+
       end
 
     end

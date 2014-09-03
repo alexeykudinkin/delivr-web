@@ -8,7 +8,8 @@ class TravelsController < ApplicationController
 
   restrict_access :show, :index, :new, :create, :take, :status, :active, :taken
 
-
+  # Shows details travel
+  #
   # GET /travels/:id
   def show
     @travel = Travels::Travel.find(whitelist(params, :show))
@@ -19,6 +20,8 @@ class TravelsController < ApplicationController
     end
   end
 
+  # Lists all supplied travels
+  #
   # GET /travels
   def index
     sanitized = whitelist(params, :index)
@@ -37,37 +40,44 @@ class TravelsController < ApplicationController
     end
   end
 
+  # Lists taken travels by this user
+  #
   # GET /travels/taken
   def taken
     @travels = Travels::Travel.taken.where(performer: current_user)
 
     respond_to do |format|
-      format.html { render 'travels/index' }
+      format.html { render "travels/index" }
       format.json { as_json @travels }
     end
   end
 
-
+  # Lists active (non-completed) travels
+  #
   # GET /travels/active
   def active
     @travels = Travels::Travel.actual
 
     respond_to do |format|
-      format.html { render 'travels/index' }
+      format.html { render "travels/index" }
       format.json { as_json @travels }
     end
   end
 
+  # Lists travels created by this user
+  #
   # GET /travels/created
   def created
     @travels = Travels::Travel.of(current_user)
 
     respond_to do |format|
-      format.html
+      format.html { render "travels/index" }
       format.json { as_json @travels }
     end
   end
 
+  # Gets travel creation form
+  #
   # GET /travels/new
   def new
     @travel = Travels::Travel.new
@@ -77,6 +87,8 @@ class TravelsController < ApplicationController
     end
   end
 
+  # Creates new travel
+  #
   # POST /travels
   def create
     attrs   = whitelist(params, :create).merge customer: current_user.becomes(Users::Customer)
@@ -108,12 +120,14 @@ class TravelsController < ApplicationController
     end
   end
 
+  # Takes this travel
+  #
   # POST /travels/:id/take
   def take
     sanitized = whitelist(params, :take)
     travel = Travels::Travel.find(sanitized[:id])
 
-    if travel.state.taken?
+    if travel.taken?
       respond_to do |format|
         format.html { redirect_to travel_path(travel), status: :bad_request, notice: "Unfortunately, travel's been already taken!" }
         format.json { redirect_to travel_path(travel), status: :bad_request }
@@ -121,8 +135,9 @@ class TravelsController < ApplicationController
     else
       performer = Users::Performer.find(sanitized[:performer])
 
-      travel.performer = performer
-      travel.notify(:taken)
+      # travel.performer = performer
+      # travel.notify(:taken)
+      travel.take(performer)
 
       respond_to do |format|
         if travel.save
@@ -136,6 +151,52 @@ class TravelsController < ApplicationController
     end
   end
 
+  # Completes travel
+  #
+  # POST /travels/:id/complete
+  def complete
+    sanitized = whitelist(params, :complete)
+    travel = Travels::Travel.find(sanitized[:id])
+
+    unless travel.taken? && travel.performer == current_user.becomes(Users::Performer)
+      fail(:any, :bad_request, "Sorry! You're not eligible to complete un-taken travels!")
+      return
+    end
+
+    respond_to do |format|
+      if travel.complete
+        format.html { redirect_to status_travel_path(travel) }
+        format.json { render json: travel.as_json, status: :ok}
+      else
+        format.html { redirect_to status_travel_path(travel), alert: "Failed to complete! Errors: #{travel.errors.full_messages}" }
+        format.json { render json: travel.as_json, status: :unprocessable_entity }
+      end
+    end
+  end
+
+
+  # Cancels travel
+  #
+  # POST /travels/:id/cancel
+  def cancel
+    sanitized = whitelist(params, :complete)
+    travel = Travels::Travel.find(sanitized[:id])
+
+    unless travel.submitted? && travel.customer == current_user.becomes(Users::Customer)
+      fail(:any, :bad_request, "Sorry! You're not eligible to cancel travels other than just submitted!")
+      return
+    end
+
+    respond_to do |format|
+      if travel.cancel
+        format.html { redirect_to status_travel_path(travel) }
+        format.json { render json: travel.as_json, status: :ok }
+      else
+        format.html { redirect_to status_travel_path(travel), alert: "Failed to complete! Errors: #{travel.errors.full_messages}" }
+        format.json { render json: travel.as_json, status: :unprocessable_entity }
+      end
+    end
+  end
 
   # Queries status for the given travel
   #
@@ -173,14 +234,21 @@ class TravelsController < ApplicationController
                         items_attributes:     [ :name, :description, :weight ]
                       } ]
                   },
-                  { route_attributes:         [ :cost, :length, :duration, :order, :polyline ]
-                  }
+                  { route_attributes:         [ :cost, :length, :duration, :order, :polyline ] }
                 )
 
         when :take then {
             id:         params.require(:id),
             performer:  current_user.id
           }
+
+        when :cancel then {
+          id: params.require(:id)
+        }
+
+        when :complete then {
+          id: params.require(:id)
+        }
 
         when :status then {
             id: params.require(:id)

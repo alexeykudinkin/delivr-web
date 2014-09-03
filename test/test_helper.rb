@@ -2,6 +2,7 @@ ENV["RAILS_ENV"] ||= "test"
 
 require File.expand_path('../../config/environment', __FILE__)
 
+require 'application_helper'
 require 'rails/test_help'
 
 class ActiveSupport::TestCase
@@ -9,6 +10,7 @@ class ActiveSupport::TestCase
 
   set_fixture_class(
     travels:  "Travels::Travel",
+    states:   "Travels::State",
     places:   "Travels::Places::Place",
 
     items:    "Item",
