@@ -59,7 +59,7 @@
 
                 <div class="list-group form-group">
 
-                  <div class="list-group-item" ng-class="{ active: selected(route) }" ng-click="selectRoute(route)" ng-repeat="route in <%= "#{ng_model_routes}" %>">
+                  <div class="list-group-item" ng-class="{ active: selected(route) }" ng-click="selectRoute(route)" ng-init="selectRoute(<%= "#{ng_model_routes}" %>[0])" ng-repeat="route in <%= "#{ng_model_routes}" %>">
                     <h4 class="list-group-item-heading"> {{ route.cost }} &#8381; </h4>
                     <p class="list-group-item-text"> {{ route.inKilo() }} km / {{ route.inMinutes() }} min </p>
                   </div>
