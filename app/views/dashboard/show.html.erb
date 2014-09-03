@@ -69,10 +69,18 @@
                               <tr id="due-date" class="hidden">
                                 <td>
                                   <div>
-                                    <%= "#{t :after}: #{d.due_date.starts}" %>
+                                    <%= "#{t :after}: #{ if d.due_date
+                                                           d.due_date.starts
+                                                         else
+                                                           "unknown"
+                                                         end }" %>
                                   </div>
                                   <div>
-                                    <%= "#{t :before}: #{d.due_date.ends}" %>
+                                    <%= "#{t :before}: #{ if d.due_date
+                                                            d.due_date.ends
+                                                          else
+                                                            "unknown"
+                                                          end }" %>
                                   </div>
                                 </td>
                               </tr>
