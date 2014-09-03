@@ -2,8 +2,8 @@
 # Seed in following data only unless inside PRODUCTION environment
 #
 
-require File.expand_path('../seeds/roles', __FILE__)
-require File.expand_path('../seeds/roots', __FILE__)
+require File.expand_path('../seeds/roles',  __FILE__)
+require File.expand_path('../seeds/roots',  __FILE__)
 
 
 unless Rails.env.production?

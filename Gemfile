@@ -54,6 +54,7 @@ gem 'i18n'
 # gem 'debugger2',      group: [ :development, :test ], git: "git://github.com/ko1/debugger2.git"
 gem 'debase',         group: [ :development, :test ]
 gem 'ruby-debug-ide', group: [ :development, :test ]
+gem 'pry',            group: [ :development, :test ]
 
 
 #

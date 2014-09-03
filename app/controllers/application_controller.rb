@@ -6,6 +6,28 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :null_session
   
 
+  module ControllerHelpers
+
+    def fail(format, status, template = nil, message = nil)
+      respond_to do |_format|
+        case format
+          when :json, :any, :all
+            _format.send(format) { render status: status, text: message }
+
+          when :html
+            _format.html { render status: status, template: template, notice: message }
+
+          else
+            raise "Unknown format!"
+        end
+      end
+    end
+
+  end
+
+  include ControllerHelpers
+
+
   module SessionHelpers
     extend ActiveSupport::Concern
 
