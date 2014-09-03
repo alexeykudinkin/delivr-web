@@ -51,7 +51,7 @@ module Travels
       #       to be persisted
       #
 
-      validates_length_of :items, minimum: 1
+      # validates_length_of :items, minimum: 1
 
     end
 
