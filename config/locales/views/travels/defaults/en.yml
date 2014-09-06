@@ -20,3 +20,4 @@ en:
   travels_item_weight: "Weight"
   travels_item_description: "Description"
   travels_route_cost: "Cost"
+  travel_index_delivered_status_caption: "Delivered"

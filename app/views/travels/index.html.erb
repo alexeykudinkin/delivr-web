@@ -30,6 +30,36 @@
       right: -15pt;
     }
 
+    .travel .completed {
+      position: absolute;
+      /*margin-top: 50px;*/
+      width: auto;
+      height: auto;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgb(0, 0, 0);
+      background: rgba(0, 0, 0, .5);
+      /*padding: 1px;*/
+    }
+
+    .completed .caption {
+      position: absolute;
+      margin: auto;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      text-align: center;
+      vertical-align: middle;
+      height: 25pt;
+      width: 100pt;
+      line-height: 25pt;
+      border-radius: 3px;
+      background: #ffffff;
+    }
+
   </style>
 
   <div class="map-overlay col-sm-4">
@@ -54,7 +84,9 @@
 
                   <% threefold.each do |travel| %>
 
-                    <div class="travel list-group-item" ng-mouseenter="showTravel($event); slideTravelDashboard($event)" ng-mouseleave="hideTravel($event); slideTravelDashboard($event)">
+                    <div class="travel list-group-item"
+                          <%= "ng-mouseenter='showTravel($event); slideTravelDashboard($event)'
+                               ng-mouseleave='hideTravel($event); slideTravelDashboard($event)'".html_safe unless travel.completed? %> >
 
                       <% if travel.taken? %>
 
@@ -78,6 +110,16 @@
 
                           <a href="#" class="btn btn-primary">Cancel</a>
 
+                        </div>
+
+                      <% end %>
+
+                      <% if travel.completed? %>
+
+                        <div class="completed">
+                          <div class="caption">
+                            <%= (t :travel_index_delivered_status_caption).upcase %> <span class="glyphicon glyphicon-ok"/>
+                          </div>
                         </div>
 
                       <% end %>
