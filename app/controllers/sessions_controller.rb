@@ -38,17 +38,16 @@ class SessionsController < ApplicationController
         session[:user] = user.id
 
         respond_to do |format|
-          format.html { redirect_to user_path(user), status: 302, notice: "Successfully logged in!" }
-          format.json { redirect_to user_path(user), status: 302 }
+          format.html { redirect_to user_path(user), status: :created, notice: "Successfully logged in!" }
+          format.json { redirect_to user_path(user), status: :created }
         end
       else
         respond_to do |format|
           format.html { redirect_to login_path, :alert => if user.blank?
-
-                                                                         "No user found!"
-                                                                       else
-                                                                         "Invalid phone or password!"
-                                                                       end }
+                                                            "No user found!"
+                                                          else
+                                                            "Invalid phone or password!"
+                                                          end }
           format.json { redirect_to login_path }
         end
       end

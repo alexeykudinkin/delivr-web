@@ -26,5 +26,4 @@ class ActiveSupport::TestCase
   fixtures :all
   # fixtures "users/users", "travels/places/places", "travels/travels", "items"
 
-  # Add more helper methods to be used by all tests here...
 end

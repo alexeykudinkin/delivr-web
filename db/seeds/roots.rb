@@ -1,6 +1,5 @@
-
-Users::Customer.create!(
-  {
+roots = {
+  mk: {
     name:   'Mike Krinkin',
     phone:  '79052168692',
     email:  'mike@delivr.ru',
@@ -9,11 +8,9 @@ Users::Customer.create!(
 
     password:               'qwerty',
     password_confirmation:  'qwerty'
-  }
-)
+  },
 
-Users::Customer.create!(
-  {
+  ak: {
     name:   'Alexey Kudinkin',
     phone:  '79117483835',
     email:  'alexey@delivr.ru',
@@ -23,4 +20,7 @@ Users::Customer.create!(
     password:               'qwerty',
     password_confirmation:  'qwerty'
   }
-)
+}
+
+Users::Customer.create!(roots[:mk])
+Users::Customer.create!(roots[:ak])

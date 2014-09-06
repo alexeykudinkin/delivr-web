@@ -10,9 +10,9 @@ module Users
 
         class << self;
           def as(type)
-            type = type
+            type = type.to_s
             unless type.start_with? "Users::Roles::"
-              type = "Users::Roles::#{type}"
+              type = "Users::Roles::#{type.capitalize}"
             end
             find_by(type: type)
           end

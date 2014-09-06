@@ -1,9 +1,9 @@
-#
-#admin:
-#  type: "Admin"
-#
-#customer:
-#  type: "Customer"
-#
-#performer:
-#  type: "Performer"
+
+admin:
+  type: "Users::Roles::Admin"
+
+customer:
+  type: "Users::Roles::Customer"
+
+performer:
+  type: "Users::Roles::Performer"

@@ -19,7 +19,7 @@ class Admin::UsersController < ApplicationController
         format.html { redirect_to user_path(@user) }
         format.json { render json: @user, status: :created, location: @user }
       else
-        format.html { redirect_to new_user_path, alert: "Failed to create the user! Errors: #{@user.errors.full_messages}" }
+        format.html { redirect_to new_admin_user_path, alert: "Failed to create the user! Errors: #{@user.errors.full_messages}" }
         format.json { render json: @user.errors, status: :unprocessable_entity }
       end
     end
