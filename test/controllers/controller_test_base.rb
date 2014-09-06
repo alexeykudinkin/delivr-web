@@ -5,6 +5,13 @@ class ControllerTestBase < ActionController::TestCase
 
     extend ActiveSupport::Concern
 
+    def json(user, &block)
+      request_json
+      authorize_api_access user
+
+      block.call
+    end
+
     def request_json
       @request.env["HTTP_ACCEPT"]   = "application/json"
       @request.env["CONTENT_TYPE"]  = "application/json"

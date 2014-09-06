@@ -29,7 +29,8 @@ class TravelsController < ApplicationController
     # Extract travels
     if sanitized[:user_id]
       # As to Rails 4 doesn't have support for OR operator
-      @travels = Travels::Travel.submitted.where("customer_id = ? OR performer_id = ?", sanitized[:user_id], sanitized[:user_id])
+      # @travels = Travels::Travel.submitted.where("customer_id = ? OR performer_id = ?", sanitized[:user_id], sanitized[:user_id])
+      @travels = Travels::Travel.of(current_user)
     else
       @travels = Travels::Travel.all
     end
@@ -141,8 +142,7 @@ class TravelsController < ApplicationController
 
       respond_to do |format|
         if travel.save
-          # format.html { redirect_to travel_path(travel), notice: "You've successfully taken the travel!"  }
-          format.html {  }
+          format.html { redirect_to travel_path(travel), notice: "You've successfully taken the travel!"  }
           format.json { render json: @travel, status: :ok, location: @travel }
         else
           raise
