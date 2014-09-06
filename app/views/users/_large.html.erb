@@ -51,13 +51,13 @@
     box-shadow: 0 0 5px rgba(0, 0, 32, .5);
   }
 
-  .user-info-block .user-heading {
+  .user-info-block .user-info-heading {
     width: 100%;
     text-align: center;
     margin: 10px 0 0;
   }
 
-  .user-heading h3 {
+  .user-info-heading h3 {
     margin-top: 0;
     font-weight: 300;
   }
@@ -83,18 +83,18 @@
     color: #fff;
   }
 
-  .user-info-block .user-body {
+  .user-info-block .user-info-body {
     padding: 5%;
     width: 100%;
   }
 
-  .user-body .tab-content > .active {
+  .user-info-body .tab-content > .active {
     min-height: 20pt;
     width: 100%;
     text-align: center;
   }
 
-  .user-body .tab-content h4 {
+  .user-info-body .tab-content h4 {
     width: 100%;
     margin: 10px 0;
     color: #333;
@@ -115,7 +115,7 @@
       <img src="http://en.gravatar.com/userimage/47185846/e5eebf3b44330eeb6c056ff7e043401c.jpg?size=150" alt="Kudinkin Alexey" title="Kudinkin Alexey" class="img-circle"/>
     </div>
 
-    <div class="user-heading">
+    <div class="user-info-heading">
       <h3><%= user.name %></h3>
       <span class="help-block">Saint-Petersburg, RU</span>
     </div>
@@ -134,7 +134,7 @@
       </li>
     </ul>
 
-    <div class="user-body">
+    <div class="user-info-body">
       <div class="tab-content">
         <div id="information" class="tab-pane active">
           Info?

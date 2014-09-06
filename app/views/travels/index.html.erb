@@ -9,7 +9,7 @@
       -moz-box-shadow: none;
       box-shadow: none;
       max-height: 80vh;
-      overflow: scroll;
+      overflow-y: scroll;
       border: none;
       margin-bottom: 0;
     }
@@ -59,7 +59,7 @@
                       <% if travel.taken? %>
 
                         <div class="performer-thumb">
-                          <%= render 'users/small' %>
+                          <%= render 'users/small', locals: { user: travel.performer } %>
                         </div>
 
                       <% end -%>
