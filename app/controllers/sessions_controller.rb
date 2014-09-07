@@ -38,8 +38,8 @@ class SessionsController < ApplicationController
         session[:user] = user.id
 
         respond_to do |format|
-          format.html { redirect_to user_path(user), status: :created, notice: "Successfully logged in!" }
-          format.json { redirect_to user_path(user), status: :created }
+          format.html { redirect_to user_path(user), status: 302, notice: "Successfully logged in!" }
+          format.json { redirect_to user_path(user), status: 302 }
         end
       else
         respond_to do |format|

@@ -30,7 +30,7 @@ class SessionsControllerTest < ControllerTestBase
             password: ROOTS[:alice][:password]
           }
 
-    assert_response :created
+    assert_response 302
   end
 
   protected
