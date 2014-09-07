@@ -20,7 +20,9 @@
       text-align: center;
     }
 
-    .travel-dashboard a, .travel-dashboard .take-btn {
+    .travel-dashboard .withdraw-action,
+    .travel-dashboard .take-action,
+    .travel-dashboard .cancel-action {
       display: inline-block;
     }
 
@@ -86,7 +88,8 @@
 
                     <div class="travel list-group-item"
                           <%= "ng-mouseenter='showTravel($event); slideTravelDashboard($event)'
-                               ng-mouseleave='hideTravel($event); slideTravelDashboard($event)'".html_safe unless travel.completed? %> >
+                               ng-mouseleave='hideTravel($event); slideTravelDashboard($event)' ".html_safe unless travel.completed? %> >
+
 
                       <% if travel.taken? %>
 
@@ -102,13 +105,33 @@
 
                         <div class="travel-dashboard ng-hide">
 
-                          <div class="take-btn">
-                            <%= form_for :travel, url: take_travel_path(travel) do |form| %>
-                              <%= form.submit value: "Take", class: "btn btn-primary" %>
-                            <%  end %>
-                          </div>
+                            <% unless travel.taken? %>
 
-                          <a href="#" class="btn btn-primary">Cancel</a>
+                              <div class="take-action">
+                                <%= form_for :travel, url: take_travel_path(travel) do |form| %>
+                                  <%= form.submit value: "Take", class: "btn btn-primary " + (travel.canceled? ? "disabled" : "") %>
+                                <% end %>
+                              </div>
+
+                            <% else %>
+
+                              <div class="withdraw-action">
+                                <%= form_for :travel, url: withdraw_travel_path(travel) do |form| %>
+                                  <%= form.submit value: "Withdraw", class: "btn btn-danger" + (travel.canceled? ? "disabled" : "") %>
+                                <% end %>
+                              </div>
+
+                            <% end %>
+
+                            <% unless travel.canceled? %>
+
+                              <div class="cancel-action">
+                                <%= form_for :travel, url: cancel_travel_path(travel) do |form| %>
+                                  <%= form.submit value: "Cancel", class: "btn btn-danger" %>
+                                <% end %>
+                              </div>
+
+                            <% end %>
 
                         </div>
 

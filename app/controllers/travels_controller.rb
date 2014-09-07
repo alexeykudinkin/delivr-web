@@ -145,10 +145,18 @@ class TravelsController < ApplicationController
           format.html { redirect_to travel_path(travel), notice: "You've successfully taken the travel!"  }
           format.json { render json: @travel, status: :ok, location: @travel }
         else
-          raise
+          format.html { redirect_to travel_path(travel), alert: "Something went wrong, sorry! We couldn't take this travel for you." }
+          format.json { render json: @travel.errors.full_messages.as_json, status: :unprocessable_entity }
         end
       end
     end
+  end
+
+  # Withdraws this travel
+  #
+  # POST /travels/:id/withdraw
+  def withdraw
+    raise
   end
 
   # Completes travel

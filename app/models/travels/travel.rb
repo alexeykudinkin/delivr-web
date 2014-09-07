@@ -187,9 +187,9 @@ module Travels
       end
 
       def cancel
-        self.state = State.get(:cancelled)
+        self.state = State.get(:canceled)
         saved = self.save
-        # self.notify(:cancelled)
+        # self.notify(:canceled)
         saved
       end
 

@@ -9,7 +9,7 @@ module Travels
 
       :taken,       # Taken by performer
       :completed,   # Completed in full by performer
-      :cancelled,   # Cancelled by the customer
+      :canceled,    # Canceled by the customer
       :withdrawn    # Withdrawn by the performer (prior taken by)
     ]
 

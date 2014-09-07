@@ -74,6 +74,9 @@ Shipper::Application.routes.draw do
       # Grabs travel
       post :take
 
+      # Withdraws travel
+      post :withdraw
+
       # Cancels travel
       post :cancel
 

@@ -136,7 +136,7 @@ class TravelsControllerTest < ControllerTestBase
 
     @travel = @travel.reload
 
-    assert_not @travel.cancelled?
+    assert_not @travel.canceled?
 
     assert_equal @travel.state, prev
   end
@@ -165,7 +165,7 @@ class TravelsControllerTest < ControllerTestBase
     # puts @travel.state_id
     # raise 'F*CK'
 
-    assert @travel.cancelled?
+    assert @travel.canceled?
   end
 
   test "should NOT complete travel" do
