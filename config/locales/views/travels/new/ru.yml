@@ -9,3 +9,5 @@ ru:
   after: "После"
   before: "До"
   travel_index_delivered_status_caption: "Доставлено"
+  travels_new_form_destroy_item: "Убрать"
+  travels_new_form_destroy_destination: "Убрать"

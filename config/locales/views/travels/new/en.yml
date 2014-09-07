@@ -9,3 +9,5 @@ en:
   help_new_travel: "What next?"
   after: "After"
   before: "Before"
+  travels_new_form_destroy_item: "Destroy"
+  travels_new_form_destroy_destination: "Destroy"

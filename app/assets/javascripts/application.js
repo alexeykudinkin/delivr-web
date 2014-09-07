@@ -159,8 +159,8 @@
 
 	var storageService = {
             model: {
-                origin_attributes: {},
-                destinations_attributes: {},
+                origin_attributes:          {},
+                destinations_attributes:    {},
 
                 $bare: function () {
                     return strip(this);
@@ -328,15 +328,32 @@
                 });
             }
 
-            function Item() {}
-            function Destination() {
-                this.items_attributes = {}
-                this.due_date_attributes = {}
+            function Item(id) {
+                this.id = id;
             }
+
+            function Destination(id) {
+                this.id = id;
+                this.items_attributes = {};
+                this.due_date_attributes = {};
+            }
+
+            Destination.prototype.popFrom = Item.prototype.popFrom = function (attrs) {
+                delete attrs[this.id];
+            };
+
 
             $scope.pushNextItemFor = function (destination) {
                 var next = Object.keys(destination.items_attributes).length;
-                destination.items_attributes[next] = new Item();
+                destination.items_attributes[next] = new Item(next);
+            };
+
+            $scope.destroyDestination = function (destination) {
+                destination.popFrom($scope.travel.model.destinations_attributes);
+            };
+
+            $scope.destroyItem = function (item, parent) {
+                item.popFrom(parent.items_attributes);
             };
 
             $scope.pushNextDestinationIfNone = function () {
@@ -347,7 +364,7 @@
             $scope.pushNextDestination = function () {
                 var destinations_attributes = $scope.travel.model.destinations_attributes;
                 var next = Object.keys(destinations_attributes).length;
-                destinations_attributes[next] = new Destination();
+                destinations_attributes[next] = new Destination(next);
                 $scope.pushNextItemFor(destinations_attributes[next]);
             };
 

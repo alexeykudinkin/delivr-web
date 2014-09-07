@@ -1,10 +1,15 @@
-<%  ng_model_prefix = local_assigns[:ngmodel_prefix]
+<%  ng_model_parent_prefix  = local_assigns[:ngmodel_parent_prefix]
+    ng_model_prefix         = local_assigns[:ngmodel_prefix]
 
     ng_model_name         = "#{ng_model_prefix}.name"
     ng_model_description  = "#{ng_model_prefix}.description"
     ng_model_weight       = "#{ng_model_prefix}.weight"
 
     ng_form = "itemSubForm" %>
+
+<div class="sunken-menu">
+  <%= push_onclick_link_to("", { class: "tag tag-remove glyphicon glyphicon-remove", ng_click: "destroyItem(#{ng_model_prefix}, #{ng_model_parent_prefix})" }) -%>
+</div>
 
 <div class="container-fluid">
 
@@ -38,6 +43,8 @@
                                             class:        "form-control",
                                             ng_model:     ng_model_description %>
       </div>
+
+      <%# push_onclick_button_to((t :travels_new_form_destroy_item), { ng_click: "destroyItem(#{ng_model_prefix}, #{ng_model_parent_prefix})", class: "btn btn-danger" }) %>
 
     </div>
 

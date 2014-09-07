@@ -11,6 +11,67 @@
       overflow: auto;
     }
 
+    .sunken-menu {
+      background-image: -webkit-linear-gradient(left, #f6f6f6 0%, #fff 8px);
+      background-image: -moz-linear-gradient(left, #f6f6f6 0%, #fff 8px);
+      background-image: linear-gradient(to right, #f6f6f6 0%, #fff 8px);
+    }
+
+    .form-group-panel {
+      position: relative;
+      border: rgba(0, 0, 0, .15) 1px dashed;
+      padding: 7px;
+      margin-bottom: 10pt;
+    }
+
+    .destination.form-group-panel {
+      margin-left: -15px;   /* this is to be aligned with bootstrap margins */
+      margin-right: -15px;
+    }
+
+    .item.form-group-panel {
+      /*margin-left: -15px;   *//* this is to be aligned with bootstrap margins */
+      /*margin-right: -15px;*/
+    }
+
+    .form-group-panel .form-group {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .form-group-panel .sunken-menu {
+      margin-right: -20.5pt; /* margin + padding */
+      box-shadow: inset 1px 0 0 lightgrey;
+      height: 70pt;
+      width: 15pt;
+      float: right;
+      clear: both;
+    }
+
+    .tag {
+      border-bottom-right-radius: 3px;
+      border-top-right-radius: 3px;
+      padding-top: 5pt;
+      padding-bottom: 5pt;
+      border-top: 1px solid lightgrey;
+      border-bottom: 1px solid lightgrey;
+      border-right: 1px solid lightgrey;
+      background: #ffffff;
+      width: 15pt;
+      text-align: center;
+      vertical-align: middle;
+      position: relative;
+    }
+
+    a.tag {
+      color: #000000;
+    }
+
+    a:hover.tag-remove {
+      text-decoration: none;
+      color: red;
+    }
+
   </style>
 
   <div class="map-overlay col-sm-4">
@@ -38,7 +99,7 @@
                   <%= link_to_add_fields_angular(form, :destinations, ng_model_prefix) do |gen| %>
 
                     <%= output = <<-RUBY_EVAL
-                          <div class="" ng-repeat="destination in #{ng_model_prefix}.destinations_attributes" ng-init="destinationIndex = $index">
+                          <div class="destination form-group-panel" ng-repeat="destination in #{ng_model_prefix}.destinations_attributes" ng-init="destinationIndex = $index">
                             #{ gen.call({ index: "destinationIndex" }) }
                           </div>
                         RUBY_EVAL

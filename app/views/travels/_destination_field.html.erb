@@ -9,6 +9,11 @@
 
     ng_form = "destinationSubForm" %>
 
+
+<div class="sunken-menu">
+  <%= push_onclick_link_to("", { class: "tag tag-remove glyphicon glyphicon-remove", ng_click: "destroyDestination(#{ng_model_prefix})" }) -%>
+</div>
+
 <div class="<%= local_assigns[:class] %>" ng-click="<%= "registerClickerAndAutoComplete(#{ng_model_prefix}, $event)"%>" ng-form="<%= ng_form %>" verify-address>
 
   <%= render layout: "layouts/error_labels_layout", locals: { subform: ng_form, props: :address, message: (t :travels_new_form_missing_address_error_message) } do %>
@@ -26,7 +31,7 @@
 
   <% end %>
 
-  <div class="form-group">
+  <div class="form-group" style="clear: left !important;">
 
     <div class="timepicker-panel col-md-6 col-sm-6" ng-controller="TimepickerController">
 
@@ -60,7 +65,7 @@
 
 <%= link_to_add_fields_angular(form, :items, ng_model_prefix) do |gen| %>
   <%= output = <<-RUBY_EVAL
-        <div class="" ng-repeat="item in #{ng_model_items}" ng-init="itemsIndex = $index">
+        <div class="item form-group-panel" ng-repeat="item in #{ng_model_items}" ng-init="itemsIndex = $index">
           #{ gen.call({ index: "itemsIndex" })}
         </div>
       RUBY_EVAL
@@ -69,5 +74,9 @@
 <% end %>
 
 <div class="form-group">
-  <%= push_onclick_button_to((t :travels_new_form_add_item), { ng_click: "pushNextItemFor(#{ng_model_prefix})", class: "btn" }) %>
+  <%= push_onclick_button_to((t :travels_new_form_add_item),            { ng_click: "pushNextItemFor(#{ng_model_prefix})",    class: "btn" }) %>
 </div>
+
+<!--<div class="form-group">-->
+  <!--<%# push_onclick_button_to((t :travels_new_form_destroy_destination), { ng_click: "destroyDestination(#{ng_model_prefix})", class: "btn btn-danger" }) %>-->
+<!--</div>-->

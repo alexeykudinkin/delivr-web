@@ -17,18 +17,21 @@ module ApplicationHelper
       end
     end
 
+    def str(html_options)
+      html_options.to_a
+      .map do |kv|
+        "#{kv.first}=\"#{ERB::Util.html_escape(kv.second)}\""
+      end
+      .reduce("") do |s, p|
+        "#{s} #{p}"
+      end
+    end
+
     def push_onclick_button_to(name, html_options)
       # FIXME:  I know this is lame
       #         however damned f*cking Ruby doesn't allow me
       #         to combine this into single fold (damn it!)
-      options =
-        html_options.to_a
-          .map do |kv|
-            "#{kv.first}=\"#{ERB::Util.html_escape(kv.second)}\""
-          end
-          .reduce("") do |s, p|
-            "#{s} #{p}"
-          end
+      options = str(html_options)
 
       button = <<-RUBY_EVAL
         <button type="button" #{options}>
@@ -38,6 +41,19 @@ module ApplicationHelper
 
       button.html_safe
     end
+
+    def push_onclick_link_to(name, html_options)
+      options = str(html_options)
+
+      link = <<-RUBY_EVAL
+        <a href="#" #{options}>
+          #{if block_given? then yield else name end}
+        </a>
+      RUBY_EVAL
+
+      link.html_safe
+    end
+
 
     #
     # This is a collection of helpers making things plain (old) 'jquery-way'
@@ -86,7 +102,8 @@ module ApplicationHelper
                     form:    subform,
                     parent:  form,
 
-                    ngmodel_prefix:   "#{ngmodel_prefix}.#{association}_attributes[#{index}]"
+                    ngmodel_parent_prefix:  ngmodel_prefix,
+                    ngmodel_prefix:         "#{ngmodel_prefix}.#{association}_attributes[#{index}]"
           end
         end
 
