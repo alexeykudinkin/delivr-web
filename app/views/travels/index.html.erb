@@ -95,12 +95,12 @@
                       <% if travel.taken? %>
 
                         <div class="performer-thumb">
-                          <%= render 'users/small', locals: { user: travel.performer } %>
+                          <%= render "users/small", locals: { user: travel.performer } %>
                         </div>
 
                       <% end -%>
 
-                      <%= render 'small', travel: travel %>
+                      <%= render "small", travel: travel %>
 
                         <div class="travel-dashboard ng-hide">
 
