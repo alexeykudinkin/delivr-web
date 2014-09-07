@@ -35,8 +35,29 @@
 
         // Delivr API
 
-        this.DELIVR_API_BASE = '//localhost:3000';
-        this.DELIVR_API_ACCOUNTING = this.DELIVR_API_BASE + '/account.json';
+        function API () {
+            this.APIs = {
+                '/': '//localhost:3000'
+            };
+
+            this.register = function (h, r) {
+                this.APIs[h] = r;
+            };
+
+            this.relative = function (h) {
+                return this.APIs[h];
+            };
+
+            this.absolute = function (h) {
+                return this.relative('/') + this.relative(h);
+            }
+        }
+
+        this.API = new API();
+
+        this.API.register("DELIVR_ACCOUNTING",      "/account.json");
+        this.API.register("DELIVR_TAKE_TRAVEL",     "/take.json");
+        this.API.register("DELIVR_SUBMIT_TRAVEL",   "/travels");
 
         // Google Maps API
 
@@ -334,7 +355,7 @@
                 validateTravel($scope.travel.model);
                 $.ajax({
                     type: 'POST',
-                    url: '/travels',
+                    url:  config.API.relative("DELIVR_SUBMIT_TRAVEL"),
                     data: $scope.travel.model.$serialize(),
                     dataType: 'json'
                 }).success(function (jqXHR, status, data) {
@@ -698,7 +719,7 @@
 
                 $.ajax({
                     type:   'GET',
-                    url:    '/account.json',
+                    url:    config.API.relative("DELIVR_ACCOUNTING"),
                     data:   req,
 
                     async:  false,
@@ -873,6 +894,18 @@
                     .stop(true, true)
                     .slideToggle()
                     .removeClass('ng-hide'); // FIXME
+            };
+
+            $scope.takeTravel = function ($event) {
+                throw "Implement me!"
+            };
+
+            $scope.cancelTravel = function ($event) {
+                throw "Implement me!"
+            };
+
+            $scope.completeTravel = function ($event) {
+                throw "Implement me!"
             };
 
         }]);
