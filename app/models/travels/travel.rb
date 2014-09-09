@@ -1,5 +1,4 @@
 module Travels
-
   extend Common::ForceConventionalNaming
 
   class Travel < ActiveRecord::Base
@@ -18,17 +17,10 @@ module Travels
     #   self.state = Travels::State.get(:submitted)
     # end
 
-
-  def self.new(attributes = nil)
-      super (attributes || {}).merge({ state: State.get(:submitted) })
+    def initialize(*args)
+      super(*args)
+      log << Travels::States::Submitted.new
     end
-
-    def self.create(attributes = nil, &block)
-      super (attributes || {}).merge({ state: State.get(:submitted) }) do
-        block
-      end
-    end
-
 
     #
     # Items
@@ -80,13 +72,37 @@ module Travels
     end
 
     #
-    # State
+    # State log
     #
 
-    belongs_to  :state,
-                :class_name => State,
-                :inverse_of => :travels,
-                :autosave   => true
+    # Make self a log (storing `Travels::States::AbstractState`)
+    module TravelStateLog
+      extend ActiveSupport::Concern
+
+      # Log itself
+      def log
+        send(:loggables)
+      end
+
+      # Actual state being the tail of state-log
+      def state
+        # FIXME
+        #
+        # We can't do this actually, otherwise `Travel` validation
+        # would fail during new travel instance creation, since custom
+        # ordering would trigger database query while it's in inconsistent state (not updated yet)
+        # log.order(created_at: :desc).first
+        log.last
+      end
+
+      included do |base|
+        # FIXME: Autoload
+        Travels::Logs::Log
+        Travels::Logs.make(base, :logs, what: Travels::States::AbstractState)
+      end
+    end
+
+    include TravelStateLog
 
     #
     # COMPAT: This is compatibility due to replacing previous travel's `state` model
@@ -94,14 +110,14 @@ module Travels
     #         To be dropped in the next release (so far v0.2)
     #
 
-    def state
-      # super || State.get(:submitted)
-      super
-    end
+    # def state
+    #   # super || State.get(:submitted)
+    #   super
+    # end
 
     # Include a handful of utility methods
     # short-circuiting state observation
-    include State::ExportMethods
+    include Travels::States::AbstractState::ExportMethods
 
 
     #
@@ -171,7 +187,8 @@ module Travels
 
       def take(_performer)
         self.performer = _performer
-        self.state = State.get(:taken)
+        # self.state = State.get(:taken)
+        self.log << Travels::States::Taken.new
 
         saved = self.save
         # FIXME: Replace with proper EM system
@@ -180,14 +197,16 @@ module Travels
       end
 
       def complete
-        self.state = State.get(:completed)
+        # self.state = State.get(:completed)
+        self.log << Travels::States::Completed.new
         saved = self.save
         # self.notify(:completed)
         saved
       end
 
       def cancel
-        self.state = State.get(:canceled)
+        # self.state = State.get(:canceled)
+        self.log << Travels::States::Canceled.new
         saved = self.save
         # self.notify(:canceled)
         saved
@@ -202,18 +221,70 @@ module Travels
     # Scopes
     #
 
-    scope :of,        -> (owner) { where(customer: owner) }
+    module ScopeHelpers
+      extend ActiveSupport::Concern
 
-    scope :completed, -> { joins(:state).where(state: State.get(:completed)) }
+      module ClassMethods
+        def assoc_table_name(assoc)
+          reflect_on_association(assoc).table_name
+        end
 
-    scope :taken,     -> { joins(:state).where(state: State.get(:taken)) }
+        def assoc_foreign_key(assoc)
+          reflect_on_association(assoc).foreign_key
+        end
+      end
+    end
 
-    scope :withdrawn, -> { joins(:state).where(state: State.get(:withdrawn)) }
+    include ScopeHelpers
 
-    scope :submitted, -> { joins(:state).where(state: State.get(:submitted)) }
+    #
+    # Scopes
+    #
+
+    scope :of, -> (owner) { where(customer: owner) }
+
+    # scope :completed, -> { joins(:states).where(state: State.get(:completed)) }
+    # scope :completed, -> { joins(:loggables).where(type: Travels::States::Completed) }
+    scope :completed,   -> { _with_latest_logged(Travels::States::Completed) }
+
+    # scope :taken,     -> { joins(:states).where(state: State.get(:taken)) }
+    # scope :taken,     -> { joins(:loggables).order(updated_at: :desc).limit(1).where(loggables: { type: Travels::States::Taken }) }
+    scope :taken,       -> { _with_latest_logged(Travels::States::Taken) }
+
+    # scope :withdrawn, -> { joins(:states).where(state: State.get(:withdrawn)) }
+    # scope :withdrawn, -> { joins(:loggables).where(type: Travels::States::Withdrawn) }
+    scope :withdrawn,   -> { _with_latest_logged(Travels::States::Withdrawn) }
+
+    # scope :submitted, -> { joins(:states).where(state: State.get(:submitted)) }
+    # scope :submitted, -> { joins(:loggables).where(type: Travels::States::Submitted) }
+    scope :submitted,   -> { _with_latest_logged(Travels::States::Submitted) }
 
     # scope :actual,    -> { joins(:state).where(status: { completed: false, taken: false }) }
-    scope :actual,    -> { submitted }
+    scope :actual,      -> { submitted }
+
+    private
+
+      scope :_with_latest_logged, -> (type) {
+        itself    = table_name
+        loggables = assoc_table_name(:loggables)
+        fk        = assoc_foreign_key(:loggables)
+
+        #
+        # FIXME
+        #   Those kind of a req strongly demands
+        #   index to be involved
+        #
+
+        joins(%Q{
+          INNER JOIN      #{loggables} lg0 ON (#{itself}.id = lg0.#{fk})
+          LEFT OUTER JOIN #{loggables} lg1 ON
+          (
+            lg0.#{fk} = lg1.#{fk} AND
+            lg0.created_at < lg1.created_at
+          )
+        }).where("lg1.#{fk} IS NULL")
+          .where(lg0: { type: type })
+      }
 
 
     #

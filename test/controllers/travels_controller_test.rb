@@ -5,7 +5,7 @@ class TravelsControllerTest < ControllerTestBase
 
   # Checks all GETs are reachable
 
-  test "should GETs actions [JSON/HTML]" do
+  test "should GET actions [JSON/HTML]" do
 
     assert_no_difference("Travels::Travel.count") do
       get :new, {}, session(:akudinkin)
@@ -233,6 +233,10 @@ class TravelsControllerTest < ControllerTestBase
 
       @travel     = travels_travels(:_1)
       @akudinkin  = users_users(:akudinkin)
+
+      # FIXME?
+      # Workaround for stupid fixture drawbacks
+      @travel.log << Travels::States::Submitted.new
     end
 
 end
