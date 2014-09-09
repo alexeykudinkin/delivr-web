@@ -135,7 +135,7 @@
         return new RenderingService();
     }]);
 
-    delivrApp.factory('TravelFormStorageService', [function () {
+    delivrApp.factory('TravelFormStorageService', [ function () {
         function strip(source) {
             if (!angular.isObject(source) || source instanceof Date) {
                 return source;
@@ -338,10 +338,6 @@
                 this.due_date_attributes = {};
             }
 
-            Destination.prototype.popFrom = Item.prototype.popFrom = function (attrs) {
-                delete attrs[this.id];
-            };
-
 
             $scope.pushNextItemFor = function (destination) {
                 var next = Object.keys(destination.items_attributes).length;
@@ -349,11 +345,11 @@
             };
 
             $scope.destroyDestination = function (destination) {
-                destination.popFrom($scope.travel.model.destinations_attributes);
+                delete $scope.travel.model.destinations_attributes[destination.id];
             };
 
-            $scope.destroyItem = function (item, parent) {
-                item.popFrom(parent.items_attributes);
+            $scope.destroyItem = function (item, destination) {
+                delete destination.items_attributes[item.id];
             };
 
             $scope.pushNextDestinationIfNone = function () {
