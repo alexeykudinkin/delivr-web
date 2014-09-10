@@ -172,10 +172,19 @@ module Travels
       case status
         when :created
           self.notifications << Notifications::created(self, *args)
+
+        #
+        # Travel's state transitioning related hooks
+        #
+
+        when :completed, :canceled, :withdrawn
+          ; # NOP
+
         when :taken
           self.notifications << Notifications::taken(performer)
+
         else
-          raise "Unknown status!"
+          raise "Unknown event!"
       end
     end
 
@@ -189,40 +198,46 @@ module Travels
     #
     # Travel operations
     #
+    # NOTE:
+    #   Those are perfectly polished to fit (and consequently override) _same_
+    #   name actions of FSM, so be warned and careful
+    #
 
-    module TravelOperations
+    module Operations
       extend ActiveSupport::Concern
 
-      def take(_performer)
-        self.performer = _performer
-        # self.state = State.get(:taken)
-        self.log << Travels::States::Taken.new
+      def take(performer, *args)
+        super # FSM :take
 
-        saved = self.save
-        # FIXME: Replace with proper EM system
+        self.performer = performer
         self.notify(:taken)
-        saved
+        self.save
       end
 
       def complete
-        # self.state = State.get(:completed)
-        self.log << Travels::States::Completed.new
-        saved = self.save
-        # self.notify(:completed)
-        saved
+        super # FSM :complete
+
+        self.notify(:completed)
+        self.save
       end
 
       def cancel
-        # self.state = State.get(:canceled)
-        self.log << Travels::States::Canceled.new
-        saved = self.save
-        # self.notify(:canceled)
-        saved
+        super # FSM :cancel
+
+        self.notify(:canceled)
+        self.save
+      end
+
+      def withdraw
+        super # FSM :withdraw
+
+        self.notify(:withdrawn)
+        self.save
       end
 
     end
 
-    include TravelOperations
+    include Operations
 
 
     #

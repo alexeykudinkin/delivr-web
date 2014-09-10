@@ -88,19 +88,19 @@ module Travels
           # state_machine :stateX, initial: :submitted do
           state_machine :state, initial: :submitted do
 
-            event :takeX do
+            event :take do
               transition [ :submitted, :withdrawn ] => :taken
             end
 
-            event :cancelX do
+            event :cancel do
               transition :submitted => :canceled
             end
 
-            event :completeX do
+            event :complete do
               transition :taken => :completed
             end
 
-            event :withdrawX do
+            event :withdraw do
               transition :taken => :withdrawn
             end
 

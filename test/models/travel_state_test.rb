@@ -39,13 +39,17 @@ class TravelStateTest < ActiveSupport::TestCase
 
     assert @travel.submitted?
 
-    assert @travel.can_cancelX?
+    assert @travel.can_cancel?
 
-    assert @travel.can_takeX?
-    assert @travel.takeX
+    p = @akudinkin.becomes(Users::Performer)
+
+    assert @travel.can_take?
+    assert @travel.take(p)
     assert @travel.taken?
 
-    assert_not @travel.can_cancelX?
+    assert_equal @travel.performer, p
+
+    assert_not @travel.can_cancel?
   end
 
   test "should go through [ SUBMITTED, WITHDRAWN ] -> TAKEN and TAKEN -> WITHDRAWN" do
@@ -53,18 +57,23 @@ class TravelStateTest < ActiveSupport::TestCase
 
     assert @travel.submitted?
 
-    assert @travel.can_takeX?
-    assert @travel.takeX
+    p = @akudinkin.becomes(Users::Performer)
+
+    assert @travel.can_take?
+    assert @travel.take(p)
     assert @travel.taken?
 
-    assert @travel.can_withdrawX?
-    assert @travel.withdrawX
+    assert_equal @travel.performer, p
+
+    assert @travel.can_withdraw?
+    assert @travel.withdraw
     assert @travel.withdrawn?
 
-    assert @travel.can_takeX?
-    assert @travel.takeX
+    assert @travel.can_take?
+    assert @travel.take(p)
     assert @travel.taken?
 
+    assert_equal @travel.performer, p
   end
 
   test "should go through SUBMITTED -> CANCELED" do
@@ -72,8 +81,8 @@ class TravelStateTest < ActiveSupport::TestCase
 
     assert @travel.submitted?
 
-    assert @travel.can_cancelX?
-    assert @travel.cancelX
+    assert @travel.can_cancel?
+    assert @travel.cancel
     assert @travel.canceled?
   end
 
@@ -82,12 +91,16 @@ class TravelStateTest < ActiveSupport::TestCase
 
     assert @travel.submitted?
 
-    assert @travel.can_takeX?
-    assert @travel.takeX
+    p = @akudinkin.becomes(Users::Performer)
+
+    assert @travel.can_take?
+    assert @travel.take(p)
     assert @travel.taken?
 
-    assert @travel.can_completeX?
-    assert @travel.completeX
+    assert_equal @travel.performer, p
+
+    assert @travel.can_complete?
+    assert @travel.complete
     assert @travel.completed?
   end
 
@@ -95,7 +108,9 @@ class TravelStateTest < ActiveSupport::TestCase
 
     def setup
       super
-      @travel = travels_travels(:_1)
+
+      @travel     = travels_travels(:_1)
+      @akudinkin  = users_users(:akudinkin)
     end
 
 end
