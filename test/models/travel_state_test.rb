@@ -34,6 +34,63 @@ class TravelStateTest < ActiveSupport::TestCase
     #
   end
 
+  test "should not allow CANCEL already TAKEN" do
+    @travel.log << Travels::States::Submitted.new
+
+    assert @travel.submitted?
+
+    assert @travel.can_cancelX?
+
+    assert @travel.can_takeX?
+    assert @travel.takeX
+    assert @travel.taken?
+
+    assert_not @travel.can_cancelX?
+  end
+
+  test "should go through [ SUBMITTED, WITHDRAWN ] -> TAKEN and TAKEN -> WITHDRAWN" do
+    @travel.log << Travels::States::Submitted.new
+
+    assert @travel.submitted?
+
+    assert @travel.can_takeX?
+    assert @travel.takeX
+    assert @travel.taken?
+
+    assert @travel.can_withdrawX?
+    assert @travel.withdrawX
+    assert @travel.withdrawn?
+
+    assert @travel.can_takeX?
+    assert @travel.takeX
+    assert @travel.taken?
+
+  end
+
+  test "should go through SUBMITTED -> CANCELED" do
+    @travel.log << Travels::States::Submitted.new
+
+    assert @travel.submitted?
+
+    assert @travel.can_cancelX?
+    assert @travel.cancelX
+    assert @travel.canceled?
+  end
+
+  test "should go through TAKEN -> COMPLETED" do
+    @travel.log << Travels::States::Submitted.new
+
+    assert @travel.submitted?
+
+    assert @travel.can_takeX?
+    assert @travel.takeX
+    assert @travel.taken?
+
+    assert @travel.can_completeX?
+    assert @travel.completeX
+    assert @travel.completed?
+  end
+
   protected
 
     def setup

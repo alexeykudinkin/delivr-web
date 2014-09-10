@@ -6,24 +6,6 @@ module Travels
 
   module States
 
-    module StateMachine
-
-      # TRANSITIONS = {
-      #
-      #   # Taking the travel
-      #   :submitted => :taken,
-      #
-      #   :taken => [
-      #     # Withdrawing previously taken travel
-      #     :submitted,
-      #
-      #     # Completing the travel
-      #     :completed
-      #   ]
-      # }
-
-    end
-
     class AbstractState < ActiveRecord::Base
 
       # Define table-name
@@ -65,13 +47,30 @@ module Travels
         Travels::States::Taken
         Travels::States::Withdrawn
 
-        Travels::States::AbstractState::SUBCLASSES.each do |state|
-          self.class_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
-            def #{state.name.demodulize.downcase}?
-              send(:type).eql?(#{state}.name)
+        module Presentation
+          module ClassMethods
+            # Stringify
+            def present
+              name.demodulize.downcase
             end
-          RUBY_EVAL
+
+            # Symbolize
+            def sym
+              present.to_sym
+            end
+          end
+
+          def to_s
+            self.class.present
+          end
+
+          def to_sym
+            self.class.sym
+          end
         end
+
+        include Presentation
+
       end
 
       include Helpers
@@ -80,7 +79,42 @@ module Travels
       #
       # State machine
       #
-      include StateMachine
+      module StateMachine
+        extend ActiveSupport::Concern
+
+        included do
+          # attr_accessor :stateX
+
+          # state_machine :stateX, initial: :submitted do
+          state_machine :state, initial: :submitted do
+
+            event :takeX do
+              transition [ :submitted, :withdrawn ] => :taken
+            end
+
+            event :cancelX do
+              transition :submitted => :canceled
+            end
+
+            event :completeX do
+              transition :taken => :completed
+            end
+
+            event :withdrawX do
+              transition :taken => :withdrawn
+            end
+
+            #
+            # All travel states involved
+            #
+
+            AbstractState::SUBCLASSES.each do |klass|
+              state klass.sym, value: lambda { klass.new }, if: lambda { |s| s.is_a? klass }
+            end
+          end
+        end
+
+      end
 
       #
       # Travels
@@ -91,25 +125,6 @@ module Travels
       # FIXME
       Travels::Logs::Log
       Travels::Logs.make(self, :loggable, in: Travels::Travel)
-
-
-      def to_s
-        self.class.name.to_s
-      end
-
-      #
-      # Plunges helpers of use inside class possessing state
-      #
-      module ExportMethods
-        Travels::States::AbstractState::SUBCLASSES.each do |state|
-          name = state.name.demodulize.downcase
-          self.class_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
-            def #{name}?
-              state.send(:#{name}?)
-            end
-          RUBY_EVAL
-        end
-      end
 
     end
 

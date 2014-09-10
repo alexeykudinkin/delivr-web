@@ -86,13 +86,21 @@ module Travels
 
       # Actual state being the tail of state-log
       def state
-        # FIXME
         #
+        # FIXME
         # We can't do this actually, otherwise `Travel` validation
         # would fail during new travel instance creation, since custom
         # ordering would trigger database query while it's in inconsistent state (not updated yet)
         # log.order(created_at: :desc).first
+        #
         log.last
+      end
+
+      # Stick newly transitioned state into
+      def state=(state)
+        raise TypeError.new "Travels::States::AbstractState instance is expected!" unless state.class < Travels::States::AbstractState
+        log << state
+        state
       end
 
       included do |base|
@@ -117,7 +125,7 @@ module Travels
 
     # Include a handful of utility methods
     # short-circuiting state observation
-    include Travels::States::AbstractState::ExportMethods
+    include Travels::States::AbstractState::StateMachine
 
 
     #

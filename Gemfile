@@ -56,6 +56,10 @@ gem 'debase',         group: [ :development, :test ]
 gem 'ruby-debug-ide', group: [ :development, :test ]
 gem 'pry',            group: [ :development, :test ]
 
+# FSM
+
+gem 'state_machine', '~> 1.2.0'
+
 
 #
 # APIs
