@@ -86,6 +86,9 @@ Shipper::Application.routes.draw do
       # Allows to query status of a particular travel
       get :status
 
+      # TODO
+      get :track
+
       get :show, to: "travels#status"
 
     end

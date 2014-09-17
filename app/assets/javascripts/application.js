@@ -22,6 +22,23 @@
 
 //= require_tree .
 
+(function () {
+    "use strict";
+
+    //
+    // Modules
+    //
+
+    var delivrApp = angular.module('delivr', [
+        'ngAnimate',
+        'ngMessages',
+        'ui.bootstrap',
+        'environmentServices',
+        'tspSolver',
+        'TrackingService'
+    ]);
+})();
+
 
 (function ($) {
 
@@ -66,18 +83,7 @@
 
     var config = new Config();
 
-
-    //
-    // Modules
-    //
-
-    var delivrApp = angular.module('delivr', [
-        'ngAnimate',
-        'ngMessages',
-        'ui.bootstrap',
-        'environmentServices',
-        'tspSolver'
-    ]);
+    var delivrApp = angular.module('delivr');
 
     delivrApp.config(['$locationProvider', function ($locationProvider) {
         // Configure HTML5 to get links working on JSFiddle
@@ -88,12 +94,12 @@
     // Services
     //
 
-    delivrApp.factory('RenderingService', [function () {
-        function RenderingService() {
-            this.renderingService = new google.maps.DirectionsRenderer();
+    delivrApp.factory('MapService', [ 'RenderingService', function (renderingService) {
+        function MapService() {
+            this.map = undefined;
         }
 
-        RenderingService.prototype.bind = function (scope, canvas, options) {
+        MapService.prototype.bind = function (scope, canvas, options) {
             if (!canvas)
                 throw "Canvas supplied may not be 'undefined'";
 
@@ -118,19 +124,36 @@
                     style: google.maps.ZoomControlStyle.LARGE,
                     position: google.maps.ControlPosition.RIGHT_TOP
                 }
-           }, options);
+            }, options);
 
-           var map = scope.map = new google.maps.Map(canvas, mapOptions);
-           this.renderingService.setMap(map);
+            this.map = scope.map = new google.maps.Map(canvas, mapOptions);
+
+            renderingService.bindTo(this.map);
+        };
+
+        MapService.prototype.getMap = function () {
+            return this.map;
         }
 
-	RenderingService.prototype.setDirections = function (directions) {
+        return new MapService();
+    }]);
+
+    delivrApp.factory('RenderingService', [ function () {
+        function RenderingService() {
+            this.renderingService = new google.maps.DirectionsRenderer();
+        }
+
+        RenderingService.prototype.bindTo = function (map) {
+            this.renderingService.setMap(map);
+        };
+
+        RenderingService.prototype.setDirections = function (directions) {
             this.renderingService.setDirections(directions);
-        }
+        };
 
         RenderingService.prototype.setRouteIndex = function (index) {
             this.renderingService.setRouteIndex(index);
-        }
+        };
 
         return new RenderingService();
     }]);
@@ -157,7 +180,7 @@
             });
         }
 
-	var storageService = {
+    var storageService = {
             model: {
                 origin_attributes:          {},
                 destinations_attributes:    {},
@@ -189,8 +212,8 @@
     // Directives
     //
 
-    delivrApp.directive('googleMap', ['$window', '$rootScope', 'RenderingService',
-        function ($window, $rootScope, RenderingService) {
+    delivrApp.directive('googleMap', ['$window', '$rootScope', 'MapService',
+        function ($window, $rootScope, MapService) {
             return {
                 restrict: 'A',
                 scope: { googleMapOptions: '=' },
@@ -256,7 +279,7 @@
                     }
 
                     function initGoogleMaps() {
-                        RenderingService.bind($rootScope, element[0], scope.googleMapOptions || {});
+                        MapService.bind($rootScope, element[0], scope.googleMapOptions || {});
                     }
 
                     if ($window.google && $window.google.maps)
