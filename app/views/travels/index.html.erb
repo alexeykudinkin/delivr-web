@@ -3,17 +3,35 @@
 
   <style type="text/css">
 
-    .travels-panel {
-      background: none;
-      -webkit-box-shadow: none;
-      -moz-box-shadow: none;
-      box-shadow: none;
+    .travels {
       max-height: 80vh;
       overflow-y: scroll;
-      border: none;
-      margin-bottom: 0;
+
+      padding: 0 15pt;
+      margin-top: 20pt;
+
+      box-sizing: border-box;
+
+      background: none;
+      border:     none;
+      box-shadow: none;
     }
 
+    .travels-inner {
+      padding: 0;
+
+      border: none;
+      background: none;
+
+      -webkit-box-shadow: 0 0 5pt rgba(0, 0, 0, .4);
+      -moz-box-shadow: 0 0 5pt rgba(0, 0, 0, .4);
+      -o-box-shadow: 0 0 5pt rgba(0, 0, 0, .4);
+      box-shadow: 0 0 5pt rgba(0, 0, 0, .4);
+    }
+
+    .travels .list-group {
+      margin-bottom: 0; /* override */
+    }
 
     .travel-dashboard {
       padding-top: 10pt;
@@ -27,7 +45,7 @@
       display: inline-block;
     }
 
-    .travel .performer-thumb {
+    .travel .performer {
       position: absolute;
       top:   -15pt;
       right: -15pt;
@@ -69,7 +87,7 @@
 
     <div class="row">
 
-      <div class="panel panel-default travels-panel">
+      <div class="travels panel panel-default">
 
         <!--<div class="panel-heading">-->
           <!--<h3 class="panel-title">Travels</h3>-->
@@ -77,7 +95,7 @@
 
         <% if @travels.length > 0 -%>
 
-          <div class="panel-body tab-content" ng-controller="TravelsListingController">
+          <div class="travels-inner panel-body" ng-controller="TravelsListingController">
 
             <% @travels.each_slice(3).each_with_index do |threefold, i| %>
 
@@ -89,13 +107,15 @@
 
                     <div class="travel list-group-item"
                           <%= "ng-mouseenter='showTravel($event); slideTravelDashboard($event)'
-                               ng-mouseleave='hideTravel($event); slideTravelDashboard($event)' ".html_safe unless travel.completed? %> >
+                               ng-mouseleave='hideTravel+($event); slideTravelDashboard($event)' ".html_safe unless travel.completed? %> >
 
 
                       <% if travel.taken? %>
 
-                        <div class="performer-thumb">
+                        <div class="performer">
+
                           <%= render "users/small", locals: { user: travel.performer } %>
+
                         </div>
 
                       <% end -%>
