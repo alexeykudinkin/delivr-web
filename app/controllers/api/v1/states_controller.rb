@@ -10,14 +10,38 @@ module Api
       #
       skip_before_action :verify_authenticity_token, only: [ :activate, :deactivate ]
 
+      # "Activates" courier, making him ready to get notifications and observe
+      # new travels
+      #
+      # POST /activate
       def activate
         r = current_user.active!
         respond_with r
       end
 
+      # "Deactivates" courier detaching him from notifications (about new travels)
+      # and stops him of observing new travels coming
+      #
+      # POST /deactivate
       def deactivate
         r = current_user.inactive!
         respond_with r
+      end
+
+      # Transitions courier into "arrived" state, notifying receiving counter-part
+      # of an item being ready to be picked-up
+      #
+      # POST /arrive
+      def arrive
+        raise "Implement me!"
+      end
+
+      # Transitions courier into "enroute" state, directing him to notify on a regular basis
+      # of the travelling progress
+      #
+      # POST /enroute
+      def enroute
+        raise "Implement me!"
       end
 
       private
