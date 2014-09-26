@@ -13,15 +13,17 @@ trackingServiceModule.controller("TrackingServiceController", [ "$document", "$s
 
 
   class TrackingServiceControllerModel
-    constructor: (target, path) ->
+    constructor: (courier, travel, path) ->
       # the current user
 #      @email = ko.observable()
 
       # FIXME
       @id = "THISISUNIQUECLIENTID"
 
-      @target = target
-      @path   = path
+      @courier  = courier
+      @travel   = travel
+
+      @path     = path
 
       # Contains a message to say that we're either connecting or reconnecting
 #      @connecting   = $scope.connecting
@@ -78,7 +80,7 @@ trackingServiceModule.controller("TrackingServiceController", [ "$document", "$s
         console.log("Connected!")
 
         if @ws.readyState == 1 # OPEN
-          @dispatchFakeCourier(@target, @path, @ws)
+          @dispatchFakeCourier(@courier, @travel, @path, @ws)
           @subscribe()
 
         console.log("[WS:]", @ws)
@@ -141,13 +143,13 @@ trackingServiceModule.controller("TrackingServiceController", [ "$document", "$s
         @subscription = null
       else
 #        @subscription = $("[data-bot]").data()["bot"]
-        @subscribe0(@target)
-        @subscription = @target
+        @subscribe0(@courier)
+        @subscription = @courier
 
-    dispatchFakeCourier: (courier, path, ws) ->
+    dispatchFakeCourier: (courier, travel, path, ws) ->
       dispatch =
         action: "dispatch",
-        id:     "#{courier}",
+        id:     "#{courier}:#{travel}",
         path:
           type:         "LineString",
           coordinates:  path.map((ll) -> [ ll.lng(), ll.lat() ])
@@ -156,13 +158,13 @@ trackingServiceModule.controller("TrackingServiceController", [ "$document", "$s
 
       console.log "Dispatched!"
 
-  $scope.track = (courier) ->
-    new TrackingServiceControllerModel(courier, null)
+  $scope.track = (courier, travel) ->
+    new TrackingServiceControllerModel(courier, travel, null)
 
-  $scope.fakeTrack = (courier, poly) ->
+  $scope.fakeTrack = (courier, travel, poly) ->
     # FIXME: Abstract all geo- harness
     path = google.maps.geometry.encoding.decodePath(poly)
-    new TrackingServiceControllerModel(courier, path)
+    new TrackingServiceControllerModel(courier, travel, path)
 
   return
 
