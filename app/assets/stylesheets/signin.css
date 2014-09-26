@@ -3,6 +3,11 @@
     max-width: 250pt;
     padding: 15pt;
     margin: 15pt auto;
+    border-radius: 3px;
+    box-shadow: 0 0 2px rgba(0,0,0,0.4), 0 3px 5px rgba(0,0,0,0.3);
+    -webkit-box-shadow: 0 0 2px rgba(0,0,0,0.4), 0 3px 5px rgba(0,0,0,0.3);
+    -moz-box-shadow: 0 0 2px rgba(0,0,0,0.4), 0 3px 5px rgba(0,0,0,0.3);
+    -o-box-shadow: 0 0 2px rgba(0,0,0,0.4), 0 3px 5px rgba(0,0,0,0.3);
 }
 
 .form-signin .form-signin-heading,
