@@ -395,7 +395,7 @@
 
             $scope.registerClickerAndAutoComplete = function (target, $event) {
                 $scope.tryBindTracker(target);
-                $scope.tryBindAutoComplete(target, $event.target);
+                $scope.tryBindAutoComplete(target, $event.currentTarget);
                 $scope.$activeTracker = target.$trackingService;
             };
 
@@ -850,7 +850,7 @@
 
                 // FIXME: ASAP
 
-                var travelDOM = $($event.target).closest("div .travel");
+                var travelDOM = $($event.currentTarget).closest("div .travel");
 
                 var origin = new Coordinates($("div #origin", travelDOM).data("coordinates")).toLatLng();
                 var destinations =
@@ -890,7 +890,7 @@
             // FIXME: Replace with native Angular animation
 
             $scope.slideTravelDashboard = function ($event) {
-                var travelDOM = $($event.target).closest("div .travel");
+                var travelDOM = $($event.currentTarget).closest("div .travel");
 
                 $(".travel-dashboard", travelDOM)
                     .stop(true, true)
@@ -901,7 +901,7 @@
             // And travel's items
 
             $scope.slideItemsList = function ($event) {
-                var travelDOM = $($event.target).closest("div .destination");
+                var travelDOM = $($event.currentTarget).closest("div .destination");
 
                 $(".destination-items-list", travelDOM)
                     .stop(true, true)

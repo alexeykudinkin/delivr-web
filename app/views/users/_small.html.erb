@@ -1,4 +1,3 @@
-
 <style type="text/css">
 
   .user-details {
@@ -8,12 +7,17 @@
     margin: auto;
   }
 
-  .user-details .user-image {
-    /*margin-top: -50pt;*/
+  .user-details .user-info-block {
+    width: 100%;
+    /*z-index: 0;*/
+    padding-top: 1px;
+  }
+
+  .user-info-block .user-image {
     position: relative;
-    z-index: 1;
     width: 100%;
     text-align: center;
+    z-index: 101;
   }
 
   .user-image img {
@@ -28,100 +32,69 @@
     box-shadow: 0 1px 2px rgba(0, 0, 32, .5);
   }
 
-  .user-details .user-info-block {
-    width: 100%;
-    z-index: 0;
-    padding-top: 1px;
+  .user-info-block .popover-wrapper {
+    z-index: 1
   }
 
-  /*.user-details .user-info-block:hover {*/
-    /*background: rgb(255, 255, 255);*/
-    /*-webkit-box-shadow: 0 0 5px rgba(0, 0, 32, .5);*/
-    /*-moz-box-shadow: 0 0 5px rgba(0, 0, 32, .5);*/
-    /*box-shadow: 0 0 5px rgba(0, 0, 32, .5);*/
-  /*}*/
+  .user-info-panel-small {
+    position: absolute;
+    height: 50pt;
+    width: 200pt;
 
-  .user-info-block .user-info-heading {
+    top: -5pt;
+    left: -5pt;
+
+    padding-left: 50pt;
+
+    border-radius: 25pt 2pt 2pt 25pt;
+
+    display: none;
+
+    background: rgb(255, 255, 255);
+    -webkit-box-shadow: 0 0 5px rgba(0, 0, 32, .5);
+    -moz-box-shadow: 0 0 5px rgba(0, 0, 32, .5);
+    -o-box-shadow: 0 0 5px rgba(0, 0, 32, .5);
+    box-shadow: 0 0 5px rgba(0, 0, 32, .5);
+  }
+
+  .user-info-panel-small .user-info-heading {
     width: 100%;
     text-align: center;
-    margin: 10px 0 0;
+    margin: 5pt 0 5pt 0;
   }
 
   .user-info-heading h3 {
-    margin-top: 0;
     font-weight: 200;
-  }
-
-  .user-info-block .navigation {
-    width: 100%;
     margin: 0;
-    padding: 0;
-    list-style: none;
-    border-bottom: 1px solid #428BCA;
-    border-top: 1px solid #428BCA;
+  }
+
+  .user-info-panel-small .user-info-body {
+    padding-bottom: 5pt;
     text-align: center;
-  }
-
-  /*.navigation li {*/
-    /*display: inline-block;*/
-    /*margin: 0;*/
-    /*padding: 15pt 20pt;*/
-  /*}*/
-
-  /*.navigation li .active a {*/
-    /*background: #428BCA;*/
-    /*color: #fff;*/
-  /*}*/
-
-  .user-info-block .user-info-body {
-    padding: 5%;
-    width: 100%;
-  }
-
-  .user-info-body .tab-content > .active {
-    min-height: 20pt;
-    width: 100%;
-    text-align: center;
-  }
-
-  .user-info-body .tab-content h4 {
-    width: 100%;
-    margin: 10px 0;
-    /*color: #333;*/
   }
 
   .user-details {
     opacity: 1;
   }
 
-  .user-panel-small {
-    position: absolute;
-    z-index: 100;
-    background: rgb(255, 255, 255);
-    -webkit-box-shadow: 0 0 5px rgba(0, 0, 32, .5);
-    -moz-box-shadow: 0 0 5px rgba(0, 0, 32, .5);
-    box-shadow: 0 0 5px rgba(0, 0, 32, .5);
-  }
-
-  .user-panel-small.user-info-block {
-    border-radius: 3px;
-  }
 </style>
 
-<% user = locals[:user] -%>
+<%  user    = locals[:user]
+    default = "http://en.gravatar.com/userimage/47185846/e5eebf3b44330eeb6c056ff7e043401c.jpg?size=75" -%>
 
 <div class="user-details">
 
-  <div class="user-info-block">
+  <div class="popover-wrapper">
 
-    <div id="user-thumb" data-toggle="popover" rel="popover">
-      <div class="user-image">
-        <img src="http://en.gravatar.com/userimage/47185846/e5eebf3b44330eeb6c056ff7e043401c.jpg?size=75" alt="Kudinkin Alexey" title="Kudinkin Alexey" class="img-circle"/>
+    <div class="user-info-block">
+
+      <div id="user-thumbnail">
+        <div class="user-image">
+          <img <%= "src=\"#{default}\" alt=\"#{user.name}\" title=\"#{user.name}\"".html_safe %> class="img-circle"/>
+        </div>
       </div>
-    </div>
 
-    <div class="popover user-panel-small-wrapper" role="tooltip">
-      <div class="popover-content user-panel-small user-info-block" style="width: 200px">
+      <div class="user-info-panel-small">
 
         <div class="user-info-heading">
           <h3><%= user.name %></h3>
@@ -136,6 +109,7 @@
         </div>
 
       </div>
+
     </div>
 
   </div>
@@ -145,14 +119,52 @@
 <script type="text/javascript">
 
   $(document).ready(function() {
-    $("#user-thumb").popover({
-      html: true,
-      trigger: 'hover',
-      container: 'body',
-      placement: 'bottom',
-      content: function() { return "G"; },
-      template: $(".user-panel-small-wrapper").html()
-    });
+    var wrapper, userDetails, userThumbnail, userInfoPanel;
+
+    function fIn() {
+
+      userThumbnail = $(this);
+      wrapper       = userThumbnail.closest(".popover-wrapper");
+      userDetails   = wrapper.closest(".user-details");
+
+      var userDetailsOffset = wrapper.offset();
+
+      // Rebind it at 'body' level
+      $(".content").append(wrapper);
+
+      wrapper.css({
+        position:   "absolute",
+        top:        userDetailsOffset.top,
+        left:       userDetailsOffset.left,
+        'z-index':  100
+      });
+
+      // Make user-panel visible
+      userInfoPanel = userThumbnail.next(".user-info-panel-small");
+
+      userInfoPanel.css({
+        display: "block"
+      });
+    }
+
+    function fOut() {
+
+      // Make user-panel invisible (again)
+      userInfoPanel.css({
+        display: "none"
+      });
+
+      userDetails.append(wrapper);
+
+      wrapper.css({
+        position:   "static",
+        top:        "auto",
+        left:       "auto",
+        'z-index':  "auto"
+      });
+    }
+
+    $("#user-thumbnail").hover(fIn, fOut);
   });
 
 </script>
