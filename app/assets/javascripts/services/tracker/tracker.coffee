@@ -129,10 +129,10 @@ trackingServiceModule.controller("TrackingServiceController", [ "$document", "$s
 #        @gps(null)
 #        @mockGps(new MockGps(@ws))
 
-    subscribe0: (t) ->
+    subscribe0: (target) ->
       action =
         action:   "subscribe",
-        targets:  [ "#{t}" ]
+        targets:  [ "#{target}" ]
 
       console.log action
 
@@ -143,8 +143,8 @@ trackingServiceModule.controller("TrackingServiceController", [ "$document", "$s
         @subscription = null
       else
 #        @subscription = $("[data-bot]").data()["bot"]
-        @subscribe0(@courier)
-        @subscription = @courier
+        @subscription = "#{@courier}:#{@travel}"
+        @subscribe0(@subscription)
 
     dispatchFakeCourier: (courier, travel, path, ws) ->
       dispatch =

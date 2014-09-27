@@ -74,7 +74,7 @@ trackingMapOverlay.factory "TrackingMapOverlay", [ "TrackingMarker", (Marker) ->
           @preZoomMarkers[id] = @markers[id]
         @markers = {}
         # Tell the server about our new viewing area
-        @updatePosition()
+#        @updatePosition()
 
 
       #@map.on "moveend", =>
