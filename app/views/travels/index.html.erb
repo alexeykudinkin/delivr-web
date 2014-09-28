@@ -8,13 +8,25 @@
       overflow-y: scroll;
 
       padding: 0 15pt;
-      margin-top: 20pt;
+      /*margin-top: 20pt;*/
 
       box-sizing: border-box;
 
       background: none;
       border:     none;
       box-shadow: none;
+    }
+
+    .travels .list-group {
+      margin-bottom: 0; /* override */
+    }
+
+    .travels #destinations.list-group {
+      margin-bottom: 10pt;
+    }
+
+    .travels.panel {
+      margin-bottom: 0;
     }
 
     .travels-inner {
@@ -27,10 +39,6 @@
       -moz-box-shadow: 0 0 5pt rgba(0, 0, 0, .4);
       -o-box-shadow: 0 0 5pt rgba(0, 0, 0, .4);
       box-shadow: 0 0 5pt rgba(0, 0, 0, .4);
-    }
-
-    .travels .list-group {
-      margin-bottom: 0; /* override */
     }
 
     .travel-dashboard {
