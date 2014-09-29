@@ -115,7 +115,7 @@
 
                     <div class="travel list-group-item"
                           <%= "ng-mouseenter='showTravel($event); slideTravelDashboard($event)'
-                               ng-mouseleave='hideTravel+($event); slideTravelDashboard($event)' ".html_safe unless travel.completed? %> >
+                               ng-mouseleave='hideTravel($event); slideTravelDashboard($event)' ".html_safe unless travel.completed? %> >
 
 
                       <% if travel.taken? %>

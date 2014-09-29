@@ -4,7 +4,12 @@
     position: relative;
     width: 40pt;
     height: 40pt;
-    margin: auto;
+    /*  Unfortunately, this isn't an option since user may move the cursor at
+        the rather good pace slipping through the "safety-zone" */
+    /*padding-top: 10pt;*/
+    /*padding-right: 10pt;*/
+    /*padding-bottom: 10pt;*/
+    /*box-sizing: content-box;*/
   }
 
   .user-details .user-info-block {
@@ -119,23 +124,25 @@
 <script type="text/javascript">
 
   $(document).ready(function() {
-    var wrapper, userDetails, userThumbnail, userInfoPanel;
+    var popWrapper, userDetails, userThumbnail, userInfoPanel;
 
     function fIn() {
 
-      userThumbnail = $(this);
-      wrapper       = userThumbnail.closest(".popover-wrapper");
-      userDetails   = wrapper.closest(".user-details");
+      console.log("fIn");
 
-      var userDetailsOffset = wrapper.offset();
+      userThumbnail = $(this);
+      userDetails   = userThumbnail .closest(".user-details");
+      popWrapper    = userDetails   .children(".popover-wrapper");
+
+      var wrapperOffset = popWrapper.offset();
 
       // Rebind it at 'body' level
-      $(".content").append(wrapper);
+      $(".content").append(popWrapper);
 
-      wrapper.css({
+      popWrapper.css({
         position:   "absolute",
-        top:        userDetailsOffset.top,
-        left:       userDetailsOffset.left,
+        top:        wrapperOffset.top,
+        left:       wrapperOffset.left,
         'z-index':  100
       });
 
@@ -145,26 +152,40 @@
       userInfoPanel.css({
         display: "block"
       });
+
+      // Late binding to prevent blinking, when
+      // popover is actually re-binded to the up-level div
+      userThumbnail.on('mouseleave', fOut);
     }
 
-    function fOut() {
+    function fOut(event) {
+
+      console.log("fOut");
 
       // Make user-panel invisible (again)
       userInfoPanel.css({
         display: "none"
       });
 
-      userDetails.append(wrapper);
+      userDetails.append(popWrapper);
 
-      wrapper.css({
+      popWrapper.css({
         position:   "static",
         top:        "auto",
         left:       "auto",
         'z-index':  "auto"
       });
+
+      userThumbnail.off('mouseleave', fOut);
+
+      // Ok, we just re-deliver the event, since popover floating
+      // above the panel and "shielding" it from any mouse events
+      userDetails.trigger('mouseleave');
     }
 
-    $("#user-thumbnail").hover(fIn, fOut);
+    $("#user-thumbnail")
+      .on('mouseenter', fIn)
+      .on('mouseleave', fOut);
   });
 
 </script>
