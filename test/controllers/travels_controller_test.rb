@@ -82,7 +82,9 @@ class TravelsControllerTest < ControllerTestBase
                     duration: 2.hour,
                     order:    "1",
                     polyline: "THEREWOULDBEAPOLYLINE"
-                  }
+                  },
+
+                  performer: @akudinkin.id
                 }
               },
               session(:akudinkin)

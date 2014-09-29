@@ -93,6 +93,7 @@ class TravelsController < ApplicationController
   # POST /travels
   def create
     attrs   = whitelist(params, :create).merge customer: current_user.becomes(Users::Customer)
+    pid     = attrs.delete(:performer)
     dattrs  = attrs.delete(:destinations_attributes)
 
     @travel = Travels::Travel.new(attrs)
@@ -108,7 +109,10 @@ class TravelsController < ApplicationController
       end if iattrs
     end
 
-    # @travel.customer = current_user.becomes(Users::Customer)
+    # If the form supplied performer's id, assign
+    if pid
+      @travel.take(Users::User.find(pid).becomes(Users::Performer))
+    end
 
     respond_to do |format|
       if @travel.save
@@ -242,7 +246,9 @@ class TravelsController < ApplicationController
                         items_attributes:     [ :name, :description, :weight ]
                       } ]
                   },
-                  { route_attributes:         [ :cost, :length, :duration, :order, :polyline ] }
+                  { route_attributes:         [ :cost, :length, :duration, :order, :polyline ] },
+
+                  :performer
                 )
 
         when :take then {

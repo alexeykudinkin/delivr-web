@@ -79,10 +79,16 @@
         'tspSolver'
     ]);
 
+
+    //
+    // Configure
+    //
+
     delivrApp.config(['$locationProvider', function ($locationProvider) {
         // Configure HTML5 to get links working on JSFiddle
         $locationProvider.html5Mode(true);
     }]);
+
 
     //
     // Services
@@ -122,15 +128,15 @@
 
            var map = scope.map = new google.maps.Map(canvas, mapOptions);
            this.renderingService.setMap(map);
-        }
+        };
 
 	RenderingService.prototype.setDirections = function (directions) {
             this.renderingService.setDirections(directions);
-        }
+        };
 
         RenderingService.prototype.setRouteIndex = function (index) {
             this.renderingService.setRouteIndex(index);
-        }
+        };
 
         return new RenderingService();
     }]);
@@ -157,7 +163,8 @@
             });
         }
 
-	var storageService = {
+        var sealed = false;
+        var storageService = {
             model: {
                 origin_attributes:          {},
                 destinations_attributes:    {},
@@ -168,14 +175,20 @@
 
                 $serialize: function () {
                     return { travel: this.$bare() };
+                },
+
+                $sealed: function () {
+                    return sealed;
                 }
             },
 
-            save: function () {
+            seal: function () {
+                sealed = true;
                 localStorage.travelForm = angular.toJson(storageService.model.$bare());
             },
 
-            restore: function () {
+            unseal: function () {
+                sealed = false;
                 if (localStorage.travelForm)
                     update(angular.fromJson(localStorage.travelForm), this.model);
             }
@@ -285,7 +298,7 @@
 
     delivrApp.controller('TravelFormController', ['$window', '$document', '$rootScope', '$scope', 'Geolocation', 'Geocoder', 'Direction', 'RenderingService', 'TravelFormStorageService', 'DPTspSolver', 
         function ($window, $document, $rootScope, $scope, Geolocation, Geocoder, Direction, RenderingService, TravelFormStorageService, TspSolver) {
-            $scope.accounted    = false;
+
             $scope.travel       = TravelFormStorageService;
             $scope.settings     = {
                 timepicker: {
@@ -676,7 +689,9 @@
                 doReqBy($scope.travel.model, callback);
             };
 
-            $scope.selected = function (route) {
+            // Route selection harness
+
+            $scope.selectedRoute = function (route) {
                 return $scope.travel.model.route_attributes === route;
             };
 
@@ -685,6 +700,16 @@
 
                 // FIXME: Move out non-idempotent service out of services
                 RenderingService.setRouteIndex(route.$index);
+            };
+
+            // Courier selection harness
+
+            $scope.selectedCourier = function (courier) {
+                return $scope.travel.model.performer === courier;
+            };
+
+            $scope.selectCourier = function (courier) {
+                $scope.travel.model.performer = courier
             };
 
             ///////////////////////////////////////////////////////////////////////////////////////////
@@ -771,10 +796,17 @@
                 return delivr.util.us.toMinutes(this.duration, 0);
             };
 
-            $scope.forth = function () {
-                TravelFormStorageService.save();
 
-                $scope.accounted = true;
+            //
+            // Form tranisitions
+            //
+
+            $scope.forth = function () {
+
+                console.log("Before sealing... ");
+                console.log($scope.travel.model.$sealed());
+
+                TravelFormStorageService.seal();
 
                 $scope.composeTravelRoutes1(function (result) {
 
@@ -784,7 +816,7 @@
 
                         var items =
                             delivr.util.values($scope.travel.model.destinations_attributes)
-                                .map(function (d) { return delivr.util.values(d.items_attributes); })
+                                .map(function (d) { return delivr.util.values(d.items_attributes); });
 //                                .flatten();
 
                         items.flatten();
@@ -801,9 +833,8 @@
             };
 
             $scope.back = function () {
-                TravelFormStorageService.restore();
 
-                $scope.accounted = false;
+                TravelFormStorageService.unseal();
 
                 $scope.travel = TravelFormStorageService;
             };
@@ -846,6 +877,8 @@
 
             $scope.showTravel = function ($event) {
 
+                console.log("showTravel");
+
                 var map = $rootScope.map;
 
                 // FIXME: ASAP
@@ -877,6 +910,7 @@
             };
 
             $scope.hideTravel = function ($event) {
+                console.log("hideTravel");
                 originMarker.setMap(null);
                 destinationMarkers.forEach(function (marker) {
                     marker.setMap(null);

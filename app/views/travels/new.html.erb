@@ -75,6 +75,115 @@
       color: red;
     }
 
+
+    /* Courier assignment panel */
+
+    .panel-x {
+      position: relative;
+      margin-bottom: 15pt;
+      border-radius: 5pt;
+      border: solid 1px rgba(0, 0, 0, .3);
+      -webkit-box-shadow: 0 0 3px rgba(0, 0, 0, .3);
+      -moz-box-shadow: 0 0 3px rgba(0, 0, 0, .3);
+      -o-box-shadow: 0 0 3px rgba(0, 0, 0, .3);
+      box-shadow: 0 0 3px rgba(0, 0, 0, .3);
+      background-clip: border-box;
+      background-origin: padding-box;
+    }
+
+    .panel-x .header,
+    .panel-x .footer {
+      position: relative;
+      height: 10pt;
+      opacity: 1;
+      /*background-color: rgb(242, 246, 249);*/
+      background-color: white;
+      z-index: 2;
+    }
+
+    .panel-x .header {
+      border-top-left-radius: 5pt;
+      border-top-right-radius: 5pt;
+      -webkit-box-shadow: 0 1px 2px rgba(0, 0, 32, .3);
+      -moz-box-shadow: 0 1px 2px rgba(0, 0, 32, .3);
+      -o-box-shadow: 0 1px 2px rgba(0, 0, 32, .3);
+      box-shadow: 0 1px 2px rgba(0, 0, 32, .3);
+    }
+
+    .panel-x .footer {
+      border-bottom-left-radius: 5pt;
+      border-bottom-right-radius: 5pt;
+      -webkit-box-shadow: 0 -1px 2px rgba(0, 0, 32, .3);
+      -moz-box-shadow: 0 -1px 2px rgba(0, 0, 32, .3);
+      -o-box-shadow: 0 -1px 2px rgba(0, 0, 32, .3);
+      box-shadow: 0 -1px 2px rgba(0, 0, 32, .3);
+    }
+
+    .couriers {
+      position: relative;
+      z-index: 0;
+      background: linear-gradient(rgb(255, 255, 255), rgba(250, 253, 255, 1)) scroll;
+    }
+
+    .couriers.list-group {
+      margin-bottom: 0;
+    }
+
+    .couriers .list-group-item {
+      border: none;
+    }
+
+    .couriers hr {
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+
+    .courier {
+      /*border: dashed 1px blue;*/
+      /*width: 220pt;*/
+      padding: 3% 15pt;
+      opacity: 1;
+      background: none;
+    }
+
+    .courier .image {
+      /*border: dashed 1px red;*/
+    }
+
+    .courier .image,
+    .courier .image .img-circle {
+      width: 50pt;
+      height: 50pt;
+    }
+
+    .courier .image img {
+      -webkit-box-shadow: 0 1px 2px rgba(0, 0, 32, .5);
+      -moz-box-shadow: 0 1px 2px rgba(0, 0, 32, .5);
+      -o-box-shadow: 0 1px 2px rgba(0, 0, 32, .5);
+      box-shadow: 0 1px 2px rgba(0, 0, 32, .5);
+      border: 1px solid #808080;
+    }
+
+    .courier .image,
+    .courier .bio {
+      float: left;
+    }
+
+    .courier .bio {
+      /*margin-top: 2%;*/
+      margin-left: 5%;
+      padding: 2% 5%;
+      border: 1px dashed lightgrey;
+      border-radius: 2pt;
+      box-shadow: 0 0 3px rgba(0, 0, 32, .3);
+      background: white;
+    }
+
+    .courier .bio .name {
+      font-size: 16pt;
+    }
+
+
   </style>
 
   <div class="map-overlay col-sm-4">
@@ -87,7 +196,10 @@
 
           <%= form_for(@travel, html: { class: "form-horizontal", role: "form", name: "travelForm" }) do |form| %>
 
-            <div class="col-md-12 col-sm-12" ng-switch on="accounted">
+            <div class="col-md-12 col-sm-12" ng-switch on="travel.model.$sealed()">
+            <!--<div class="col-md-12 col-sm-12" ng-switch on="true">-->
+
+              <!-- Travel form -->
 
               <div class="form-body" ng-switch-default>
 
@@ -119,32 +231,81 @@
 
               </div>
 
-              <div id="travel-summary" ng-switch-when="true">
+              <!-- Couriers assignment & Travel summary -->
+
+              <div ng-switch-when="true">
+
+                <!-- Summary -->
 
                 <div class="list-group form-group">
 
-                  <div class="list-group-item" ng-class="{ active: selected(route) }" ng-click="selectRoute(route)" ng-init="selectRoute(<%= "#{ng_model_routes}" %>[0])" ng-repeat="route in <%= "#{ng_model_routes}" %>">
+                  <div class="list-group-item" ng-class="{ active: selectedRoute(route) }" ng-click="selectRoute(route)" ng-init="selectRoute(<%= "#{ng_model_routes}" %>[0])" ng-repeat="route in <%= "#{ng_model_routes}" %>">
+
                     <h4 class="list-group-item-heading"> {{ route.cost }} &#8381; </h4>
                     <p class="list-group-item-text"> {{ route.inKilo() }} km / {{ route.inMinutes() }} min </p>
+
                   </div>
 
                 </div>
 
+                <!-- Assignment -->
+
+                <div class="panel-x">
+
+                  <div class="header"></div>
+
+                  <div class="couriers list-group">
+
+                    <% Users::User.all.each do |user| %>
+
+                      <div class="courier list-group-item clearfix" ng-class="{ active: selectedCourier(<%= user.id %>) }" ng-click="selectCourier(<%= user.id %>)">
+
+                        <div class="image">
+                          <img src="http://en.gravatar.com/userimage/47185846/e5eebf3b44330eeb6c056ff7e043401c.jpg?size=75" alt="<%= user.name %>" title="<%= user.name %>" class="img-circle"/>
+                        </div>
+
+                        <div class="bio">
+
+                          <div class="name">
+                            <%= user.name %>
+                          </div>
+
+                          <div class="phone">
+                            <%= user.phone %>
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                      <hr>
+
+                    <% end %>
+
+                  </div>
+
+                  <div class="footer"></div>
+
+                </div>
+
+                <!-- Submit -->
+
                 <div class="form-group">
                   <button type="button" class="btn btn-primary" ng-click="submitTravel()"><%= t :travels_new_form_submit_button %></button>
                 </div>
+
               </div>
 
               <div class="form-group">
 
-                <button type="button" class="btn" ng-click="back()"><%= t :travels_new_form_back_button %></button>
-                <button type="button" class="btn btn-primary" ng-click="forth()" ng-if="!accounted" ng-disabled="travelForm.$invalid"><%= t :travles_new_form_proceed_button %></button>
+                <button type="button" class="btn"             ng-click="back()"   ng-if="travel.model.$sealed()"><%= t :travels_new_form_back_button %></button>
+                <button type="button" class="btn btn-primary" ng-click="forth()"  ng-if="!travel.model.$sealed()" ng-disabled="travelForm.$invalid"><%= t :travles_new_form_proceed_button %></button>
 
               </div>
 
               <!--<div class="form-group">-->
-                <!--<button type="button" class="btn" ng-click="$debugLog(travelForm)">DUMP FORM</button>-->
-                <!--<button type="button" class="btn" ng-click="$debugLog(travel.model)">DUMP MODEL</button>-->
+              <!--<button type="button" class="btn" ng-click="$debugLog(travelForm)">DUMP FORM</button>-->
+              <!--<button type="button" class="btn" ng-click="$debugLog(travel.model)">DUMP MODEL</button>-->
               <!--</div>-->
 
             </div>
@@ -167,7 +328,7 @@
 
         <!--<div class="modal-header">-->
           <!--<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>-->
-          <!--<h3 class="modal-title" id="helpModalLabel"><%= t :help_new_travel %></h3>-->
+          <!--<h3 class="modal-title" id="helpModalLabel"><%# t :help_new_travel %></h3>-->
         <!--</div>-->
 
         <div class="modal-body">
