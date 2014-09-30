@@ -86,6 +86,9 @@ Shipper::Application.routes.draw do
       # Allows to query status of a particular travel
       get :status
 
+      # TODO
+      get :track
+
       get :show, to: "travels#status"
 
     end
@@ -132,8 +135,15 @@ Shipper::Application.routes.draw do
 
       scope :state do
 
+        # Toggles current courier's state between active/inactive
         post :activate,   to: "states#activate"
         post :deactivate, to: "states#deactivate"
+
+        # Transitions courier to 'arriving at a place' state
+        #post :arrive,     to: "states#arrive"
+
+        # Transitions courier to `heading enroute` state
+        #post :enroute,    to: "states#enroute"
 
       end
 

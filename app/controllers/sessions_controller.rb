@@ -78,7 +78,7 @@ class SessionsController < ApplicationController
         end
 
         respond_to do |format|
-          format.html { as_json token }
+          format.html { render status: 200, json: to_json(token) }
           # format.json { as_json token }
         end
       end
@@ -91,10 +91,14 @@ class SessionsController < ApplicationController
 
     module JSONHelpers
 
-      def as_json(token)
-        render  json: { token: token.value, created: token.created_at },
-                status: 200
+      def to_json(token)
+        {
+          user:     token.owner.id,
+          token:    token.value,
+          created:  token.created_at
+        }
       end
+
     end
 
     include JSONHelpers

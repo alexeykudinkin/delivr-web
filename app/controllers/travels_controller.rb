@@ -225,6 +225,22 @@ class TravelsController < ApplicationController
     end
   end
 
+  #
+  # TODO:
+  # This is PoC and should be embedded into one of the actions above
+  def track
+    sanitized = whitelist(params, :status)
+
+    @travel = Travels::Travel.find(sanitized[:id])
+
+    respond_to do |format|
+      if @travel.taken?
+        format.html # track.html.erb
+      else
+        format.html { redirect_to status_travel_path(@travel), alert: "You could track only taken orders!"; }
+      end
+    end
+  end
 
   private
 

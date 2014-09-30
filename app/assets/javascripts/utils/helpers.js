@@ -15,4 +15,3 @@ Coordinates.prototype.toLatLng = function () {
 
     return new google.maps.LatLng(r[1], r[2]);
 };
-

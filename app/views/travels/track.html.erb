@@ -1,0 +1,9 @@
+
+<% @travels = [ @travel ]
+   content_for :map_overlay do %>
+
+  <%= render template: "travels/index" %>
+
+  <div ng-controller="TrackingServiceController" ng-init="fakeTrack(<%= @travel.performer.id %>, <%= @travel.id %>, '<%= @travel.route.polyline %> ')"></div>
+
+<% end %>

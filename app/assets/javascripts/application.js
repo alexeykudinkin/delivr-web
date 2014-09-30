@@ -22,6 +22,23 @@
 
 //= require_tree .
 
+(function () {
+    "use strict";
+
+    //
+    // Modules
+    //
+
+    var delivrApp = angular.module('delivr', [
+        'ngAnimate',
+        'ngMessages',
+        'ui.bootstrap',
+        'environmentServices',
+        'tspSolver',
+        'TrackingService'
+    ]);
+})();
+
 
 (function ($) {
 
@@ -66,23 +83,7 @@
 
     var config = new Config();
 
-
-    //
-    // Modules
-    //
-
-    var delivrApp = angular.module('delivr', [
-        'ngAnimate',
-        'ngMessages',
-        'ui.bootstrap',
-        'environmentServices',
-        'tspSolver'
-    ]);
-
-
-    //
-    // Configure
-    //
+    var delivrApp = angular.module('delivr');
 
     delivrApp.config(['$locationProvider', function ($locationProvider) {
         // Configure HTML5 to get links working on JSFiddle
@@ -94,12 +95,12 @@
     // Services
     //
 
-    delivrApp.factory('RenderingService', [function () {
-        function RenderingService() {
-            this.renderingService = new google.maps.DirectionsRenderer();
+    delivrApp.factory('MapService', [ 'RenderingService', function (renderingService) {
+        function MapService() {
+            this.map = undefined;
         }
 
-        RenderingService.prototype.bind = function (scope, canvas, options) {
+        MapService.prototype.bind = function (scope, canvas, options) {
             if (!canvas)
                 throw "Canvas supplied may not be 'undefined'";
 
@@ -124,13 +125,30 @@
                     style: google.maps.ZoomControlStyle.LARGE,
                     position: google.maps.ControlPosition.RIGHT_TOP
                 }
-           }, options);
+            }, options);
 
-           var map = scope.map = new google.maps.Map(canvas, mapOptions);
-           this.renderingService.setMap(map);
+            this.map = scope.map = new google.maps.Map(canvas, mapOptions);
+
+            renderingService.bindTo(this.map);
         };
 
-	RenderingService.prototype.setDirections = function (directions) {
+        MapService.prototype.getMap = function () {
+            return this.map;
+        }
+
+        return new MapService();
+    }]);
+
+    delivrApp.factory('RenderingService', [ function () {
+        function RenderingService() {
+            this.renderingService = new google.maps.DirectionsRenderer();
+        }
+
+        RenderingService.prototype.bindTo = function (map) {
+            this.renderingService.setMap(map);
+        };
+
+        RenderingService.prototype.setDirections = function (directions) {
             this.renderingService.setDirections(directions);
         };
 
@@ -202,8 +220,8 @@
     // Directives
     //
 
-    delivrApp.directive('googleMap', ['$window', '$rootScope', 'RenderingService',
-        function ($window, $rootScope, RenderingService) {
+    delivrApp.directive('googleMap', ['$window', '$rootScope', 'MapService',
+        function ($window, $rootScope, MapService) {
             return {
                 restrict: 'A',
                 scope: { googleMapOptions: '=' },
@@ -269,7 +287,7 @@
                     }
 
                     function initGoogleMaps() {
-                        RenderingService.bind($rootScope, element[0], scope.googleMapOptions || {});
+                        MapService.bind($rootScope, element[0], scope.googleMapOptions || {});
                     }
 
                     if ($window.google && $window.google.maps)
@@ -882,8 +900,9 @@
                 var map = $rootScope.map;
 
                 // FIXME: ASAP
-
                 var travelDOM = $($event.currentTarget).closest("div .travel");
+
+                var travelDOM = $($event.target).closest("div .travel");
 
                 var origin = new Coordinates($("div #origin", travelDOM).data("coordinates")).toLatLng();
                 var destinations =
@@ -910,11 +929,12 @@
             };
 
             $scope.hideTravel = function ($event) {
-                console.log("hideTravel");
-                originMarker.setMap(null);
-                destinationMarkers.forEach(function (marker) {
-                    marker.setMap(null);
-                });
+                if (originMarker != null && destinationMarkers != null) {
+                    originMarker.setMap(null);
+                    destinationMarkers.forEach(function (marker) {
+                        marker.setMap(null);
+                    });
+                }
             };
 
             // Dumb sliding animation

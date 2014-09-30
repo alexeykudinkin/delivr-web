@@ -26,4 +26,8 @@ Shipper::Application.configure do
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
   config.assets.debug = true
+
+  # Tracker
+  config.tracker_host = "localhost:9000"
+  config.tracker_url  = "ws://#{config.tracker_host}/downstream/"
 end
