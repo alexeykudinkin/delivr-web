@@ -78,4 +78,8 @@ Shipper::Application.configure do
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
+
+  # Tracker
+  config.tracker_host = "delivr-tracker.herokuapp.com"
+  config.tracker_url  = "wss://#{config.tracker_host}/downstream/"
 end
