@@ -93,7 +93,7 @@
 
     <div class="user-info-block">
 
-      <div id="user-thumbnail">
+      <div class="user-thumbnail">
         <div class="user-image">
           <img <%= "src=\"#{default}\" alt=\"#{user.name}\" title=\"#{user.name}\"".html_safe %> class="img-circle"/>
         </div>
@@ -121,71 +121,3 @@
 
 </div>
 
-<script type="text/javascript">
-
-  $(document).ready(function() {
-    var popWrapper, userDetails, userThumbnail, userInfoPanel;
-
-    function fIn() {
-
-      console.log("fIn");
-
-      userThumbnail = $(this);
-      userDetails   = userThumbnail .closest(".user-details");
-      popWrapper    = userDetails   .children(".popover-wrapper");
-
-      var wrapperOffset = popWrapper.offset();
-
-      // Rebind it at 'body' level
-      $(".content").append(popWrapper);
-
-      popWrapper.css({
-        position:   "absolute",
-        top:        wrapperOffset.top,
-        left:       wrapperOffset.left,
-        'z-index':  100
-      });
-
-      // Make user-panel visible
-      userInfoPanel = userThumbnail.next(".user-info-panel-small");
-
-      userInfoPanel.css({
-        display: "block"
-      });
-
-      // Late binding to prevent blinking, when
-      // popover is actually re-binded to the up-level div
-      userThumbnail.on('mouseleave', fOut);
-    }
-
-    function fOut(event) {
-
-      console.log("fOut");
-
-      // Make user-panel invisible (again)
-      userInfoPanel.css({
-        display: "none"
-      });
-
-      userDetails.append(popWrapper);
-
-      popWrapper.css({
-        position:   "static",
-        top:        "auto",
-        left:       "auto",
-        'z-index':  "auto"
-      });
-
-      userThumbnail.off('mouseleave', fOut);
-
-      // Ok, we just re-deliver the event, since popover floating
-      // above the panel and "shielding" it from any mouse events
-      userDetails.trigger('mouseleave');
-    }
-
-    $("#user-thumbnail")
-      .on('mouseenter', fIn)
-      .on('mouseleave', fOut);
-  });
-
-</script>
