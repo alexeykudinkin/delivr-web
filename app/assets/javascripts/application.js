@@ -902,8 +902,6 @@
                 // FIXME: ASAP
                 var travelDOM = $($event.currentTarget).closest("div .travel");
 
-                var travelDOM = $($event.target).closest("div .travel");
-
                 var origin = new Coordinates($("div #origin", travelDOM).data("coordinates")).toLatLng();
                 var destinations =
                     $("div #destinations > .destination", travelDOM)
