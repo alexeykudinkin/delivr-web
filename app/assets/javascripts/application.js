@@ -761,13 +761,13 @@
             }
 
             function costOf(route) {
-                if (!route.length || !route.$items)
+                if (!route.length || !route.$destinations)
                     return NaN;
 
                 var req = {
                     route: {
                         length: route.length,
-                        items:  route.$items
+                        items:  route.getItems()
                     }
                 };
 
@@ -791,11 +791,11 @@
             }
 
 
-            function Route(items, route, index) {
+            function Route(destinations, route, index) {
                 this.$route     = route;
                 this.$index     = index;
 
-                this.$items     = items;
+                this.$destinations = destinations;
 
                 this.length     = lengthOf(route);
                 this.duration   = durationOf(route);
@@ -805,6 +805,16 @@
 
                 this.polyline   = polylineOf(route);
             }
+
+            Route.prototype.getDestinations = function () {
+                console.log("ACHTUNG!")
+                console.log(this.$destinations);
+                return this.$destinations;
+            };
+
+            Route.prototype.getItems = function () {
+                return this.$destinations.map(function (d) { return delivr.util.values(d.items_attributes); });
+            };
 
             Route.prototype.inKilo = function () {
                 return delivr.util.us.toKilo(this.length, 1);
@@ -816,7 +826,7 @@
 
 
             //
-            // Form tranisitions
+            // Form transitions
             //
 
             $scope.forth = function () {
@@ -832,18 +842,14 @@
 
                         RenderingService.setDirections(result);
 
-                        var items =
-                            delivr.util.values($scope.travel.model.destinations_attributes)
-                                .map(function (d) { return delivr.util.values(d.items_attributes); });
-//                                .flatten();
-
-                        items.flatten();
+                        var destinations =
+                            delivr.util.values($scope.travel.model.destinations_attributes);
 
                         // This is b/c callback would be run out of Angular's scope,
                         // therefore making him oblivious to any such a change
                         $scope.$apply(function () {
                             $scope.travel.model.$routes = result.routes.map(function (route, index) {
-                                return new Route(items, route, index);
+                                return new Route(destinations, route, index);
                             });
                         });
                     }

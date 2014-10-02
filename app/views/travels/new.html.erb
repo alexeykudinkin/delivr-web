@@ -1,7 +1,5 @@
 <!-- Help Modal -->
 
-
-
 <% content_for :map_overlay do %>
 
   <style type="text/css">
@@ -34,9 +32,14 @@
       /*margin-right: -15px;*/
     }
 
-    .form-group-panel .form-group {
+    .form-group-panel .form-group,
+    .panel-x .form-group {
       margin-left: 0;
       margin-right: 0;
+    }
+
+    .panel-x .form-group {
+      margin-bottom: 0;
     }
 
     .form-group-panel .sunken-menu {
@@ -119,6 +122,23 @@
       box-shadow: 0 -1px 2px rgba(0, 0, 32, .3);
     }
 
+    .travels .list-group-item,
+    .couriers .list-group-item {
+      border: none;
+      text-shadow: none;
+    }
+
+    .travels .list-group-item.active,
+    .travels .list-group-item.active:hover,
+    .travels .list-group-item.active:focus,
+
+    .couriers .list-group-item.active,
+    .couriers .list-group-item.active:hover,
+    .couriers .list-group-item.active:focus {
+      text-shadow: none;
+      background: rgba(81, 171, 248, 0.1) none;
+    }
+
     .couriers {
       position: relative;
       z-index: 0;
@@ -127,10 +147,6 @@
 
     .couriers.list-group {
       margin-bottom: 0;
-    }
-
-    .couriers .list-group-item {
-      border: none;
     }
 
     .couriers hr {
@@ -233,16 +249,118 @@
 
               <!-- Couriers assignment & Travel summary -->
 
+            <style type="text/css">
+
+              .travel-summary {
+                width: 200pt;
+                margin-left: auto;
+                margin-right: auto;
+
+                background: linear-gradient(rgb(255, 255, 255), rgba(250, 253, 255, 1)) scroll;
+                box-shadow: 0 0 3px rgba(0, 0, 0, .15);
+                border-radius: 3pt;
+                border: 1px dashed lightgrey;
+              }
+
+              .travel-summary .distance,
+              .travel-summary .destinations,
+              .travel-summary .time {
+                margin-top: 5pt;
+                margin-bottom: 5pt;
+              }
+
+              .distance .h3,
+              .destinations .h3,
+              .time .h2 {
+                font-weight: 100;
+                margin: 0;
+              }
+
+              .distance .h3,
+              .destinations .h3 {
+                font-size: 19pt;
+              }
+
+              .time .h2 {
+                font-size: 25pt;
+              }
+
+              .travel-summary .units {
+                font-size: 11pt;
+              }
+
+              .travel-summary .units,
+              .travel-summary .value {
+                float: left;
+
+                height: 25pt;
+                line-height: 25pt;
+                vertical-align: middle;
+              }
+
+              .travel-summary .time,
+              .travel-summary .left {
+                float: left;
+                padding-left: 10pt;
+              }
+
+              .travel-summary .time {
+                padding-left: 15pt;
+              }
+
+              .travel-summary .time .units,
+              .travel-summary .time .value {
+                height: 60pt;
+                line-height: 60pt;
+                vertical-align: middle;
+              }
+
+              .destinations .value,
+              .destinations .units {
+                padding-left: 5pt;
+              }
+
+              .distance .value,
+              .distance .units {
+                padding-right: 5pt;
+              }
+
+              .time .value,
+              .time .units {
+                padding-right: 5pt;
+              }
+
+            </style>
+
               <div ng-switch-when="true">
 
                 <!-- Summary -->
 
-                <div class="list-group form-group">
+                <div class="panel-x">
 
-                  <div class="list-group-item" ng-class="{ active: selectedRoute(route) }" ng-click="selectRoute(route)" ng-init="selectRoute(<%= "#{ng_model_routes}" %>[0])" ng-repeat="route in <%= "#{ng_model_routes}" %>">
+                  <div class="travels list-group form-group">
 
-                    <h4 class="list-group-item-heading"> {{ route.cost }} &#8381; </h4>
-                    <p class="list-group-item-text"> {{ route.inKilo() }} km / {{ route.inMinutes() }} min </p>
+                    <div class="list-group-item" ng-class="{ active: selectedRoute(route) }" ng-click="selectRoute(route)" ng-init="selectRoute(<%= "#{ng_model_routes}" %>[0])" ng-repeat="route in <%= "#{ng_model_routes}" %>">
+
+                      <div class="travel-summary clearfix">
+
+                        <div class="left">
+                          <div class="distance clearfix">
+                            <div class="value h3">{{ route.inKilo() }}</div> <div class="units">kilometers</div>
+                          </div>
+
+                          <div class="destinations clearfix">
+                            <div class="units">destinations</div> <div class="value h3">{{ route.getDestinations().length }}</div>
+                          </div>
+                        </div>
+
+                        <div class="time">
+                          <div class="value h2">{{ route.inMinutes() }}</div> <div class="units">minutes</div>
+                        </div>
+
+                      </div>
+
+                    </div>
 
                   </div>
 
