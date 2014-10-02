@@ -807,8 +807,6 @@
             }
 
             Route.prototype.getDestinations = function () {
-                console.log("ACHTUNG!")
-                console.log(this.$destinations);
                 return this.$destinations;
             };
 

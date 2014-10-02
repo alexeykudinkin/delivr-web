@@ -28,6 +28,6 @@ Shipper::Application.configure do
   config.assets.debug = true
 
   # Tracker
-  config.tracker_host = "localhost:9000"
-  config.tracker_url  = "ws://#{config.tracker_host}/downstream/"
+  config.tracker_host = "delivr-tracker.herokuapp.com"
+  config.tracker_url  = "wss://#{config.tracker_host}/downstream/"
 end
