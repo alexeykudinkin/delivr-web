@@ -4,7 +4,7 @@
 
   <style type="text/css">
 
-    .new-travel-form {
+    .travel-form {
       max-height: 80vh; /* viewport height dirty hack */
       overflow: auto;
     }
@@ -213,7 +213,7 @@
 
       <div class="panel panel-default">
 
-        <div class="new-travel-form panel-body" ng-controller="TravelFormController">
+        <div class="travel-form panel-body" ng-controller="TravelFormController">
 
           <%= form_for(@travel, html: { class: "form-horizontal", role: "form", name: "travelForm" }) do |form| %>
 
@@ -465,5 +465,31 @@
       </div>
     </div>
   </div>
+
+
+  <script type="text/javascript">
+
+//    $(document).ready(function() {
+//      var popWrapper, userDetails, userThumbnail, userInfoPanel;
+//
+//      function reBind(elem, to) {
+//
+//        var offset = elem.offset();
+//
+//        // Rebind it at 'body' level
+//        $(to).append(elem);
+//
+//        elem.css({
+//          position:   "absolute",
+//          top:        offset.top,
+//          left:       offset.left,
+//          'z-index':  100
+//        });
+//      }
+//
+//      reBind($(".tag-remove"), $(".content"))
+//    });
+
+  </script>
 
 <% end %>
