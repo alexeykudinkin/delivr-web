@@ -6,7 +6,7 @@ class TravelsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [ :take ]
 
 
-  restrict_access :show, :index, :new, :create, :take, :status, :active, :taken
+  restrict_access :show, :index, :new, :create, :take, :status, :active, :taken, :track
 
   # Shows details travel
   #
@@ -229,9 +229,10 @@ class TravelsController < ApplicationController
   # TODO:
   # This is PoC and should be embedded into one of the actions above
   def track
-    sanitized = whitelist(params, :status)
+    sanitized = whitelist(params, :track)
 
-    @travel = Travels::Travel.find(sanitized[:id])
+    @options  = sanitized
+    @travel   = Travels::Travel.find(sanitized[:id])
 
     respond_to do |format|
       if @travel.taken?
@@ -241,6 +242,7 @@ class TravelsController < ApplicationController
       end
     end
   end
+
 
   private
 
@@ -281,8 +283,13 @@ class TravelsController < ApplicationController
         }
 
         when :status then {
-            id: params.require(:id)
-          }
+          id: params.require(:id)
+        }
+
+        when :track then {
+          id:   params.require(:id),
+          mock: params.permit(:mock)
+        }
 
         else
           raise "Unknown action: #{action}!"

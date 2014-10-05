@@ -13,7 +13,7 @@ trackingServiceModule.controller("TrackingServiceController", [ "$document", "$s
 
 
   class TrackingServiceControllerModel
-    constructor: (courier, travel, path) ->
+    constructor: (courier, travel) ->
       # the current user
 #      @email = ko.observable()
 
@@ -23,7 +23,6 @@ trackingServiceModule.controller("TrackingServiceController", [ "$document", "$s
       @courier  = courier
       @travel   = travel
 
-      @path     = path
 
       # Contains a message to say that we're either connecting or reconnecting
 #      @connecting   = $scope.connecting
@@ -80,8 +79,7 @@ trackingServiceModule.controller("TrackingServiceController", [ "$document", "$s
         console.log("Connected!")
 
         if @ws.readyState == 1 # OPEN
-          @dispatchFakeCourier(@courier, @travel, @path, @ws)
-          @subscribe()
+          @onSuccess()
 
         console.log("[WS:]", @ws)
         console.log("[MAP:]", @map)
@@ -112,6 +110,10 @@ trackingServiceModule.controller("TrackingServiceController", [ "$document", "$s
           # Update all the markers on the map
           @map.updateMarkers(json.positions.features)
 
+    onSuccess: () ->
+      console.log "On-Success[Base]"
+
+      @subscribe()
 
     # Disconnect the web socket
     disconnect: ->
@@ -146,6 +148,20 @@ trackingServiceModule.controller("TrackingServiceController", [ "$document", "$s
         @subscription = "#{@courier}:#{@travel}"
         @subscribe0(@subscription)
 
+
+  class TrackingServiceControllerModelMock extends TrackingServiceControllerModel
+
+    constructor: (courier, travel, path) ->
+      super(courier, travel)
+      @path = path
+
+    onSuccess: () ->
+      super()
+
+      console.log "On-Success[Mock]"
+
+      @dispatchFakeCourier(@courier, @travel, @path, @ws)
+
     dispatchFakeCourier: (courier, travel, path, ws) ->
       dispatch =
         action: "dispatch",
@@ -158,13 +174,14 @@ trackingServiceModule.controller("TrackingServiceController", [ "$document", "$s
 
       console.log "Dispatched!"
 
+
   $scope.track = (courier, travel) ->
-    new TrackingServiceControllerModel(courier, travel, null)
+    new TrackingServiceControllerModel(courier, travel)
 
   $scope.fakeTrack = (courier, travel, poly) ->
     # FIXME: Abstract all geo- harness
     path = google.maps.geometry.encoding.decodePath(poly)
-    new TrackingServiceControllerModel(courier, travel, path)
+    new TrackingServiceControllerModelMock(courier, travel, path)
 
   return
 
